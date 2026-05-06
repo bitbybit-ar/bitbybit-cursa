@@ -1,0 +1,157 @@
+import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages, getTranslations, setRequestLocale } from "next-intl/server";
+import { Nunito, Nunito_Sans } from "next/font/google";
+import { routing } from "@/i18n/routing";
+import { alternatesFor } from "@/lib/seo";
+import { getBaseUrl } from "@/lib/env";
+import { cn } from "@/lib/utils";
+import { ThemeProvider } from "@/lib/contexts/theme-context";
+import { ToastProvider } from "@/components/ui/toast";
+import "@/styles/globals.scss";
+
+const nunito = Nunito({
+  subsets: ["latin"],
+  weight: ["700", "800"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const nunitoSans = Nunito_Sans({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-body",
+  display: "swap",
+});
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "metadata" });
+  const baseUrl = getBaseUrl();
+  const ogLocale = locale === "es" ? "es_AR" : "en_US";
+  const altLocale = locale === "es" ? "en_US" : "es_AR";
+
+  return {
+    metadataBase: new URL(baseUrl),
+    title: {
+      default: t("siteTitle"),
+      template: `%s · ${t("siteName")}`,
+    },
+    description: t("description"),
+    keywords: t("keywords").split(","),
+    authors: [{ name: "BitByBit", url: "https://github.com/bitbybit-ar" }],
+    creator: "BitByBit",
+    publisher: "BitByBit",
+    applicationName: t("siteName"),
+    category: "finance",
+    alternates: alternatesFor(locale, "/"),
+    openGraph: {
+      type: "website",
+      siteName: t("siteName"),
+      title: t("siteTitle"),
+      description: t("description"),
+      url: `${baseUrl}/${locale}`,
+      locale: ogLocale,
+      alternateLocale: altLocale,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: t("siteTitle"),
+      description: t("description"),
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+  };
+}
+
+export function generateStaticParams() {
+  return routing.locales.map((locale) => ({ locale }));
+}
+
+export default async function LocaleLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  setRequestLocale(locale);
+  const messages = await getMessages();
+  const t = await getTranslations({ locale, namespace: "metadata" });
+  const baseUrl = getBaseUrl();
+
+  const orgJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: "BitByBit Cursá",
+    alternateName: "Cursá",
+    url: baseUrl,
+    logo: `${baseUrl}/icons/icon.svg`,
+    description: t("description"),
+    foundingLocation: {
+      "@type": "Country",
+      name: "Argentina",
+    },
+    parentOrganization: {
+      "@type": "Organization",
+      name: "BitByBit",
+      url: "https://bitbybit.com.ar",
+      sameAs: ["https://github.com/bitbybit-ar"],
+    },
+    sameAs: ["https://github.com/bitbybit-ar/bitbybit-cursa"],
+  };
+
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: t("siteName"),
+    url: baseUrl,
+    inLanguage: routing.locales,
+  };
+
+  return (
+    <html
+      lang={locale}
+      className={cn(nunito.variable, nunitoSans.variable)}
+      suppressHydrationWarning
+    >
+      <head>
+        <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+      </head>
+      <body suppressHydrationWarning>
+        <NextIntlClientProvider messages={messages}>
+          <ThemeProvider>
+            <ToastProvider>
+              <a href="#main" className="skip-link">
+                {t("skipToContent")}
+              </a>
+              <main id="main">{children}</main>
+            </ToastProvider>
+          </ThemeProvider>
+        </NextIntlClientProvider>
+      </body>
+    </html>
+  );
+}

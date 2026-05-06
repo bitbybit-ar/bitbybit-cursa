@@ -1,0 +1,30 @@
+{
+  "name": "bitbybit-cursa",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "next": "^16.2.4",
+    "next-intl": "^4.9.1",
+    "next-themes": "^0.4.6",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "sass": "^1.98.0"
+  },
+  "devDependencies": {
+    "@next/eslint-plugin-next": "^16.2.4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@typescript-eslint/eslint-plugin": "^8.0.0",
+    "@typescript-eslint/parser": "^8.0.0",
+    "eslint": "^9",
+    "eslint-config-next": "^16.2.4",
+    "typescript": "^5.9.3"
+  }
+}

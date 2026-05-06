@@ -1,0 +1,41 @@
+// Display font — Nunito (headings, hero, brand)
+$font-family-display: var(--font-display), 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+
+// Body font — Nunito Sans (paragraphs, labels, UI text)
+$font-family-base: var(--font-body), 'Nunito Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+
+// Sizes
+$font-size-xs: 0.75rem;
+$font-size-sm: 0.85rem;
+$font-size-body: 0.95rem;
+$font-size-base: 1rem;
+$font-size-md: 1.1rem;
+$font-size-lg: 1.15rem;
+$font-size-lg-alt: 1.2rem;
+$font-size-xl: 1.5rem;
+$font-size-display: 2rem;
+$font-size-2xl: clamp(2.2rem, 5vw, 3.5rem);
+$font-size-hero: clamp(3rem, 8vw, 5.5rem);
+$font-size-subtitle: clamp(1.1rem, 3vw, 1.5rem);
+
+// Weights
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-extrabold: 800;
+
+// Letter spacing
+$letter-spacing-tight: -0.025em;
+$letter-spacing-heading: -0.015em;
+$letter-spacing-normal: 0em;
+$letter-spacing-wide: 0.03em;
+
+// Line heights
+$line-height-base: 1.65;
+$line-height-tight: 1.1;
+$line-height-heading: 1.2;
+
+// Aliases
+$font-display: $font-family-display;
+$font-body: $font-family-base;

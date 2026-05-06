@@ -1,0 +1,24 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/common-mixins" as *;
+
+.card {
+  @include ceramic-card;
+  padding: $spacing-24;
+}
+
+.variant-default {
+  // Base card styling above
+}
+
+.variant-hover {
+  @include ceramic-card-hover;
+}
+
+.variant-highlight {
+  border-color: alpha($color-primary, 30%);
+  box-shadow:
+    0 4px 20px alpha($color-primary, 10%),
+    inset 0 1px 0 $ceramic-highlight,
+    inset 0 -2px 4px $ceramic-inner-shadow;
+}

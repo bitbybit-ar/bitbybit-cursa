@@ -1,0 +1,157 @@
+@use "theme";
+@use "colors" as *;
+@use "spacing" as *;
+@use "typography" as *;
+// Reset
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: $font-body;
+  background-color: $color-bg;
+  color: $color-text-primary;
+  line-height: $line-height-base;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  padding-top: env(safe-area-inset-top);
+}
+
+// Prevent zoom on mobile inputs
+@media screen and (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+// Headings
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: $font-display;
+  letter-spacing: $letter-spacing-tight;
+  line-height: $line-height-heading;
+}
+
+// Links
+a {
+  color: $color-primary;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+// Focus — uses dedicated `--focus-ring` token (visible gray) so the ring
+// doesn't depend on whatever role $color-primary is currently bound to.
+*:focus-visible {
+  outline: 2px solid $focus-ring;
+  outline-offset: 2px;
+}
+
+// Skip link
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: $spacing-16;
+  padding: $spacing-8 $spacing-16;
+  background: $color-primary;
+  color: #fff;
+  border-radius: $border-radius-sm;
+  z-index: 10000;
+  font-weight: $font-weight-semibold;
+
+  &:focus {
+    top: $spacing-8;
+  }
+}
+
+// Scroll reveal animations
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+
+  &.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.scroll-reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+
+  @for $i from 1 through 8 {
+    &:nth-child(#{$i}) {
+      transition-delay: #{($i - 1) * 100}ms;
+    }
+  }
+}
+
+.scroll-reveal-stagger.visible > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-reveal-scale {
+  opacity: 0;
+  transform: scale(0.96);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+
+  &.visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal,
+  .scroll-reveal-stagger > *,
+  .scroll-reveal-scale {
+    opacity: 1;
+    transform: none;
+    transition: none;
+    animation-duration: 0.01ms !important;
+  }
+}
+
+// Scrollbar
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: alpha($color-text-secondary, 30%);
+  border-radius: 3px;
+
+  &:hover {
+    background: alpha($color-text-secondary, 50%);
+  }
+}

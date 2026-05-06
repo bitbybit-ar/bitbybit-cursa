@@ -1,0 +1,31 @@
+@use "@/styles/spacing" as *;
+@use "@/styles/media-mixins" as *;
+
+.container {
+  max-width: $container-max-width;
+  margin: 0 auto;
+  padding: $spacing-32 $container-padding;
+  padding-top: calc($navbar-height + #{$spacing-32});
+  padding-bottom: $spacing-40;
+  min-height: 100vh;
+  min-height: 100dvh;
+  position: relative;
+
+  @include mobile {
+    padding: $spacing-16 $container-padding-mobile;
+    padding-top: calc($navbar-height + #{$spacing-16});
+    padding-bottom: $spacing-32;
+  }
+}
+
+.center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

@@ -1,0 +1,244 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/common-mixins" as *;
+
+.button {
+  display: inline-block;
+  border: 2px solid transparent;
+  border-radius: $border-radius-md;
+  font-family: $font-family-base;
+  font-weight: $font-weight-bold;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
+
+  &:active:not(:disabled) {
+    transform: translateY(1px) scale(0.98);
+    transition-duration: 0.1s;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: 3px;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+.variant-primary {
+  @include ceramic-surface($color-primary, 28%);
+  color: $static-white;
+
+  &:hover:not(:disabled) {
+    box-shadow:
+      0 8px 24px alpha($color-primary, 35%),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active:not(:disabled) {
+    box-shadow:
+      0 2px 6px alpha($color-primary, 20%),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.3),
+      inset 0 2px 4px rgba(0, 0, 0, 0.22);
+  }
+}
+
+.variant-secondary {
+  @include ceramic-surface($color-secondary, 28%);
+  color: $static-white;
+
+  &:hover:not(:disabled) {
+    box-shadow:
+      0 8px 24px alpha($color-secondary, 35%),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active:not(:disabled) {
+    box-shadow:
+      0 2px 6px alpha($color-secondary, 20%),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.3),
+      inset 0 2px 4px rgba(0, 0, 0, 0.22);
+  }
+}
+
+// Nostr-themed CTA — purple ceramic surface tied to `$color-nostr`.
+// Used by Arena cards so the brand color matches the protocol the app
+// is built on (Nostr).
+.variant-nostr {
+  @include ceramic-surface($color-nostr, 28%);
+  color: $static-white;
+
+  &:hover:not(:disabled) {
+    box-shadow:
+      0 8px 24px alpha($color-nostr, 35%),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active:not(:disabled) {
+    box-shadow:
+      0 2px 6px alpha($color-nostr, 20%),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.3),
+      inset 0 2px 4px rgba(0, 0, 0, 0.22);
+  }
+}
+
+// Brand-accent CTA — yellow ceramic surface. The `secondary` variant
+// happens to share the same color today, but consumers should use
+// `accent` to declare intent ("this is the call-to-action") so the
+// roles can diverge later without a visual regression.
+.variant-accent {
+  @include ceramic-surface($color-secondary, 28%);
+  color: $gray-900;
+
+  &:hover:not(:disabled) {
+    box-shadow:
+      0 8px 24px alpha($color-secondary, 35%),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active:not(:disabled) {
+    box-shadow:
+      0 2px 6px alpha($color-secondary, 20%),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.3),
+      inset 0 2px 4px rgba(0, 0, 0, 0.22);
+  }
+}
+
+.variant-success {
+  @include ceramic-surface($color-accent-alt, 28%);
+  color: $static-white;
+
+  &:hover:not(:disabled) {
+    box-shadow:
+      0 8px 24px alpha($color-accent-alt, 35%),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active:not(:disabled) {
+    box-shadow:
+      0 2px 6px alpha($color-accent-alt, 20%),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.3),
+      inset 0 2px 4px rgba(0, 0, 0, 0.22);
+  }
+}
+
+.variant-danger {
+  @include ceramic-surface($color-accent, 28%);
+  color: $static-white;
+
+  &:hover:not(:disabled) {
+    box-shadow:
+      0 8px 24px alpha($color-accent, 35%),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  &:active:not(:disabled) {
+    box-shadow:
+      0 2px 6px alpha($color-accent, 20%),
+      inset 0 -1px 0 rgba(255, 255, 255, 0.3),
+      inset 0 2px 4px rgba(0, 0, 0, 0.22);
+  }
+}
+
+.variant-outline {
+  background: transparent;
+  border: 2px solid $color-primary;
+  color: $color-primary;
+
+  &:hover:not(:disabled) {
+    background: alpha($color-primary, 10%);
+  }
+}
+
+.variant-link {
+  background: transparent;
+  border: none;
+  color: $color-primary;
+  padding: 0;
+  text-decoration: none;
+
+  &:hover {
+    transform: none;
+  }
+
+  &:hover:not(:disabled) {
+    color: $color-primary;
+    opacity: 0.8;
+  }
+
+  &:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+.variant-ghost {
+  background-color: $color-surface;
+  background-image: linear-gradient(
+    180deg,
+    $ceramic-highlight-soft 0%,
+    transparent 60%
+  );
+  border: 1px solid $color-border;
+  color: $color-text-primary;
+  box-shadow:
+    0 4px 12px $card-shadow,
+    inset 0 1px 0 $ceramic-highlight,
+    inset 0 -2px 4px $ceramic-inner-shadow;
+
+  &:hover:not(:disabled) {
+    box-shadow:
+      0 8px 20px $card-shadow-hover,
+      inset 0 1px 0 $ceramic-highlight,
+      inset 0 -2px 4px $ceramic-inner-shadow;
+  }
+
+  &:active:not(:disabled) {
+    box-shadow:
+      0 2px 6px $card-shadow,
+      inset 0 -1px 0 $ceramic-highlight-soft,
+      inset 0 2px 4px $ceramic-inner-shadow;
+  }
+}
+
+.size-sm {
+  padding: $spacing-8 $spacing-16;
+  font-size: $font-size-sm;
+}
+
+.size-default {
+  padding: $spacing-12 $spacing-32;
+  font-size: $font-size-base;
+}
+
+.size-lg {
+  padding: $spacing-16 $spacing-40;
+  font-size: $font-size-md;
+}
+
+.fullWidth {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-8;
+}

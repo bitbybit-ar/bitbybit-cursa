@@ -1,0 +1,8 @@
+// Centralized z-index scale. Keep the set small and purposeful —
+// layout primitives only. Ad-hoc stacking context inside a component
+// (`z-index: 1`/`2`) is fine and shouldn't live here.
+$z-index-tooltip: 100;
+$z-index-modal: 1000;
+$z-index-navbar: 1000;
+$z-index-dropdown: 1001;
+$z-index-toast: 2000;

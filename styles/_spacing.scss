@@ -1,0 +1,31 @@
+$spacing-2: 2px;
+$spacing-3: 3px;
+$spacing-4: 4px;
+$spacing-8: 8px;
+$spacing-12: 12px;
+$spacing-16: 16px;
+$spacing-20: 20px;
+$spacing-24: 24px;
+$spacing-32: 32px;
+$spacing-40: 40px;
+$spacing-48: 48px;
+$spacing-64: 64px;
+$spacing-80: 80px;
+$spacing-100: 100px;
+
+$navbar-height: 60px;
+// Container shared by the Navbar, landing page and the in-app pages
+// — keeps every page centred against the same gutter so users don't
+// see the navbar shift relative to page content. 1200px holds the
+// 60/40 grid open on standard laptop displays without letting prose
+// stretch to uncomfortable line lengths on ultra-wide monitors.
+$container-max-width: 1200px;
+$container-padding: 24px;
+$container-padding-mobile: 16px;
+
+$border-radius-xs: 2px;
+$border-radius-sm: 8px;
+$border-radius-md: 12px;
+$border-radius-lg: 16px;
+$border-radius-xl: 20px;
+$border-radius-full: 100px;

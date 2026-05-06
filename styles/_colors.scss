@@ -1,0 +1,87 @@
+// Color aliases — map to CSS custom properties set by _theme.scss
+
+// — Semantic role tokens —
+$color-primary: var(--color-primary);
+$color-primary-hover: var(--color-primary-hover);
+$color-secondary: var(--color-secondary);
+$color-secondary-hover: var(--color-secondary-hover);
+$focus-ring: var(--focus-ring);
+
+// — Decorative accents (red/green — arena values, used by Block/Bubble) —
+$color-accent: var(--color-accent);
+$color-accent-alt: var(--color-accent-alt);
+
+// — Semantic feedback (independent of brand palette) —
+$color-success: var(--color-success);
+$color-warning: var(--color-warning);
+$color-error: var(--color-error);
+$color-info: var(--color-info);
+$color-nostr: var(--color-nostr);
+
+// — Backgrounds + surface —
+$color-bg: var(--color-bg);
+$color-bg-2: var(--color-bg-2);
+$color-bg-3: var(--color-bg-3);
+$color-surface: var(--color-surface);
+
+// — Text —
+$color-text-primary: var(--color-text-primary);
+$color-text-secondary: var(--color-text-secondary);
+
+// — Border —
+$color-border: var(--color-border);
+
+// — Gray scale (slate; chrome / text variants for tints + shades) —
+$gray-50:  var(--gray-50);
+$gray-100: var(--gray-100);
+$gray-200: var(--gray-200);
+$gray-300: var(--gray-300);
+$gray-400: var(--gray-400);
+$gray-500: var(--gray-500);
+$gray-600: var(--gray-600);
+$gray-700: var(--gray-700);
+$gray-800: var(--gray-800);
+$gray-900: var(--gray-900);
+
+// — Yellow scale (brand accent — secondary-500 is the canonical brand yellow) —
+$secondary-50:  var(--secondary-50);
+$secondary-100: var(--secondary-100);
+$secondary-200: var(--secondary-200);
+$secondary-300: var(--secondary-300);
+$secondary-400: var(--secondary-400);
+$secondary-500: var(--secondary-500);
+$secondary-600: var(--secondary-600);
+$secondary-700: var(--secondary-700);
+$secondary-800: var(--secondary-800);
+$secondary-900: var(--secondary-900);
+
+// — Card shadows —
+$card-shadow: var(--card-shadow);
+$card-shadow-hover: var(--card-shadow-hover);
+
+// — Ceramic surface tints (theme-aware) —
+$ceramic-highlight: var(--ceramic-highlight);
+$ceramic-highlight-soft: var(--ceramic-highlight-soft);
+$ceramic-inner-shadow: var(--ceramic-inner-shadow);
+
+// — Ceramic-surface mixin tints (gloss painted over saturated colors) —
+$ceramic-gloss-strong: var(--ceramic-gloss-strong);
+$ceramic-gloss-soft: var(--ceramic-gloss-soft);
+$ceramic-gloss-edge: var(--ceramic-gloss-edge);
+$ceramic-shadow-edge: var(--ceramic-shadow-edge);
+
+// — Bubble-surface mixin tints —
+$bubble-spec-top: var(--bubble-spec-top);
+$bubble-spec-dot: var(--bubble-spec-dot);
+$bubble-edge: var(--bubble-edge);
+$bubble-inner-glow: var(--bubble-inner-glow);
+
+// — Static colors (don't change with theme) —
+$static-white: #ffffff;
+$static-black: #000000;
+$static-navy: #0f0f1a;
+
+// Transparency helper — use instead of rgba() with CSS vars.
+@function alpha($color, $amount) {
+  @return color-mix(in srgb, $color $amount, transparent);
+}

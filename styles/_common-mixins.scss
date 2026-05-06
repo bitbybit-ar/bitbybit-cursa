@@ -1,0 +1,150 @@
+@use "./colors" as *;
+@use "./spacing" as *;
+@use "./typography" as *;
+@use "./media-mixins" as *;
+
+@mixin container {
+  max-width: $container-max-width;
+  margin: 0 auto;
+  padding: 0 $container-padding;
+
+  @include mobile {
+    padding: 0 $container-padding-mobile;
+  }
+}
+
+@mixin gradient-text {
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+// Light ceramic card surface — the neutral-tile companion to the
+// colored `ceramic-surface`. Uses the theme-aware `$ceramic-highlight*`
+// vars so light mode gets a white sheen on the warm-gray surface and
+// dark mode gets a cool blue-gray reflection on the navy surface.
+// Hover lift lives on the consumer so non-interactive cards can skip it.
+@mixin ceramic-card {
+  background-color: $color-surface;
+  background-image: linear-gradient(
+    180deg,
+    $ceramic-highlight-soft 0%,
+    transparent 60%
+  );
+  border: 1px solid $color-border;
+  border-radius: $border-radius-lg;
+  box-shadow:
+    0 4px 12px $card-shadow,
+    inset 0 1px 0 $ceramic-highlight,
+    inset 0 -2px 4px $ceramic-inner-shadow;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+// Hover treatment for interactive cards — preserves the theme-tinted
+// shadow glow the user wanted to keep while the base stays ceramic.
+@mixin ceramic-card-hover {
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 8px 24px $card-shadow-hover,
+      inset 0 1px 0 $ceramic-highlight,
+      inset 0 -2px 4px $ceramic-inner-shadow;
+  }
+}
+
+@mixin card-base {
+  @include ceramic-card;
+  @include ceramic-card-hover;
+}
+
+@mixin section-padding {
+  padding: $spacing-100 0;
+
+  @media (max-width: 768px) {
+    padding: 60px 0;
+  }
+}
+
+@mixin transition($property: all, $duration: 0.2s) {
+  transition: $property $duration ease;
+}
+
+// Ceramic tile surface — glossy opaque look with top highlight,
+// inner bottom shadow, diagonal light sweep and soft outer shadow.
+// Used by Block and solid Button variants.
+@mixin ceramic-surface($color, $shadow-strength: 25%) {
+  background-color: $color;
+  background-image: linear-gradient(
+    135deg,
+    $ceramic-gloss-strong 0%,
+    $ceramic-gloss-soft 35%,
+    transparent 55%
+  );
+  box-shadow:
+    0 4px 12px alpha($color, $shadow-strength),
+    inset 0 1px 0 $ceramic-gloss-edge,
+    inset 0 -2px 4px $ceramic-shadow-edge;
+}
+
+// Method-button layout used by the signer picker buttons and by the
+// sign-in page "Create identity" CTA. The shared Button `fullWidth`
+// centers its children, but these buttons show an icon + two-line
+// label, so we pin the content to the left and widen the gap.
+// Visuals (ceramic variant) come from the Button component.
+@mixin method-button-layout {
+  justify-content: flex-start;
+  text-align: left;
+  gap: $spacing-12;
+  padding: $spacing-12 $spacing-16;
+}
+
+// Inner text stack next to the icon inside a method-button: a bold
+// title and a muted description stacked vertically.
+@mixin method-button-stack {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+  min-width: 0;
+}
+
+@mixin method-button-title {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+@mixin method-button-subtitle {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-normal;
+  opacity: 0.85;
+}
+
+// Bubble surface — translucent sphere with off-center radial light,
+// specular highlight dot and soft iridescent halo. Distinct from ceramic.
+// The caller passes the base background (solid color or gradient) and must
+// set `--bubble-color` for the outer halo tint.
+@mixin bubble-surface($bg) {
+  background:
+    radial-gradient(
+      circle at 30% 28%,
+      $bubble-spec-top 0%,
+      transparent 45%
+    ),
+    $bg;
+  border: 1px solid $bubble-edge;
+  box-shadow:
+    inset 0 0 20px $bubble-inner-glow,
+    0 4px 20px alpha(var(--bubble-color), 15%);
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 12%;
+    left: 18%;
+    width: 28%;
+    height: 22%;
+    border-radius: 50%;
+    background: $bubble-spec-dot;
+    filter: blur(2px);
+    pointer-events: none;
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "metadata": {
+    "siteName": "BitByBit Cursá",
+    "siteTitle": "BitByBit Cursá — Pagás en sats, cobrás en pesos",
+    "description": "Checkout Lightning para educadores argentinos. Vendé clases y materiales pagando en sats, y cobrá en pesos a tu CBU.",
+    "keywords": "bitbybit,cursá,checkout lightning,bitcoin,sats,wapu,pagos,argentina,educación,clases,profesores,academias,la crypta",
+    "ogHeadline": "Pagás en sats, cobrás en pesos",
+    "ogTagline": "Checkout Lightning para escuelas, profesores particulares y academias en Argentina.",
+    "skipToContent": "Saltar al contenido"
+  },
+  "comingSoon": {
+    "tagline": "Cursá tu próxima clase con sats.",
+    "body": "Estamos construyendo el checkout Lightning para escuelas, profesores particulares y academias. Pronto disponible.",
+    "cta": "Seguinos en GitHub"
+  }
+}

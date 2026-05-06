@@ -1,0 +1,16 @@
+{
+  "metadata": {
+    "siteName": "BitByBit Cursá",
+    "siteTitle": "BitByBit Cursá — Pay in sats, settle in pesos",
+    "description": "Lightning checkout for Argentine educators. Sell classes and study material in sats, and receive pesos to your CBU.",
+    "keywords": "bitbybit,cursa,lightning checkout,bitcoin,sats,wapu,payments,argentina,education,classes,tutors,academies,la crypta",
+    "ogHeadline": "Pay in sats, settle in pesos",
+    "ogTagline": "Lightning checkout for schools, tutors, and academies in Argentina.",
+    "skipToContent": "Skip to content"
+  },
+  "comingSoon": {
+    "tagline": "Buy your next class with sats.",
+    "body": "We're building the Lightning checkout for schools, tutors, and academies. Coming soon.",
+    "cta": "Follow on GitHub"
+  }
+}
