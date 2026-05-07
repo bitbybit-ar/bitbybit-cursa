@@ -1,7 +1,7 @@
 # Contributing
 
 > **Status:** Active
-> **Last updated:** 2026-05-06
+> **Last updated:** 2026-05-07
 
 ---
 
@@ -9,6 +9,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-07 | Reporting a vulnerability | Replaced the dead `docs.wapu.app` URL with `wapu.app` for out-of-scope Wapu disclosures. | The previous URL 404s; Wapu has not published a formal docs site yet. The company landing is the right pointer for vulnerability disclosure until they publish a security contact. |
 | 2026-05-06 | Making changes, Reporting a vulnerability | Replaced email-delivery code paths and email-sender API key with Nostr signing/DM-delivery code paths and the deployment's Nostr signing key. Added a "Nostr signing keys are server-only" rule to "Making changes". | Reflects ADR 0006 — Cursá does not integrate with email; in-app receipts and Nostr DMs are the delivery channel. |
 | 2026-05-05 | — | Initial version. | Set the bar for contributions before the first external commit. Adapted from the `home` repo's CONTRIBUTING.md with payment-surface-specific changes. |
 
@@ -180,7 +181,7 @@ In scope:
 
 Out of scope:
 
-- Wapu's own service — report to <https://docs.wapu.app/>.
+- Wapu's own service — report to <https://wapu.app/>.
 - Forked deployments by other merchants — report to that merchant.
 - Findings against third-party services we link to.
 - Theoretical issues with no demonstrated impact.

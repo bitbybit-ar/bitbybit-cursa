@@ -1,7 +1,7 @@
 # Architecture overview
 
 > **Status:** Active
-> **Last updated:** 2026-05-06
+> **Last updated:** 2026-05-07
 
 ---
 
@@ -9,6 +9,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-07 | Stack | Replaced the dead `docs.wapu.app/api-docs/en` reference in the Wapu line with: (a) the actual API base URLs for production and staging, and (b) a pointer to the wapu-cli repo as the public source of the API contract until Wapu publishes formal docs. | The original URL 404s; the wapu-cli repo (github.com/wapu-app/wapu-cli) is currently the only public source of the API contract, and Wapu runs a staging environment at staging.wapu.app for fake-money testing. Future contributors should not waste time on the broken URL. |
 | 2026-05-06 | What this app is, Stack, Routing, Auto-renewal flow, Notifications & delivery, Merchant config, Security, What is intentionally not here, Table of Contents | Replaced the Routing section with a short pointer to `routing.md` (full route map now lives there). Rewrote the Merchant config section: `merchant.yaml` is removed; offerings + CBU/alias + autorenewal flag now live in Postgres and are edited from `/panel`; branding/copy/identity stay in code; `ADMIN_PUBKEYS` lives in env. Updated the auto-renewal flow paragraph: flag is a runtime panel toggle, code is dormant when off. Added Postgres + drizzle and Vercel Blob to the Stack list. Added the panel surface and admin-only API namespace to Security. Removed "no buyer accounts" and "no admin UI" from "What is intentionally not here" (they exist now per ADRs 0007 and 0008). Updated TOC. | ADRs 0007–0010 introduced Postgres, optional Nostr login, the merchant admin panel, offerings + settings in DB, and removed `merchant.yaml`. The overview was the most code-shaped doc in the repo and was lying about all of these. |
 | 2026-05-06 | Notifications & delivery, Payment flow, Auto-renewal flow, Security, Merchant config, What is intentionally not here, Table of Contents | Added the Notifications & delivery section. Removed email from the payment flow diagram, the auto-renewal flow diagram, the security section, the merchant config (`merchant.email` field dropped), and the intentionally-not-here list (added "no email"). Updated TOC. | The decision in ADR 0006 makes the delivery channel in-app receipt + optional Nostr DM. The overview was still describing an email-based model that no longer matches the architecture. |
 | 2026-05-06 | SEO surface, Theming, Table of Contents | Added the SEO surface section (per-locale metadata, Organization + WebSite JSON-LD, dynamic OG image, sitemap, robots, manifest) and the Theming section (next-themes wrapper, copied token system, Nunito + Nunito Sans via next/font). Documented the new `app/manifest.ts`, `app/robots.ts`, `app/sitemap.ts`, `app/[locale]/opengraph-image.tsx`, `lib/contexts/theme-context.tsx`, `lib/env.ts`, `lib/seo.ts`. | The initial scaffold landed those pieces; the overview must reflect what the code actually does so contributors don't have to reverse-engineer it. |
@@ -77,7 +78,15 @@ pesos to the merchant's CBU or alias.
 - **Vercel Blob** — image storage for offerings, written via
   `/api/admin/upload`.
 - **Wapu API** — Lightning invoice creation, ARS withdrawal,
-  payment status. See <https://docs.wapu.app/api-docs/en>.
+  payment status. Production base
+  `https://be-prod.wapu.app`; staging base
+  `https://staging.wapu.app` (fake-money testing). Auth header is
+  `X-API-Key`. The public source of the API contract is
+  <https://github.com/wapu-app/wapu-cli> until Wapu publishes
+  formal docs; the relevant endpoints are `POST
+  /wallet/deposit_lightning` (Lightning invoice), `GET
+  /transactions/{id}` (status), and `POST /transactions/create`
+  (ARS withdrawal as a `fiat_transfer`).
 - **Nostr** — server-side signing for outgoing DMs (`nostr-tools`
   + `@noble/secp256k1`); NIP-07 / nsec / NIP-46 client-side for
   buyer identity at checkout, buyer login (ADR

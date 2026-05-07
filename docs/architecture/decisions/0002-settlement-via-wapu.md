@@ -3,7 +3,7 @@
 - **Date**: 2026-05-05
 - **Status**: Accepted
 - **Deciders**: BitByBit team
-- **Last updated**: 2026-05-05
+- **Last updated**: 2026-05-07
 
 ---
 
@@ -11,6 +11,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-07 | References | Removed the dead `docs.wapu.app/api-docs/en` URL and added the production + staging API base URLs (`be-prod.wapu.app`, `staging.wapu.app`). The wapu-cli repo reference was already present; promoted it to the canonical source of the API contract while Wapu's formal docs site does not exist. Also captured the operational detail that Wapu settles ARS by **alias** (not raw CBU), which our `settings.alias` column should treat as the primary required field. | The reference list pointed at a 404 URL, and the wapu-cli source (which I read after the original ADR was written) reveals concrete operational facts — the alias-based payout in particular — that future readers should see without having to reread the CLI source. |
 | 2026-05-05 | — | Initial version. | Pin the settlement choice before scaffolding so the codebase does not grow a speculative abstraction. |
 
 ---
@@ -79,7 +80,14 @@ no `SETTLEMENT_PROVIDER=...` indirection.
 
 ## References
 
-- <https://docs.wapu.app/api-docs/en>
-- <https://github.com/wapu-app/wapu-cli>
+- API base URLs: <https://be-prod.wapu.app> (production),
+  <https://staging.wapu.app> (staging, fake-money testing).
+- API contract: <https://github.com/wapu-app/wapu-cli> — the only
+  public source until Wapu publishes formal docs. Auth via
+  `X-API-Key`; key issued by `POST /users/api-token`.
+- Relevant endpoints: `POST /wallet/deposit_lightning`
+  (Lightning invoice creation, `currency: "SAT"`), `GET
+  /transactions/{id}` (status), `POST /transactions/create`
+  (ARS withdrawal — settlement is by *alias*, not raw CBU).
 - ADR [0001](0001-record-architecture-decisions.md) — the ADR
   practice this record follows.
