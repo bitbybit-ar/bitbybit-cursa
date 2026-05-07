@@ -1,7 +1,7 @@
 # 0006. Use Nostr DMs and in-app receipts for delivery, not email
 
 - **Date**: 2026-05-06
-- **Status**: Accepted
+- **Status**: Accepted (extended by [0007](0007-optional-nostr-buyer-login.md))
 - **Deciders**: BitByBit team
 - **Last updated**: 2026-05-06
 
@@ -11,6 +11,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-06 | Decision, Consequences | Added a third DM trigger — logged-in Nostr buyers — alongside npub-at-checkout and NWC-derived pubkey. Cross-linked to ADR 0007. | ADR 0007 introduces optional Nostr login for buyers; DM delivery should fire automatically for logged-in sessions, so this doc must reflect that. |
 | 2026-05-06 | — | Initial version. | Pin the delivery channel before scaffolding any notification code so we don't accidentally pull in an email provider. |
 
 ---
@@ -61,6 +62,13 @@ pasting an npub. The DM contains the receipt URL.
 **Auto-renewal subscribers** automatically receive Nostr DMs for
 renewal confirmations and cancellation notices. Their pubkey
 comes from the NWC connection — no separate identity prompt.
+
+**Logged-in buyers** (ADR
+[0007](0007-optional-nostr-buyer-login.md)) automatically receive
+DMs for every order while a session is active — the session
+pubkey is the destination. They do not need to paste an
+identifier at checkout. This is the third DM trigger alongside
+npub-at-checkout (above) and NWC-derived pubkey (subscribers).
 
 **No email integration.** No email-sender provider, no email field
 at checkout, no inbox-deliverability concerns, no unsubscribe

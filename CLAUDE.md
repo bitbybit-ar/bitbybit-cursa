@@ -103,14 +103,37 @@ repo's copy is intentionally identical and should stay in sync.
 - **Settlement is Wapu-only in v1.** Do not introduce a settlement
   abstraction or a second rail. Decision pinned in ADR
   `docs/architecture/decisions/0002-settlement-via-wapu.md`.
-- **Catalog is config-driven.** Offerings come from `merchant.yaml`
-  (or equivalent), not from a database. No stock counts, no variants,
-  no inventory. Decision in ADR
+- **Catalog and runtime settings live in Postgres.** Offerings,
+  CBU/alias, and the autorenewal toggle are rows in Postgres
+  (drizzle), edited by the merchant from `/[locale]/panel/...`.
+  No stock counts, no variants, no inventory. Decision in ADR
+  `docs/architecture/decisions/0009-offerings-and-settings-in-database.md`,
+  superseding the catalog half of ADR
   `docs/architecture/decisions/0004-static-config-deployment.md`.
-- **Auto-renewal is opt-in per merchant.** When the
-  `features.autorenewal` flag is off, the NWC client, cron job, and
-  encrypted-secrets storage stay unwired. Decision in ADR
-  `docs/architecture/decisions/0005-prepaid-default-autorenewal-optin.md`.
+  The single-tenant deployment posture from ADR 0004 still
+  stands.
+- **No `merchant.yaml`.** There is no YAML configuration file in
+  the repo. Branding is in `styles/_theme.scss`, copy is in
+  `messages/{es,en}.json`, merchant identity is in
+  `lib/merchant.ts`, secrets and `ADMIN_PUBKEYS` are in env
+  vars, and operational state (offerings, settings) is in
+  Postgres. Decision in ADR
+  `docs/architecture/decisions/0010-no-yaml-config.md`.
+- **Auto-renewal is opt-in per merchant.** The flag lives in
+  `settings.features_autorenewal` (Postgres), toggled from the
+  panel. When off, the NWC client, cron handler, and
+  encrypted-secrets storage are *deployed but dormant* — gated
+  by a runtime check on the flag. Decision in ADR
+  `docs/architecture/decisions/0005-prepaid-default-autorenewal-optin.md`
+  (amended by ADR 0009).
+- **The panel is admin-only.** `/[locale]/panel/*` requires a
+  Nostr session whose pubkey is in the `ADMIN_PUBKEYS` env var.
+  Non-admins get 404, not 403. Mutations to orders/payments/
+  buyers are out of v1 scope (read-only); offerings get full
+  CRUD; settings updates that touch payment-destination fields
+  (CBU, alias) require a NIP-07 re-sign at save time. Decision
+  in ADR
+  `docs/architecture/decisions/0008-merchant-admin-dashboard.md`.
 - **No email integration.** Delivery is the in-app receipt page
   (`/[locale]/gracias/[orderId]`) plus optional Nostr DMs. Decision
   in ADR
@@ -147,9 +170,11 @@ repo's copy is intentionally identical and should stay in sync.
 
 ## Pointers
 
-- Stack and routing: `docs/architecture/overview.md`.
+- Stack and high-level architecture: `docs/architecture/overview.md`.
+- Full route map (buyer, account, panel, API): `docs/architecture/routing.md`.
 - Mission and product positioning: `docs/about/mission.md`.
 - Architecture decisions: `docs/architecture/decisions/`.
 - Doc template: `docs/_template.md`.
 - Project release log: root `CHANGELOG.md`.
 - Sister project (org landing): `~/Documents/projects/bitbybit/home/`.
+- Sister project (auth module to port): `~/Documents/projects/bitbybit/bitbybit-arena/`.

@@ -1,7 +1,7 @@
 # 0005. Pre-paid is always on; auto-renewal is opt-in per merchant
 
 - **Date**: 2026-05-05
-- **Status**: Accepted
+- **Status**: Accepted (autorenewal flag amended by [0009](0009-offerings-and-settings-in-database.md) — runtime panel toggle, not build-time config)
 - **Deciders**: BitByBit team
 - **Last updated**: 2026-05-06
 
@@ -11,6 +11,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-06 | Decision, Consequences | Autorenewal flag moves from a build-time `merchant.yaml` field to a runtime panel toggle stored in `settings.features_autorenewal` (Postgres). Reworded "stay unwired" to "stay dormant when the flag is false, gated by a runtime check": the NWC client, cron handler, and encrypted-secrets storage are now deployed in every build but only execute when the toggle is on. | ADR 0009 moves runtime settings into Postgres and ADR 0008 introduces a panel where the merchant can flip this flag at any time. A build-time flag cannot be flipped at runtime, so the code must always be present; the security posture changes from "absent" to "dormant", which has to be recorded. |
 | 2026-05-06 | Decision | Replaced "an email is sent" with "a Nostr DM is sent" for cancellation notices, consistent with ADR 0006. The auto-renewal payment model itself is unchanged. | The original phrasing assumed an email channel that ADR 0006 explicitly rules out. NWC subscribers' pubkey is already known, so DMs are the natural push channel. |
 | 2026-05-05 | — | Initial version. | Pin the payment model before scaffolding so the auto-renewal code path can be cleanly gated from day one. |
 
@@ -43,12 +44,15 @@ Cursá ships **two payment flows**, with a per-merchant opt-in:
 - **Pre-paid one-shot** is always on. Every offering can be sold
   as a single Lightning invoice. This works for every Lightning
   wallet that exists today.
-- **NWC auto-renewal** is opt-in via a single merchant config
-  flag, `features.autorenewal`. When `false`, the NWC client, the
-  Vercel Cron schedule, and the encrypted-secrets storage stay
-  unwired in the deployment. When `true`, every offering exposes
-  a second "Autorenovar" button alongside "Comprar," and a daily
-  cron job runs the renewal pulls.
+- **NWC auto-renewal** is opt-in via a single runtime flag,
+  `settings.features_autorenewal`, edited by the merchant from
+  `/[locale]/panel/configuracion`. When `false`, the NWC client,
+  the cron handler, and the encrypted-secrets storage are
+  *deployed but dormant* — the code is present in every build,
+  gated by a runtime check on the flag. When `true`, every
+  offering exposes a second "Autorenovar" button alongside
+  "Comprar," and the daily cron pull executes. Flipping the
+  toggle takes effect immediately; no redeploy.
 
 There is no buyer-side wallet detection. If a buyer's wallet
 cannot complete the NWC connection, the auto-renewal flow simply
@@ -73,8 +77,12 @@ pubkey is already known via the NWC connection — see ADR
   pre-paid is the renewal flow that works in production today;
   NWC is the differentiator stretch.
 - The opt-in flag means the cron, NWC client, and secret-store
-  code paths are dead in deployments that don't need them —
-  smaller attack surface, less to debug.
+  code paths are inert in deployments that don't need them. With
+  the flag now a runtime toggle (ADR 0009), the code is deployed
+  but never executes when the flag is off — slightly larger
+  attack surface than the original "fully unwired" posture, but
+  the trade is necessary so the merchant can enable autorenewal
+  later without a redeploy.
 
 ### Negative
 

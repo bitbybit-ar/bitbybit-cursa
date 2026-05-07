@@ -9,6 +9,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-06 | What this app is, Stack, Routing, Auto-renewal flow, Notifications & delivery, Merchant config, Security, What is intentionally not here, Table of Contents | Replaced the Routing section with a short pointer to `routing.md` (full route map now lives there). Rewrote the Merchant config section: `merchant.yaml` is removed; offerings + CBU/alias + autorenewal flag now live in Postgres and are edited from `/panel`; branding/copy/identity stay in code; `ADMIN_PUBKEYS` lives in env. Updated the auto-renewal flow paragraph: flag is a runtime panel toggle, code is dormant when off. Added Postgres + drizzle and Vercel Blob to the Stack list. Added the panel surface and admin-only API namespace to Security. Removed "no buyer accounts" and "no admin UI" from "What is intentionally not here" (they exist now per ADRs 0007 and 0008). Updated TOC. | ADRs 0007–0010 introduced Postgres, optional Nostr login, the merchant admin panel, offerings + settings in DB, and removed `merchant.yaml`. The overview was the most code-shaped doc in the repo and was lying about all of these. |
 | 2026-05-06 | Notifications & delivery, Payment flow, Auto-renewal flow, Security, Merchant config, What is intentionally not here, Table of Contents | Added the Notifications & delivery section. Removed email from the payment flow diagram, the auto-renewal flow diagram, the security section, the merchant config (`merchant.email` field dropped), and the intentionally-not-here list (added "no email"). Updated TOC. | The decision in ADR 0006 makes the delivery channel in-app receipt + optional Nostr DM. The overview was still describing an email-based model that no longer matches the architecture. |
 | 2026-05-06 | SEO surface, Theming, Table of Contents | Added the SEO surface section (per-locale metadata, Organization + WebSite JSON-LD, dynamic OG image, sitemap, robots, manifest) and the Theming section (next-themes wrapper, copied token system, Nunito + Nunito Sans via next/font). Documented the new `app/manifest.ts`, `app/robots.ts`, `app/sitemap.ts`, `app/[locale]/opengraph-image.tsx`, `lib/contexts/theme-context.tsx`, `lib/env.ts`, `lib/seo.ts`. | The initial scaffold landed those pieces; the overview must reflect what the code actually does so contributors don't have to reverse-engineer it. |
 | 2026-05-05 | — | Initial version. | Document the v0 architecture before any code lands so the scaffold has a reference shape to follow. |
@@ -20,15 +21,17 @@
 1. [What this app is](#what-this-app-is)
 2. [Stack](#stack)
 3. [Routing](#routing)
-4. [SEO surface](#seo-surface)
-5. [Theming](#theming)
-6. [Product primitives](#product-primitives)
-7. [Payment flow](#payment-flow)
-8. [Auto-renewal flow (optional)](#auto-renewal-flow-optional)
-9. [Notifications & delivery](#notifications--delivery)
-10. [Merchant config](#merchant-config)
-11. [Security](#security)
-12. [What is intentionally not here](#what-is-intentionally-not-here)
+4. [Identity model](#identity-model)
+5. [Merchant admin panel](#merchant-admin-panel)
+6. [SEO surface](#seo-surface)
+7. [Theming](#theming)
+8. [Product primitives](#product-primitives)
+9. [Payment flow](#payment-flow)
+10. [Auto-renewal flow (optional)](#auto-renewal-flow-optional)
+11. [Notifications & delivery](#notifications--delivery)
+12. [Configuration model](#configuration-model)
+13. [Security](#security)
+14. [What is intentionally not here](#what-is-intentionally-not-here)
 
 ---
 
@@ -39,12 +42,20 @@ deployment serves one educator: their catalog, their branding,
 their checkout, their CBU. The repo is intended to be forked or
 templated.
 
+A developer forks the repo, sets the brand and copy, and deploys
+it. From then on, the merchant runs everything — offerings,
+payments, settings, students — from a dashboard at
+`/[locale]/panel`. No more file edits.
+
 A buyer visits `cursa.bitbybit.com.ar` (the demo) or
 `tienda.<merchant-domain>` (a forked deployment), browses
 offerings, clicks one, gets a Lightning invoice, pays it, and
 lands on a permanent receipt page that shows their redemption code
-or download link. If they connected a Nostr identity at checkout,
-an encrypted DM with the same content lands in their Nostr client.
+or download link. If they connected a Nostr identity at checkout
+(or signed in with one), an encrypted DM with the same content
+lands in their Nostr client. Buyers may optionally sign in with
+Nostr to see their full order history at `/[locale]/mis-compras`;
+purchase never requires it.
 
 Wapu sits between the Lightning invoice and the merchant's bank.
 It accepts the sats, converts to ARS at market rate, and pushes
@@ -52,36 +63,105 @@ pesos to the merchant's CBU or alias.
 
 ## Stack
 
-- **Next.js 16** (App Router) — hybrid: static for catalog pages,
-  server for `/api/checkout` and `/api/wapu/webhook`.
+- **Next.js 16** (App Router) — server-rendered for any route
+  that touches Postgres or secrets; static where possible.
 - **next-intl** — Spanish (default) and English; locale routed via
   `app/[locale]/...`.
 - **next-themes** — Light/dark mode.
 - **SCSS modules** — per-component styles. Tokens in
   `styles/_theme.scss`.
+- **Postgres + drizzle-orm** — orders, sessions, offerings,
+  settings, audit log. Stack matches bitbybit-arena. Schema and
+  rationale in ADR
+  [0009](decisions/0009-offerings-and-settings-in-database.md).
+- **Vercel Blob** — image storage for offerings, written via
+  `/api/admin/upload`.
 - **Wapu API** — Lightning invoice creation, ARS withdrawal,
   payment status. See <https://docs.wapu.app/api-docs/en>.
-- **Nostr** — server-side signing for outgoing DMs (likely via
-  `nostr-tools` and `@noble/secp256k1`); NIP-07 client-side for
-  buyer identity at checkout.
+- **Nostr** — server-side signing for outgoing DMs (`nostr-tools`
+  + `@noble/secp256k1`); NIP-07 / nsec / NIP-46 client-side for
+  buyer identity at checkout, buyer login (ADR
+  [0007](decisions/0007-optional-nostr-buyer-login.md)), and
+  admin login + per-mutation re-sign on the panel (ADR
+  [0008](decisions/0008-merchant-admin-dashboard.md)).
+- **`jose`** — signs the session JWT held in an httpOnly cookie.
 - **Vercel** — Hobby plan plus Vercel Cron when auto-renewal is on.
 
 ## Routing
 
+The full route map — buyer flow, account, subscriber,
+static, panel, API — lives in
+[`routing.md`](routing.md). A short summary:
+
 ```text
 /                                → 307 redirect to /es
-/es                              → catalog
-/en                              → catalog
-/[locale]/o/[slug]               → offering detail + buy button
+/[locale]                        → landing + catalog
+/[locale]/c/[slug]               → offering detail + buy button
 /[locale]/checkout/[invoiceId]   → invoice + QR + status poll
-/[locale]/gracias/[orderId]      → permanent receipt page (the
-                                    canonical delivery channel)
-/api/checkout                    → POST: creates Wapu invoice
-/api/wapu/webhook                → POST: receives Wapu payment events
-/api/cron/renew                  → GET: triggered by Vercel Cron when
-                                    features.autorenewal is on
-/sitemap.xml, /robots.txt, /manifest.webmanifest
+/[locale]/gracias/[orderId]      → permanent receipt page
+
+/[locale]/iniciar-sesion         → Nostr sign-in (optional)
+/[locale]/mis-compras            → buyer order history (logged in)
+
+/[locale]/panel/...              → merchant admin (gated by
+                                    ADMIN_PUBKEYS env)
+
+/api/wapu/webhook                → Wapu payment events
+/api/auth/*                      → Nostr session
+/api/admin/*                     → admin-scoped CRUD
+/api/cron/renew                  → daily renewal pulls (when
+                                    features_autorenewal is on)
 ```
+
+See [`routing.md`](routing.md) for the rest, conventions, and
+the rationale for each slug.
+
+## Identity model
+
+Three buyer identity tiers (ADR
+[0007](decisions/0007-optional-nostr-buyer-login.md)):
+
+1. **Anonymous.** Pay, land on `/gracias/[orderId]`, get the
+   code, walk away. The opaque URL is the only access key.
+2. **Anonymous with Nostr identifier.** Buyer pastes an
+   `npub1...` or NIP-05 (`name@domain.com`) at checkout; the
+   server resolves NIP-05 via `/api/nip05/resolve` and sends an
+   encrypted DM with the receipt URL. No session.
+3. **Logged-in via Nostr.** NIP-07 / nsec / NIP-46 sign-in
+   issues a `jose` JWT in an httpOnly cookie. Orders link to the
+   session pubkey; `/[locale]/mis-compras` lists them; DMs are
+   automatic.
+
+Auto-renewal subscribers get tier 3 implicitly — the NWC
+connection already exposes their pubkey.
+
+Admins are a separate concept layered on top of tier 3: a
+session pubkey listed in the `ADMIN_PUBKEYS` env var unlocks the
+panel. See [Merchant admin panel](#merchant-admin-panel).
+
+## Merchant admin panel
+
+`/[locale]/panel/*` is the merchant's surface for managing the
+business. Decision pinned in ADR
+[0008](decisions/0008-merchant-admin-dashboard.md).
+
+- **Auth.** Nostr session (same module as buyer login); the
+  pubkey must be present in `ADMIN_PUBKEYS` (env, comma-
+  separated). Non-admins receive 404, not 403 — the surface is
+  not advertised.
+- **Read-only in v1**: orders, payments, buyers. Filter, search,
+  sort, paginate, CSV export are all read-side and available.
+  Refunds, resends, and DM-from-the-UI are deferred to v1.1.
+- **Write in v1**: offerings (full CRUD), settings (CBU, alias,
+  autorenewal toggle). Mutations to payment-destination fields
+  (CBU, alias) require a NIP-07 re-sign at save time, so a
+  stolen session cookie cannot quietly redirect future
+  settlement.
+- **Audit log.** Every mutation writes a row to
+  `admin_audit_log`. The settings page surfaces recent entries.
+
+Routes inventory and request shapes live in
+[`routing.md`](routing.md).
 
 ## SEO surface
 
@@ -173,9 +253,15 @@ out from the deployment's npub.
 
 ## Auto-renewal flow (optional)
 
-Only wired in when `features.autorenewal: true` in the merchant
-config. When the flag is off, the cron schedule, the NWC client,
-and the encrypted-secrets storage stay unwired in the deployment.
+Gated by `settings.features_autorenewal` (Postgres), toggled by
+the merchant from `/[locale]/panel/configuracion`. The NWC
+client, the cron handler, and the encrypted-secrets storage are
+*deployed but dormant* when the flag is off — the code is
+present in every build, gated by a runtime check on the flag.
+Flipping the toggle takes effect immediately; no redeploy.
+Decision in ADR
+[0005](decisions/0005-prepaid-default-autorenewal-optin.md)
+(amended by ADR 0009).
 
 ```text
 Cron (daily)     Cursá app           NWC connection         Wapu
@@ -248,47 +334,37 @@ client. A new key just means a new npub for outgoing DMs;
 buyers read by their own pubkey, not by Cursá's identity, so
 key rotation is bounded.
 
-## Merchant config
+## Configuration model
 
-Single YAML file, committed to the repo:
+There is no YAML configuration file. Each piece of state has
+exactly one editor and exactly one editing surface. Decision in
+ADR [0010](decisions/0010-no-yaml-config.md), with the storage
+shape in ADR [0009](decisions/0009-offerings-and-settings-in-database.md).
 
-```yaml
-merchant:
-  name: "Tecla Ciudad Jardín"
-  cbu: "..."         # or alias
-  domain: "..."
+| Layer | Edited by | Lives in |
+|---|---|---|
+| Branding tokens | the developer who forks | `styles/_theme.scss` |
+| Page copy, FAQ, terms | the developer who forks | `messages/{es,en}.json` |
+| Merchant identity, social links | the developer who forks | `lib/merchant.ts` |
+| Secrets (Wapu key, NSEC, DB URL) | the deployer | env vars |
+| Admin authorisation | the deployer | env var `ADMIN_PUBKEYS` (comma-separated) |
+| Offerings (catalog) | the merchant | Postgres `offerings`, panel `/ofertas` |
+| CBU, alias, autorenewal toggle | the merchant | Postgres `settings`, panel `/configuracion` |
+| Orders, sessions, students | nobody | Postgres, system-managed |
 
-features:
-  autorenewal: false  # opt-in; when off, NWC, cron, and
-                      # secret store stay unwired
-
-theme:
-  primary: "#..."
-  logo: "/logo.svg"
-
-catalog:
-  - slug: "bono-4-clases"
-    type: "code"
-    title: "Bono 4 clases"
-    price_ars: 28000
-    description: "Cuatro clases de piano, válidas por 30 días."
-  - slug: "metodo-czerny"
-    type: "download"
-    title: "Czerny op. 599 (PDF)"
-    price_ars: 4500
-    asset: "private/czerny.pdf"
-```
-
-A future evolution may move this into a small admin UI or a
-database; v1 is deliberately a flat file. See ADR
-[0004-static-config-deployment](decisions/0004-static-config-deployment.md).
+First-run experience: deploy with empty DB → log into `/panel`
+(as a pubkey listed in `ADMIN_PUBKEYS`) → set CBU/alias and add
+the first offering. Buyers cannot complete a purchase until
+CBU/alias is filled; the panel shows a "complete setup" banner
+to nudge.
 
 ## Security
 
 - HTTPS via Vercel, HSTS preload set.
-- Wapu API key, NWC encryption key, and the deployment's Nostr
-  signing key (`NOSTR_NSEC`) live in Vercel environment
-  variables. Never reach the client.
+- Wapu API key, NWC encryption key, the deployment's Nostr
+  signing key (`NOSTR_NSEC`), the session JWT signing key, the
+  Postgres connection string, and the `ADMIN_PUBKEYS` list all
+  live in Vercel environment variables. Never reach the client.
 - Wapu webhook signature is verified before any state mutation.
 - NWC connection strings are encrypted at rest with a
   per-deployment key. Loss of that key means subscriptions are
@@ -301,6 +377,19 @@ database; v1 is deliberately a flat file. See ADR
 - Outgoing Nostr DMs are NIP-44 encrypted to the buyer's pubkey.
   Relay delivery is best-effort; the in-app receipt page is the
   canonical record.
+- The buyer session is a `jose`-signed JWT held in an httpOnly,
+  Secure, SameSite=Lax cookie. It carries the pubkey and an
+  expiry; never a private key.
+- The `/panel/*` middleware checks the session pubkey against
+  `ADMIN_PUBKEYS` before rendering. Non-admins see 404. The
+  admin API namespace `/api/admin/*` enforces the same check on
+  every request, not just at page load.
+- Updates to payment-destination fields (CBU, alias) require a
+  NIP-07 re-sign at save time. A stolen session cookie alone
+  cannot redirect future settlement to an attacker's bank.
+- Every panel mutation writes a row to `admin_audit_log` —
+  timestamp, actor pubkey, route, action, payload diff (secrets
+  redacted). Read-only forever; there is no UI to delete rows.
 - All external links use `target="_blank" rel="noopener noreferrer"`.
 - CSP set in `next.config.ts` headers — `default-src 'self'`,
   scripts from self, images from `https:` and `data:`. Fonts
@@ -312,12 +401,26 @@ database; v1 is deliberately a flat file. See ADR
 
 - No email integration. No email-sender provider, no email field
   at checkout, no inbox-deliverability concerns.
-- No buyer accounts, no login. The receipt URL is the identity.
-- No multi-tenant. One deployment per merchant.
+- No *required* buyer accounts. Anonymous purchase is always
+  available; the opaque receipt URL is enough to walk away with
+  the redemption code. Optional Nostr login adds history and
+  reliable DM push (ADR
+  [0007](decisions/0007-optional-nostr-buyer-login.md)).
+- No multi-tenant. One deployment per merchant. Per-deployment
+  Postgres, per-deployment env, per-deployment admin list.
+- No merchant signup or onboarding flow on the deployed site.
+  Each merchant forks the repo. Onboarding is in the README and
+  the deployer's terminal.
+- No CMS for landing content, page titles, branding, or copy.
+  Those are code (SCSS, next-intl JSON, TS modules) — the panel
+  only owns offerings and operational settings.
 - No scheduling/calendar. Codes are redeemed in person; the
   merchant's existing booking process is unchanged.
 - No stock counts. Codes and downloads are infinite.
-- No refunds UI. Manual on the merchant's side is fine for v1.
+- No refunds, resends, or DM-from-the-UI in v1. Read-only over
+  orders/buyers (ADR
+  [0008](decisions/0008-merchant-admin-dashboard.md)). Deferred
+  to v1.1.
 - No buyer-side wallet detection.
 - No second settlement rail. Wapu only.
 
