@@ -92,6 +92,37 @@
     "back": "Back",
     "closeDialog": "Close"
   },
+  "account": {
+    "metadataTitle": "My orders",
+    "title": "My orders",
+    "subtitle": "Orders associated with this Nostr identity.",
+    "signOut": "Sign out",
+    "empty": "No orders on this identity yet.",
+    "browseCatalog": "Browse the catalog",
+    "unknownOffering": "Unknown offering"
+  },
+  "orderStatus": {
+    "pending": "Pending",
+    "paid": "Paid",
+    "failed": "Failed",
+    "refunded": "Refunded"
+  },
+  "claim": {
+    "metadataTitle": "Claim order",
+    "title": "Claim this order",
+    "subtitle": "Attach this purchase to your Nostr identity so it shows up under \"My orders\".",
+    "offering": "Offering",
+    "orderId": "Order ID",
+    "unknownOffering": "Unknown offering",
+    "claim": "Claim order",
+    "claiming": "Claiming…",
+    "notFound": "We couldn't find that order.",
+    "alreadyClaimed": {
+      "title": "This order is already claimed",
+      "body": "Another identity already attached this purchase. If you think this is a mistake, contact us.",
+      "toast": "Another identity already claimed this order."
+    }
+  },
   "login": {
     "metadataTitle": "Sign in",
     "title": "Sign in with Nostr",

@@ -12,6 +12,35 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `/[locale]/mis-compras` — order history for the logged-in
+  buyer. Server-rendered list of `listOrdersByPubkey(session.
+  pubkey)` results, each row linking back to
+  `/[locale]/gracias/[orderId]`. Includes a sign-out button
+  (new `<SignOutButton>` client component). Empty state links
+  back to the catalog. Bounces anonymous visitors to
+  `/iniciar-sesion?next=/mis-compras`.
+- `/[locale]/reclamar/[orderId]` — claim an anonymous order for
+  the current buyer's pubkey. Server-rendered, validates the
+  orderId UUID, and bounces anonymous visitors through sign-in.
+  Already-yours orders go straight to the receipt; orders held
+  by a different pubkey render a dedicated conflict state. The
+  claim CTA itself is a small client component that POSTs to
+  the new claim endpoint.
+- `/api/orders/[orderId]/claim` — POST endpoint that attaches an
+  anonymous order to the current session's pubkey. Returns 401
+  (no session), 400 (invalid uuid), 404 (no order), 409 (already
+  claimed by a different pubkey), or 200 with
+  `{ status: "claimed" | "already_yours", order_id }`. The
+  session pubkey always wins; we never trust a pubkey from the
+  request body.
+- `lib/orders.ts:claimOrderForBuyer` helper — discriminated
+  result (`claimed` / `already_yours` / `already_claimed` /
+  `not_found`). Idempotent on `already_yours` so a buyer who
+  clicks twice gets a benign success rather than a confusing
+  conflict. Covered by four new integration tests in
+  `tests/integration/lib/orders.test.ts`.
+- i18n: new `account`, `orderStatus`, and `claim` namespaces in
+  both `messages/es.json` and `messages/en.json`.
 - Sign-in page at `/[locale]/iniciar-sesion`. Buyers can connect a
   Nostr identity via NIP-07 browser extension (Alby, nos2x) or by
   pasting an nsec; NIP-46 (Nostr Connect) is intentionally

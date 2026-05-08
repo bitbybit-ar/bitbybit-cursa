@@ -8,6 +8,7 @@ import {
   markOrderPaid,
   getOrder,
   listOrdersByPubkey,
+  claimOrderForBuyer,
 } from "@/lib/orders";
 
 beforeAll(async () => {
@@ -186,5 +187,63 @@ describe("orders/listOrdersByPubkey", () => {
     await createOrder({ offering_id: offering.id, pubkey: "b".repeat(64) });
     const list = await listOrdersByPubkey(HEX_PUBKEY);
     expect(list.length).toBe(0);
+  });
+});
+
+describe("orders/claimOrderForBuyer", () => {
+  const OTHER_PUBKEY = "b".repeat(64);
+
+  it("attaches an anonymous order to the buyer pubkey", async () => {
+    const offering = await seedOffering();
+    const { order_id } = await createOrder({
+      offering_id: offering.id,
+      pubkey: null,
+    });
+    const result = await claimOrderForBuyer({
+      order_id,
+      pubkey: HEX_PUBKEY,
+    });
+    expect(result.status).toBe("claimed");
+    if (result.status === "claimed") {
+      expect(result.order.pubkey).toBe(HEX_PUBKEY);
+    }
+    const reread = await getOrder(order_id);
+    expect(reread?.pubkey).toBe(HEX_PUBKEY);
+  });
+
+  it("is idempotent when the order already belongs to the same buyer", async () => {
+    const offering = await seedOffering();
+    const { order_id } = await createOrder({
+      offering_id: offering.id,
+      pubkey: HEX_PUBKEY,
+    });
+    const result = await claimOrderForBuyer({
+      order_id,
+      pubkey: HEX_PUBKEY,
+    });
+    expect(result.status).toBe("already_yours");
+  });
+
+  it("refuses to overwrite an order that belongs to a different pubkey", async () => {
+    const offering = await seedOffering();
+    const { order_id } = await createOrder({
+      offering_id: offering.id,
+      pubkey: OTHER_PUBKEY,
+    });
+    const result = await claimOrderForBuyer({
+      order_id,
+      pubkey: HEX_PUBKEY,
+    });
+    expect(result.status).toBe("already_claimed");
+    const reread = await getOrder(order_id);
+    expect(reread?.pubkey).toBe(OTHER_PUBKEY);
+  });
+
+  it("returns not_found for an unknown order id", async () => {
+    const result = await claimOrderForBuyer({
+      order_id: "00000000-0000-0000-0000-000000000000",
+      pubkey: HEX_PUBKEY,
+    });
+    expect(result.status).toBe("not_found");
   });
 });

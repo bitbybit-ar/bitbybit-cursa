@@ -141,3 +141,48 @@ export async function listOrdersByPubkey(
     .orderBy(desc(orders.created_at))
     .limit(limit);
 }
+
+export type ClaimOrderResult =
+  | { status: "claimed"; order: typeof orders.$inferSelect }
+  | { status: "already_yours"; order: typeof orders.$inferSelect }
+  | { status: "already_claimed" }
+  | { status: "not_found" };
+
+/**
+ * Attach an anonymous order to a logged-in buyer's pubkey. Used by
+ * `/api/orders/[orderId]/claim` (called from `/[locale]/reclamar/
+ * [orderId]`). The opaque orderId from the receipt URL is the
+ * access key; if the buyer can name it, they own it. Decision in
+ * ADR 0007.
+ *
+ * Idempotent on `already_yours` so a buyer who clicks "claim"
+ * twice gets a benign success rather than a confusing error.
+ * `already_claimed` (the order belongs to a *different* pubkey) is
+ * the conflict case the route handler maps to a 409.
+ */
+export async function claimOrderForBuyer(opts: {
+  order_id: string;
+  pubkey: string;
+}): Promise<ClaimOrderResult> {
+  const db = getDb();
+  const [existing] = await db
+    .select()
+    .from(orders)
+    .where(eq(orders.id, opts.order_id))
+    .limit(1);
+
+  if (!existing) return { status: "not_found" };
+  if (existing.pubkey === opts.pubkey) {
+    return { status: "already_yours", order: existing };
+  }
+  if (existing.pubkey !== null) {
+    return { status: "already_claimed" };
+  }
+
+  const [updated] = await db
+    .update(orders)
+    .set({ pubkey: opts.pubkey, updated_at: new Date() })
+    .where(eq(orders.id, opts.order_id))
+    .returning();
+  return { status: "claimed", order: updated };
+}

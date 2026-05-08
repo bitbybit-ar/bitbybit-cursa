@@ -1,0 +1,58 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-20;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: $spacing-32;
+}
+
+.title {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+  line-height: $line-height-tight;
+  text-align: center;
+}
+
+.subtitle {
+  margin: 0;
+  color: $color-text-secondary;
+  line-height: $line-height-base;
+  text-align: center;
+}
+
+.summary {
+  margin: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: $spacing-8 $spacing-16;
+  padding: $spacing-16;
+  background: $color-bg-2;
+  border-radius: $border-radius-md;
+  font-size: $font-size-sm;
+
+  dt {
+    color: $color-text-secondary;
+    font-weight: $font-weight-semibold;
+  }
+
+  dd {
+    margin: 0;
+    color: $color-text-primary;
+    word-break: break-all;
+  }
+}
+
+.orderId {
+  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+  font-size: $font-size-xs;
+}

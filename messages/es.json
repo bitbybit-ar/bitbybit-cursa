@@ -92,6 +92,37 @@
     "back": "Atrás",
     "closeDialog": "Cerrar"
   },
+  "account": {
+    "metadataTitle": "Mis compras",
+    "title": "Mis compras",
+    "subtitle": "Tus pedidos asociados a esta identidad Nostr.",
+    "signOut": "Cerrar sesión",
+    "empty": "Todavía no tenés compras en esta identidad.",
+    "browseCatalog": "Ver el catálogo",
+    "unknownOffering": "Oferta desconocida"
+  },
+  "orderStatus": {
+    "pending": "Pendiente",
+    "paid": "Pagado",
+    "failed": "Fallido",
+    "refunded": "Reembolsado"
+  },
+  "claim": {
+    "metadataTitle": "Reclamar pedido",
+    "title": "Reclamar este pedido",
+    "subtitle": "Asociá esta compra a tu identidad Nostr para verla en \"Mis compras\".",
+    "offering": "Oferta",
+    "orderId": "ID del pedido",
+    "unknownOffering": "Oferta desconocida",
+    "claim": "Reclamar pedido",
+    "claiming": "Reclamando…",
+    "notFound": "No encontramos ese pedido.",
+    "alreadyClaimed": {
+      "title": "Este pedido ya está reclamado",
+      "body": "Otra identidad ya asoció esta compra. Si creés que es un error, contactanos.",
+      "toast": "Otra identidad ya reclamó este pedido."
+    }
+  },
   "login": {
     "metadataTitle": "Iniciar sesión",
     "title": "Iniciá sesión con Nostr",
