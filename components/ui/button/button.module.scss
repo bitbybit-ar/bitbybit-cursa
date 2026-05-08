@@ -60,7 +60,11 @@
 
 .variant-secondary {
   @include ceramic-surface($color-secondary, 28%);
-  color: $static-white;
+  // Dark text on lime — white on #A5CE3A is ~2.5:1 (fails AA). Use
+  // the static-navy token rather than $gray-900 because the gray
+  // scale flips in dark mode (gray-900 becomes near-white), which
+  // would break this exact contrast we are trying to preserve.
+  color: $static-navy;
 
   &:hover:not(:disabled) {
     box-shadow:
@@ -99,13 +103,16 @@
   }
 }
 
-// Brand-accent CTA — yellow ceramic surface. The `secondary` variant
-// happens to share the same color today, but consumers should use
-// `accent` to declare intent ("this is the call-to-action") so the
-// roles can diverge later without a visual regression.
+// Brand-accent CTA — lime ceramic surface (= secondary). The
+// `secondary` variant shares the same color today; consumers should
+// use `accent` to declare intent ("this is the call-to-action") so
+// the roles can diverge later without a visual regression.
 .variant-accent {
   @include ceramic-surface($color-secondary, 28%);
-  color: $gray-900;
+  // Theme-independent dark text — the gray scale flips in dark
+  // mode, so $gray-900 would resolve to near-white and fail
+  // contrast on the lime surface. See $static-navy in _colors.scss.
+  color: $static-navy;
 
   &:hover:not(:disabled) {
     box-shadow:

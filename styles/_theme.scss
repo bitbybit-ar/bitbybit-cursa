@@ -1,206 +1,185 @@
-@use "sass:map";
-
 // Theme tokens.
 //
-// Two scales (gray = primary chrome, yellow = secondary brand accent) plus
-// arena-compatible decorative + semantic tokens. Backgrounds, text, ceramic,
-// bubble, and semantic feedback colors are kept identical to arena so that
-// components copied across projects render the same.
+// Three scales (primary = blue, secondary = lime, gray = scaffolding)
+// plus semantic feedback colors and decorative accents. Backgrounds,
+// text, and ceramic tints flip; everything else stays put.
 //
-// Roles
-//   color-primary           → gray text/chrome; theme-aware for visibility
-//   color-primary-hover     → emphasized chrome state
-//   focus-ring              → gray, theme-tuned for AA visibility on bg
-//   color-secondary         → yellow CTA surface; same value both themes
-//                             (consumed by ceramic-surface mixin)
-//   color-accent / -alt     → red / green; arena values, decorative only
-//                             (Block, Bubble, semantic feedback)
-
-$themes: (
-  light: (
-    // — Backgrounds (arena values) —
-    color-bg: #ffffff,
-    color-bg-2: #f7f7f8,
-    color-bg-3: #efefef,
-    color-surface: #f7f7f8,
-
-    // — Text (arena values) —
-    color-text-primary: #1a1a2e,
-    color-text-secondary: #6b7280,
-
-    // — Gray scale (slate, cool undertone) —
-    gray-50:  #f8fafc,
-    gray-100: #f1f5f9,
-    gray-200: #e2e8f0,
-    gray-300: #cbd5e1,
-    gray-400: #94a3b8,
-    gray-500: #64748b,
-    gray-600: #475569,
-    gray-700: #334155,
-    gray-800: #1e293b,
-    gray-900: #0f172a,
-
-    // — Yellow scale (anchored at arena's gold = secondary-500) —
-    secondary-50:  #fef9e7,
-    secondary-100: #fdedb8,
-    secondary-200: #fbdd80,
-    secondary-300: #f9c74f,
-    secondary-400: #f7b332,
-    secondary-500: #f7a825,
-    secondary-600: #d68a14,
-    secondary-700: #a16207,
-    secondary-800: #7c4a04,
-    secondary-900: #5c3503,
-
-    // — Semantic role tokens —
-    // Primary (chrome / text role) — gray-800 reads ~12.6:1 on white (AAA).
-    color-primary: #1e293b,
-    color-primary-hover: #0f172a,
-    // Secondary (CTA surface role) — vibrant yellow; ceramic mixin paints
-    // gloss + inner shadow on top, button label is dark for AA.
-    color-secondary: #f7a825,
-    color-secondary-hover: #d68a14,
-    // Focus ring — gray-700 reads ~9.5:1 on white, visibly distinct from
-    // body text without leaning on the brand accent.
-    focus-ring: #334155,
-
-    // — Decorative accents (arena values) —
-    color-accent: #ef4444,
-    color-accent-alt: #22c55e,
-
-    // — Semantic feedback (arena values, intentionally independent of
-    //   the brand palette so future brand tweaks don't shift toast colors) —
-    color-success: #22c55e,
-    color-warning: #f7a825,
-    color-error: #ef4444,
-    color-info: #3b82f6,
-    color-nostr: #8b5cf6,
-
-    // — Border —
-    color-border: rgba(26 26 46 / 0.08),
-
-    // — Card shadows (neutralized — was purple-tinted in arena) —
-    card-shadow: rgba(0 0 0 / 0.04),
-    card-shadow-hover: rgba(15 23 42 / 0.10),
-    card-border: rgba(26 26 46 / 0.08),
-
-    // — Bubble —
-    bubble-opacity: 0.08,
-
-    // — Ceramic surface tints (arena values) —
-    ceramic-highlight: rgba(255 255 255 / 0.6),
-    ceramic-highlight-soft: rgba(255 255 255 / 0.25),
-    ceramic-inner-shadow: rgba(0 0 0 / 0.06),
-
-    ceramic-gloss-strong: rgba(255 255 255 / 0.22),
-    ceramic-gloss-soft: rgba(255 255 255 / 0.08),
-    ceramic-gloss-edge: rgba(255 255 255 / 0.4),
-    ceramic-shadow-edge: rgba(0 0 0 / 0.18),
-
-    // — Bubble surface tints (arena values) —
-    bubble-spec-top: rgba(255 255 255 / 0.4),
-    bubble-spec-dot: rgba(255 255 255 / 0.55),
-    bubble-edge: rgba(255 255 255 / 0.25),
-    bubble-inner-glow: rgba(255 255 255 / 0.12),
-  ),
-  dark: (
-    // — Backgrounds (arena values) —
-    color-bg: #0f0f1a,
-    color-bg-2: #1a1a2e,
-    color-bg-3: #252540,
-    color-surface: #1a1a2e,
-
-    // — Text (arena values) —
-    color-text-primary: #f0f0f5,
-    color-text-secondary: #9ca3af,
-
-    // — Gray scale (slate; same anchors, theme-flipped legibility) —
-    gray-50:  #f8fafc,
-    gray-100: #f1f5f9,
-    gray-200: #e2e8f0,
-    gray-300: #cbd5e1,
-    gray-400: #94a3b8,
-    gray-500: #64748b,
-    gray-600: #475569,
-    gray-700: #334155,
-    gray-800: #1e293b,
-    gray-900: #0f172a,
-
-    // — Yellow scale (same hex values across themes; the bg flips, not
-    //   the brand color) —
-    secondary-50:  #fef9e7,
-    secondary-100: #fdedb8,
-    secondary-200: #fbdd80,
-    secondary-300: #f9c74f,
-    secondary-400: #f7b332,
-    secondary-500: #f7a825,
-    secondary-600: #d68a14,
-    secondary-700: #a16207,
-    secondary-800: #7c4a04,
-    secondary-900: #5c3503,
-
-    // — Semantic role tokens —
-    // Primary (chrome / text role) — gray-200 reads ~14:1 on navy.
-    color-primary: #e2e8f0,
-    color-primary-hover: #f1f5f9,
-    color-secondary: #f7a825,
-    color-secondary-hover: #f7b332,
-    // Focus ring — gray-300 reads ~9:1 on navy bg.
-    focus-ring: #cbd5e1,
-
-    // — Decorative accents (arena values) —
-    color-accent: #f87171,
-    color-accent-alt: #34d399,
-
-    // — Semantic feedback (arena dark values) —
-    color-success: #34d399,
-    color-warning: #f7a825,
-    color-error: #f87171,
-    color-info: #60a5fa,
-    color-nostr: #a78bfa,
-
-    // — Border —
-    color-border: rgba(255 255 255 / 0.06),
-
-    // — Card shadows (neutralized) —
-    card-shadow: rgba(0 0 0 / 0.2),
-    card-shadow-hover: rgba(226 232 240 / 0.10),
-    card-border: rgba(255 255 255 / 0.06),
-
-    // — Bubble —
-    bubble-opacity: 0.12,
-
-    // — Ceramic surface tints (arena values) —
-    ceramic-highlight: rgba(138 152 200 / 0.22),
-    ceramic-highlight-soft: rgba(138 152 200 / 0.1),
-    ceramic-inner-shadow: rgba(0 0 0 / 0.35),
-
-    ceramic-gloss-strong: rgba(255 255 255 / 0.22),
-    ceramic-gloss-soft: rgba(255 255 255 / 0.08),
-    ceramic-gloss-edge: rgba(255 255 255 / 0.4),
-    ceramic-shadow-edge: rgba(0 0 0 / 0.18),
-
-    // — Bubble surface tints (arena values) —
-    bubble-spec-top: rgba(255 255 255 / 0.4),
-    bubble-spec-dot: rgba(255 255 255 / 0.55),
-    bubble-edge: rgba(255 255 255 / 0.25),
-    bubble-inner-glow: rgba(255 255 255 / 0.12),
-  ),
-);
-
-@mixin theme-properties($theme-map) {
-  @each $key, $value in $theme-map {
-    --#{$key}: #{$value};
-  }
-}
+// The scale-swap trick
+//   In dark mode the brand and gray scales literally flip end-for-end:
+//     light: 100=lightest 300 500 700 900=darkest
+//     dark : 100=darkest  300 500 700 900=lightest  (500 holds)
+//   So `var(--primary-700)` always means "the step between brand and
+//   the bg-contrast direction" — darker on light, lighter on dark.
+//   That lets role tokens like `--color-primary-hover` be declared
+//   ONCE (= `var(--primary-700)`) and auto-flip per theme.
+//
+// Rebranding contract
+//   Change five hexes per scale in light mode, then mirror them
+//   reversed in the dark block (100↔900, 300↔700; 500 holds). Three
+//   scales × 5 steps = 15 hexes per mode. The role tokens follow
+//   automatically through their var() refs.
+//
+// Editing rule
+//   Anything that does not differ between light and dark goes in
+//   `:root` only. The `[data-theme="dark"]` block lists exactly the
+//   diffs. Adding a new token: declare in `:root`; add a dark
+//   override only if the value should flip and there is no scale
+//   step that already does the right thing.
+//
+// What does NOT flip with the scale
+//   - Static-dark and static-white (e.g. dark text on a vibrant CTA).
+//     For those, components import `$static-navy` / `$static-white`
+//     from `_colors.scss` instead of a scale step.
+//   - The brand `500` step itself (median of every scale).
+//   - The semantic feedback colors (success/warning/error/info/
+//     nostr) — they are declared per theme so each lands on the
+//     right side of the contrast line.
 
 :root,
 [data-theme="light"] {
-  @include theme-properties(map.get($themes, light));
   color-scheme: light;
+
+  // — Primary scale (light → dark) —
+  --primary-100: #dbeafe;
+  --primary-300: #93c5fd;
+  --primary-500: #3b82f6;
+  --primary-700: #1d4ed8;
+  --primary-900: #1e3a8a;
+
+  // — Secondary scale (light → dark) —
+  --secondary-100: #e8f4c2;
+  --secondary-300: #c0e169;
+  --secondary-500: #a5ce3a;
+  --secondary-700: #6e8a26;
+  --secondary-900: #455416;
+
+  // — Gray scaffolding scale (light → dark) —
+  --gray-100: #f1f5f9;
+  --gray-300: #cbd5e1;
+  --gray-500: #64748b;
+  --gray-700: #334155;
+  --gray-900: #0f172a;
+
+  // — Decorative accents (identical across themes; pick by vibe) —
+  --accent-pink:   #ed3b95;
+  --accent-orange: #f3852b;
+  --accent-cyan:   #60cade;
+  --accent-gold:   #f7a825;
+
+  // — Brand role tokens (auto-flip via the swapped scale) —
+  --color-primary:         var(--primary-500);
+  --color-primary-hover:   var(--primary-700);
+  --color-secondary:       var(--secondary-500);
+  --color-secondary-hover: var(--secondary-700);
+  --focus-ring:            var(--gray-700);
+
+  // — Semantic decorative pair (Button danger / success surfaces) —
+  --color-accent:     #ef4444;
+  --color-accent-alt: #22c55e;
+
+  // — Semantic feedback (intentionally independent of brand) —
+  --color-success: #22c55e;
+  --color-warning: #f7a825;
+  --color-error:   #ef4444;
+  --color-info:    #3b82f6;
+  --color-nostr:   #8b5cf6;
+
+  // — Backgrounds + surface —
+  --color-bg:      #ffffff;
+  --color-bg-2:    #f7f7f8;
+  --color-bg-3:    #efefef;
+  --color-surface: #f7f7f8;
+
+  // — Text —
+  --color-text-primary:   #1a1a2e;
+  --color-text-secondary: #6b7280;
+
+  // — Border + card shadows —
+  --color-border:      rgba(26 26 46 / 0.08);
+  --card-shadow:       rgba(0 0 0 / 0.04);
+  --card-shadow-hover: rgba(15 23 42 / 0.10);
+  --card-border:       rgba(26 26 46 / 0.08);
+
+  // — Bubble (decorative orb surface) —
+  --bubble-opacity: 0.08;
+
+  // — Ceramic surface tints (theme-aware: light sheen on warm-gray) —
+  --ceramic-highlight:      rgba(255 255 255 / 0.6);
+  --ceramic-highlight-soft: rgba(255 255 255 / 0.25);
+  --ceramic-inner-shadow:   rgba(0 0 0 / 0.06);
+
+  // — Ceramic-surface mixin tints (identical across themes; the gloss
+  //   pattern painted over saturated colors does not flip) —
+  --ceramic-gloss-strong: rgba(255 255 255 / 0.22);
+  --ceramic-gloss-soft:   rgba(255 255 255 / 0.08);
+  --ceramic-gloss-edge:   rgba(255 255 255 / 0.4);
+  --ceramic-shadow-edge:  rgba(0 0 0 / 0.18);
+
+  // — Bubble surface tints (identical across themes) —
+  --bubble-spec-top:   rgba(255 255 255 / 0.4);
+  --bubble-spec-dot:   rgba(255 255 255 / 0.55);
+  --bubble-edge:       rgba(255 255 255 / 0.25);
+  --bubble-inner-glow: rgba(255 255 255 / 0.12);
 }
 
+// Dark-theme overrides — only the diffs from light. Tokens not
+// re-declared here inherit from `:root`.
 [data-theme="dark"] {
-  @include theme-properties(map.get($themes, dark));
   color-scheme: dark;
+
+  // — Primary scale (reversed: 100↔900, 300↔700; 500 holds) —
+  --primary-100: #1e3a8a;
+  --primary-300: #1d4ed8;
+  --primary-700: #93c5fd;
+  --primary-900: #dbeafe;
+
+  // — Secondary scale (reversed) —
+  --secondary-100: #455416;
+  --secondary-300: #6e8a26;
+  --secondary-700: #c0e169;
+  --secondary-900: #e8f4c2;
+
+  // — Gray scale (reversed) —
+  --gray-100: #0f172a;
+  --gray-300: #334155;
+  --gray-700: #cbd5e1;
+  --gray-900: #f1f5f9;
+
+  // (Brand role tokens auto-flip via the swapped scales above —
+  //  no override needed for color-primary-hover, color-secondary-
+  //  hover, or focus-ring.)
+
+  // — Semantic decorative pair (lighter red/green for navy bg) —
+  --color-accent:     #f87171;
+  --color-accent-alt: #34d399;
+
+  // — Semantic feedback (lighter on navy; warning stays gold) —
+  --color-success: #34d399;
+  --color-error:   #f87171;
+  --color-info:    #60a5fa;
+  --color-nostr:   #a78bfa;
+
+  // — Backgrounds + surface —
+  --color-bg:      #0f0f1a;
+  --color-bg-2:    #1a1a2e;
+  --color-bg-3:    #252540;
+  --color-surface: #1a1a2e;
+
+  // — Text —
+  --color-text-primary:   #f0f0f5;
+  --color-text-secondary: #9ca3af;
+
+  // — Border + card shadows —
+  --color-border:      rgba(255 255 255 / 0.06);
+  --card-shadow:       rgba(0 0 0 / 0.2);
+  --card-shadow-hover: rgba(226 232 240 / 0.10);
+  --card-border:       rgba(255 255 255 / 0.06);
+
+  // — Bubble —
+  --bubble-opacity: 0.12;
+
+  // — Ceramic surface tints (cool blue-gray reflection on navy) —
+  --ceramic-highlight:      rgba(138 152 200 / 0.22);
+  --ceramic-highlight-soft: rgba(138 152 200 / 0.1);
+  --ceramic-inner-shadow:   rgba(0 0 0 / 0.35);
 }

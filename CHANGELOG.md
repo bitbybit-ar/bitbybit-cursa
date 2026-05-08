@@ -68,6 +68,20 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- Brand palette swapped from slate-gray + gold to blue
+  (`#3B82F6` primary) + lime (`#A5CE3A` secondary), with four
+  decorative accent tokens (pink, orange, cyan, gold). The old
+  brand gold survives as `accent-gold` for decorative use.
+  `styles/_theme.scss` flattened: every value lives in `:root`
+  and `[data-theme="dark"]` only declares the diffs. Brand and
+  gray scales (`primary-N`, `secondary-N`, `gray-N`) trimmed to
+  five steps each (100/300/500/700/900) and reversed in dark
+  mode so role tokens like `--color-primary-hover` and
+  `--focus-ring` auto-flip via a single `var()` reference.
+  `Button.variant-{accent,secondary}` switched from `$gray-900`
+  to `$static-navy` for label text — the gray scale flips in
+  dark mode, which would have regressed contrast on the lime
+  CTA otherwise.
 - ADR
   [0005-prepaid-default-autorenewal-optin](docs/architecture/decisions/0005-prepaid-default-autorenewal-optin.md)
   amended: the autorenewal flag moves from a build-time

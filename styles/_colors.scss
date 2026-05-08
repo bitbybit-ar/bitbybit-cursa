@@ -7,9 +7,16 @@ $color-secondary: var(--color-secondary);
 $color-secondary-hover: var(--color-secondary-hover);
 $focus-ring: var(--focus-ring);
 
-// — Decorative accents (red/green — arena values, used by Block/Bubble) —
+// — Decorative accents (red/green — kept semantic: wired to
+//   Button.variant-danger / Button.variant-success) —
 $color-accent: var(--color-accent);
 $color-accent-alt: var(--color-accent-alt);
+
+// — Decorative brand accents (no semantic role; pick by vibe) —
+$accent-pink: var(--accent-pink);
+$accent-orange: var(--accent-orange);
+$accent-cyan: var(--accent-cyan);
+$accent-gold: var(--accent-gold);
 
 // — Semantic feedback (independent of brand palette) —
 $color-success: var(--color-success);
@@ -31,28 +38,31 @@ $color-text-secondary: var(--color-text-secondary);
 // — Border —
 $color-border: var(--color-border);
 
-// — Gray scale (slate; chrome / text variants for tints + shades) —
-$gray-50:  var(--gray-50);
+// — Gray scaffolding scale (5 steps; reversed in dark mode — see
+//   _theme.scss). $gray-100 is "lightest in current theme",
+//   $gray-900 is "darkest in current theme". Components that need
+//   a *theme-independent* dark or light should use the static
+//   tokens at the bottom of this file, not a scale step. —
 $gray-100: var(--gray-100);
-$gray-200: var(--gray-200);
 $gray-300: var(--gray-300);
-$gray-400: var(--gray-400);
 $gray-500: var(--gray-500);
-$gray-600: var(--gray-600);
 $gray-700: var(--gray-700);
-$gray-800: var(--gray-800);
 $gray-900: var(--gray-900);
 
-// — Yellow scale (brand accent — secondary-500 is the canonical brand yellow) —
-$secondary-50:  var(--secondary-50);
+// — Brand scales (5 steps each — 100, 300, 500, 700, 900). The
+//   `500` step is the canonical brand color, the `700` is the
+//   light-theme darker hover, the `300` is the dark-theme lighter
+//   hover. Rebranding = retune these ten hexes in `_theme.scss`. —
+$primary-100:   var(--primary-100);
+$primary-300:   var(--primary-300);
+$primary-500:   var(--primary-500);
+$primary-700:   var(--primary-700);
+$primary-900:   var(--primary-900);
+
 $secondary-100: var(--secondary-100);
-$secondary-200: var(--secondary-200);
 $secondary-300: var(--secondary-300);
-$secondary-400: var(--secondary-400);
 $secondary-500: var(--secondary-500);
-$secondary-600: var(--secondary-600);
 $secondary-700: var(--secondary-700);
-$secondary-800: var(--secondary-800);
 $secondary-900: var(--secondary-900);
 
 // — Card shadows —
