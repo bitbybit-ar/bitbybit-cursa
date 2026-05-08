@@ -1,0 +1,60 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-12;
+  text-align: center;
+  padding: $spacing-32 0;
+}
+
+.avatarWrap {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: $border-radius-full;
+  overflow: hidden;
+  background-color: $color-bg-3;
+}
+
+.avatar {
+  object-fit: cover;
+}
+
+.title {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-extrabold;
+  color: $color-text-primary;
+}
+
+.bio {
+  margin: 0;
+  max-width: 640px;
+  color: $color-text-secondary;
+  font-size: $font-size-md;
+  line-height: $line-height-base;
+  white-space: pre-line;
+}
+
+.listHeading {
+  margin: 0 0 $spacing-24 0;
+  font-family: $font-family-display;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: $spacing-24;
+}
+
+.empty {
+  color: $color-text-secondary;
+}

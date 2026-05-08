@@ -46,15 +46,15 @@
   &:hover:not(:disabled) {
     box-shadow:
       0 8px 24px alpha($color-primary, 35%),
-      inset 0 1px 0 rgba(255, 255, 255, 0.5),
-      inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+      inset 0 1px 0 alpha($static-white, 50%),
+      inset 0 -2px 4px alpha($static-black, 20%);
   }
 
   &:active:not(:disabled) {
     box-shadow:
       0 2px 6px alpha($color-primary, 20%),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.3),
-      inset 0 2px 4px rgba(0, 0, 0, 0.22);
+      inset 0 -1px 0 alpha($static-white, 30%),
+      inset 0 2px 4px alpha($static-black, 22%);
   }
 }
 
@@ -69,15 +69,15 @@
   &:hover:not(:disabled) {
     box-shadow:
       0 8px 24px alpha($color-secondary, 35%),
-      inset 0 1px 0 rgba(255, 255, 255, 0.5),
-      inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+      inset 0 1px 0 alpha($static-white, 50%),
+      inset 0 -2px 4px alpha($static-black, 20%);
   }
 
   &:active:not(:disabled) {
     box-shadow:
       0 2px 6px alpha($color-secondary, 20%),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.3),
-      inset 0 2px 4px rgba(0, 0, 0, 0.22);
+      inset 0 -1px 0 alpha($static-white, 30%),
+      inset 0 2px 4px alpha($static-black, 22%);
   }
 }
 
@@ -91,15 +91,15 @@
   &:hover:not(:disabled) {
     box-shadow:
       0 8px 24px alpha($color-nostr, 35%),
-      inset 0 1px 0 rgba(255, 255, 255, 0.5),
-      inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+      inset 0 1px 0 alpha($static-white, 50%),
+      inset 0 -2px 4px alpha($static-black, 20%);
   }
 
   &:active:not(:disabled) {
     box-shadow:
       0 2px 6px alpha($color-nostr, 20%),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.3),
-      inset 0 2px 4px rgba(0, 0, 0, 0.22);
+      inset 0 -1px 0 alpha($static-white, 30%),
+      inset 0 2px 4px alpha($static-black, 22%);
   }
 }
 
@@ -117,15 +117,15 @@
   &:hover:not(:disabled) {
     box-shadow:
       0 8px 24px alpha($color-secondary, 35%),
-      inset 0 1px 0 rgba(255, 255, 255, 0.5),
-      inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+      inset 0 1px 0 alpha($static-white, 50%),
+      inset 0 -2px 4px alpha($static-black, 20%);
   }
 
   &:active:not(:disabled) {
     box-shadow:
       0 2px 6px alpha($color-secondary, 20%),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.3),
-      inset 0 2px 4px rgba(0, 0, 0, 0.22);
+      inset 0 -1px 0 alpha($static-white, 30%),
+      inset 0 2px 4px alpha($static-black, 22%);
   }
 }
 
@@ -136,15 +136,15 @@
   &:hover:not(:disabled) {
     box-shadow:
       0 8px 24px alpha($color-accent-alt, 35%),
-      inset 0 1px 0 rgba(255, 255, 255, 0.5),
-      inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+      inset 0 1px 0 alpha($static-white, 50%),
+      inset 0 -2px 4px alpha($static-black, 20%);
   }
 
   &:active:not(:disabled) {
     box-shadow:
       0 2px 6px alpha($color-accent-alt, 20%),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.3),
-      inset 0 2px 4px rgba(0, 0, 0, 0.22);
+      inset 0 -1px 0 alpha($static-white, 30%),
+      inset 0 2px 4px alpha($static-black, 22%);
   }
 }
 
@@ -155,15 +155,15 @@
   &:hover:not(:disabled) {
     box-shadow:
       0 8px 24px alpha($color-accent, 35%),
-      inset 0 1px 0 rgba(255, 255, 255, 0.5),
-      inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+      inset 0 1px 0 alpha($static-white, 50%),
+      inset 0 -2px 4px alpha($static-black, 20%);
   }
 
   &:active:not(:disabled) {
     box-shadow:
       0 2px 6px alpha($color-accent, 20%),
-      inset 0 -1px 0 rgba(255, 255, 255, 0.3),
-      inset 0 2px 4px rgba(0, 0, 0, 0.22);
+      inset 0 -1px 0 alpha($static-white, 30%),
+      inset 0 2px 4px alpha($static-black, 22%);
   }
 }
 
@@ -248,4 +248,15 @@
   align-items: center;
   justify-content: center;
   gap: $spacing-8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+
+    &:hover,
+    &:active:not(:disabled) {
+      transform: none;
+    }
+  }
 }

@@ -7,8 +7,9 @@ import { alternatesFor } from "@/lib/seo";
 import { getBaseUrl } from "@/lib/env";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/lib/contexts/theme-context";
-import { SignerProvider } from "@/lib/contexts/signer-context";
+import { SignerProviderClient } from "@/components/auth/signer-provider-client";
 import { ToastProvider } from "@/components/ui/toast";
+import { LanguageToggle } from "@/components/ui/language-toggle";
 import "@/styles/globals.scss";
 
 const nunito = Nunito({
@@ -144,14 +145,15 @@ export default async function LocaleLayout({
       <body suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
-            <SignerProvider>
+            <SignerProviderClient>
               <ToastProvider>
                 <a href="#main" className="skip-link">
                   {t("skipToContent")}
                 </a>
+                <LanguageToggle />
                 <main id="main">{children}</main>
               </ToastProvider>
-            </SignerProvider>
+            </SignerProviderClient>
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

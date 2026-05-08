@@ -5,6 +5,7 @@ import { Container } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
 import { ArrowRightIcon } from "@/components/icons";
 import { listAdminStudents } from "@/lib/admin/orders";
+import { requirePanelMerchant } from "@/lib/admin/panel-context";
 import styles from "./page.module.scss";
 
 export const dynamic = "force-dynamic";
@@ -33,7 +34,8 @@ export default async function PanelStudentsPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const students = await listAdminStudents();
+  const merchant = await requirePanelMerchant();
+  const students = await listAdminStudents(merchant.id);
   const t = await getTranslations("panel.students");
   const arsFormatter = new Intl.NumberFormat(
     locale === "es" ? "es-AR" : "en-US"

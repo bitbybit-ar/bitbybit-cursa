@@ -1,6 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
-import { getAuthSecret, isAdminPubkey } from "@/lib/env";
+import { getAuthSecret, isPlatformAdminPubkey } from "@/lib/env";
 import { SESSION_COOKIE_NAME, SESSION_DURATION_DAYS } from "@/lib/auth-constants";
 import { LocaleSchema, SignerTypeSchema, type Locale, type SignerType } from "@/lib/schemas/auth";
 
@@ -15,12 +15,17 @@ const SESSION_DURATION = `${SESSION_DURATION_DAYS}d`;
  *
  * - There is no user id, display name, or avatar — Cursá has no
  *   `users` table; the pubkey IS the identity (ADR 0007).
- * - There is no `is_admin` flag — admin status is computed at every
- *   request by checking the pubkey against `ADMIN_PUBKEYS` (env). If
- *   an admin's key is removed from the env list, every existing
- *   session immediately loses panel access without needing to be
- *   re-issued. The opposite would let a stolen JWT keep panel access
- *   even after the deployer revoked the pubkey.
+ * - There is no `merchant_id` — that lookup happens at every
+ *   request via `lib/admin/merchants.getMerchantByPubkey`. Same
+ *   reasoning as the platform-admin check below: deactivating a
+ *   merchant must revoke their panel access immediately, without
+ *   waiting for the JWT to expire. ADR 0012.
+ * - There is no `platform_admin` flag — platform-admin status is
+ *   computed at every request by checking the pubkey against
+ *   `PLATFORM_ADMIN_PUBKEYS` (env). If a platform admin's key is
+ *   removed from the env list, every existing session
+ *   immediately loses moderation access without needing to be
+ *   re-issued.
  */
 export interface AuthSession {
   pubkey: string;
@@ -78,11 +83,15 @@ export async function verifySessionToken(
 
 /**
  * Computed at request time, never serialised into the JWT. See the
- * comment on AuthSession for why.
+ * comment on AuthSession for why. Marketplace-mode replacement for
+ * the old `sessionIsAdmin` — the platform-admin role is a separate
+ * moderation surface, not the per-merchant panel.
  */
-export function sessionIsAdmin(session: AuthSession | null): boolean {
+export function sessionIsPlatformAdmin(
+  session: AuthSession | null
+): boolean {
   if (!session) return false;
-  return isAdminPubkey(session.pubkey);
+  return isPlatformAdminPubkey(session.pubkey);
 }
 
 export async function clearSession(): Promise<void> {

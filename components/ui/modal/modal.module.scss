@@ -114,6 +114,18 @@
     color: $color-primary;
     background: alpha($color-text-primary, 6%);
   }
+
+  &:focus-visible {
+    outline: 2px solid $focus-ring;
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .modal {
+    animation: none;
+  }
 }
 
 .closeButton {
@@ -134,5 +146,10 @@
   &:hover {
     color: $color-text-primary;
     background: alpha($color-text-primary, 8%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $focus-ring;
+    outline-offset: 2px;
   }
 }

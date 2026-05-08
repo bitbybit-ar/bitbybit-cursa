@@ -89,16 +89,17 @@
   font-family: $font-family-base;
   font-size: $font-size-sm;
   color: $color-text-primary;
-  outline: none;
-  transition: border-color 0.15s ease;
+  transition: border-color 0.15s ease, outline-color 0.15s ease;
   box-sizing: border-box;
 
   &::placeholder {
     color: $color-text-secondary;
   }
 
-  &:focus {
+  &:focus-visible {
     border-color: $color-primary;
+    outline: 2px solid $focus-ring;
+    outline-offset: 1px;
   }
 }
 

@@ -26,7 +26,9 @@ export interface RecentOrderRow {
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
-export async function getAdminOverview(): Promise<AdminOverviewStats> {
+export async function getAdminOverview(
+  merchantId: string
+): Promise<AdminOverviewStats> {
   const db = getDb();
 
   const monthStart = new Date();
@@ -34,9 +36,9 @@ export async function getAdminOverview(): Promise<AdminOverviewStats> {
   monthStart.setHours(0, 0, 0, 0);
   const thirtyDaysAgo = new Date(Date.now() - 30 * MS_PER_DAY);
 
-  // Three small COUNTs/SUMs in parallel — keeps the panel snappy
-  // on a fresh database with no orders, and the queries are small
-  // enough that a join helper is overkill.
+  // Three small COUNTs/SUMs in parallel, all scoped to this
+  // merchant per ADR 0012. Queries stay small enough that a join
+  // helper is overkill.
   const [revenueRow, pendingRow, paidRow, recentRows] = await Promise.all([
     db
       .select({
@@ -44,17 +46,30 @@ export async function getAdminOverview(): Promise<AdminOverviewStats> {
       })
       .from(orders)
       .where(
-        and(eq(orders.status, "paid"), gte(orders.paid_at, monthStart))
+        and(
+          eq(orders.merchant_id, merchantId),
+          eq(orders.status, "paid"),
+          gte(orders.paid_at, monthStart)
+        )
       ),
     db
       .select({ count: count() })
       .from(orders)
-      .where(eq(orders.status, "pending")),
+      .where(
+        and(
+          eq(orders.merchant_id, merchantId),
+          eq(orders.status, "pending")
+        )
+      ),
     db
       .select({ count: count() })
       .from(orders)
       .where(
-        and(eq(orders.status, "paid"), gte(orders.paid_at, thirtyDaysAgo))
+        and(
+          eq(orders.merchant_id, merchantId),
+          eq(orders.status, "paid"),
+          gte(orders.paid_at, thirtyDaysAgo)
+        )
       ),
     db
       .select({
@@ -69,6 +84,7 @@ export async function getAdminOverview(): Promise<AdminOverviewStats> {
       })
       .from(orders)
       .leftJoin(offerings, eq(orders.offering_id, offerings.id))
+      .where(eq(orders.merchant_id, merchantId))
       .orderBy(desc(orders.created_at))
       .limit(10),
   ]);

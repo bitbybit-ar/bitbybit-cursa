@@ -15,6 +15,13 @@
       "when": 1778189922476,
       "tag": "0001_magical_fat_cobra",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1778500000000,
+      "tag": "0002_marketplace_pivot",
+      "breakpoints": true
     }
   ]
 }

@@ -5,9 +5,20 @@ import { markOrderPaid, drawAndAssignCode } from "@/lib/orders";
 
 const SIGNATURE_HEADER = "x-wapu-signature";
 
+// TODO(Q1): the real Wapu direct-payment settlement webhook shape
+// has not been published yet (PR wapu-app/wapu-cli#7 covers
+// outbound only). For the marketplace MVP we mirror the prior
+// invoice-keyed shape with `tentative_uuid` and an
+// `direct_fiat.*` event-type vocabulary; the MockWapuClient's
+// `signWebhookPayload` produces this same shape so integration
+// tests still pass. Revisit once Andy publishes the spec.
 const WebhookEventSchema = z.object({
-  event_type: z.enum(["invoice.paid", "invoice.expired", "invoice.failed"]),
-  invoice_id: z.string(),
+  event_type: z.enum([
+    "direct_fiat.paid",
+    "direct_fiat.expired",
+    "direct_fiat.failed",
+  ]),
+  tentative_uuid: z.string(),
   payment_hash: z.string(),
   occurred_at: z.number().int().nonnegative(),
   amount_sats: z.number().int().nonnegative(),
@@ -54,7 +65,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     );
   }
 
-  if (parsed.event_type !== "invoice.paid") {
+  if (parsed.event_type !== "direct_fiat.paid") {
     // expired / failed are real events but not implemented in v1 —
     // the order stays in `pending` until the invoice TTL elapses
     // and the storefront tells the buyer to try again. Returning

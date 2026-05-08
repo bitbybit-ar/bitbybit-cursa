@@ -103,7 +103,8 @@
       "orders": "Pedidos",
       "students": "Estudiantes",
       "settings": "Configuración",
-      "exit": "← Volver al sitio"
+      "exit": "← Volver al sitio",
+      "viewStore": "Ver mi tienda"
     },
     "overview": {
       "metadataTitle": "Panel · Resumen",
@@ -159,8 +160,20 @@
         "priceArs": "Precio (ARS)",
         "priceSats": "Precio fijo (sats)",
         "priceSatsHint": "Si lo dejás vacío, calculamos el precio en sats al momento de la compra.",
-        "imageUrl": "URL de imagen",
+        "imageUrl": "Imagen",
         "optional": "Opcional",
+        "imageUpload": {
+          "pickFile": "Subir imagen",
+          "uploading": "Subiendo…",
+          "remove": "Quitar",
+          "pasteUrlInstead": "¿Ya tenés la imagen alojada? Pegá la URL.",
+          "hint": "JPG, PNG o WebP, hasta 5 MB. La imagen se sube firmada a Blossom.",
+          "errorBadType": "Solo aceptamos JPG, PNG o WebP.",
+          "errorTooLarge": "La imagen pesa más de 5 MB.",
+          "errorUploadFailed": "No pudimos subir la imagen. Probá de nuevo.",
+          "errorCancelled": "Cancelaste la firma. La imagen no se subió.",
+          "errorNoServers": "No hay servidores Blossom configurados. Avisale al deploy."
+        },
         "codePool": "Códigos disponibles",
         "codePoolPlaceholder": "AAAA-1111\nBBBB-2222\nCCCC-3333",
         "codePoolHint": "Un código por línea. Cada compra consume uno; cuando se acaben, los nuevos compradores ven \"código pendiente\" hasta que cargues más.",
@@ -247,7 +260,11 @@
         "saving": "Guardando…",
         "saved": "Configuración guardada.",
         "saveFailed": "No pudimos guardar la configuración. Probá de nuevo.",
-        "destinationRequired": "Tenés que cargar al menos un CBU o un alias."
+        "destinationRequired": "Tenés que cargar al menos un CBU o un alias.",
+        "signRequiredTitle": "Confirmá el cambio con tu firma",
+        "signRequiredBody": "Cambiar el CBU o alias requiere una firma adicional con tu signer Nostr.",
+        "signCancelled": "Cancelaste la firma. Intentá de nuevo cuando estés listo.",
+        "signClockSkew": "La hora de tu dispositivo no coincide. Sincronizala y volvé a intentar."
       }
     }
   },
@@ -339,6 +356,46 @@
   "reSignIn": {
     "extensionRejected": "La extensión rechazó la firma.",
     "mismatch": "La clave no coincide con tu sesión actual.",
-    "authFailed": "No pudimos validar tu firma."
+    "authFailed": "No pudimos validar tu firma.",
+    "attachKey": "Adjuntar clave"
+  },
+  "language": {
+    "switchToEnglish": "Cambiar a inglés",
+    "switchToSpanish": "Cambiar a español"
+  },
+  "storefront": {
+    "offeringsHeading": "Lo que vendo",
+    "empty": "Este profe todavía no publicó ofertas."
+  },
+  "onboarding": {
+    "metadataTitle": "Crear tu tienda",
+    "title": "Bienvenido a Cursá",
+    "subtitle": "Elegí un nombre, un alias para tu tienda y empezá a vender.",
+    "form": {
+      "slug": "Slug de tu tienda",
+      "slugPlaceholder": "ana-piano",
+      "slugHint": "Aparece en la URL pública: cursa.bitbybit.com.ar/m/{tu-slug}. Solo minúsculas, números y guiones.",
+      "slugTaken": "Ese slug ya está usado. Probá otro.",
+      "slugErrors": {
+        "format": "El slug solo puede tener minúsculas, números y guiones (sin guiones al inicio o al final).",
+        "length": "El slug tiene que tener entre 3 y 40 caracteres.",
+        "reserved": "Ese slug está reservado por la plataforma. Probá otro."
+      },
+      "displayName": "Nombre público",
+      "displayNamePlaceholder": "Ana, profesora de piano",
+      "displayNameTooShort": "Necesitamos un nombre de al menos 2 caracteres.",
+      "bio": "Bio",
+      "bioPlaceholder": "Una o dos líneas sobre lo que enseñás.",
+      "destination": "CBU o alias bancario para cobrar",
+      "destinationPlaceholder": "MI.ALIAS.MP o 22 dígitos del CBU",
+      "destinationHint": "Podés dejarlo vacío y cargarlo después desde Configuración. Sin estos datos no podés vender.",
+      "destinationInvalid": "El alias debe tener entre 6 y 20 caracteres (letras, números, puntos o guiones). El CBU son 22 dígitos.",
+      "optional": "Opcional",
+      "save": "Crear mi tienda",
+      "saving": "Creando…",
+      "saved": "¡Listo! Tu tienda está creada.",
+      "saveFailed": "No pudimos crear la tienda. Probá de nuevo.",
+      "alreadyClaimed": "Ya tenés una tienda asociada a tu identidad."
+    }
   }
 }

@@ -1,0 +1,16 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.intro {
+  margin: 0 0 $spacing-16 0;
+  font-size: $font-size-sm;
+  line-height: $line-height-base;
+  color: $color-text-secondary;
+}
+
+.error {
+  margin: $spacing-12 0 0 0;
+  font-size: $font-size-sm;
+  color: $color-error;
+}

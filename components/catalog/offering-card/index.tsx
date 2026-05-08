@@ -7,16 +7,40 @@ import { PriceTag } from "@/components/catalog/price-tag";
 import type { Offering } from "@/lib/offerings";
 import styles from "./offering-card.module.scss";
 
-interface OfferingCardProps {
-  offering: Offering;
+interface MerchantCard {
+  slug: string;
+  display_name: string;
 }
 
-export function OfferingCard({ offering }: OfferingCardProps) {
+interface OfferingCardProps {
+  offering: Offering;
+  /**
+   * The owning merchant. Required so the card links to the
+   * merchant-scoped detail URL `/m/[mslug]/c/[oslug]` and renders
+   * the merchant's display name on the card.
+   */
+  merchant: MerchantCard;
+  /**
+   * When `true`, hide the merchant byline. Use on a single
+   * merchant's storefront (`/m/[slug]`), where the page hero
+   * already names them.
+   */
+  hideMerchant?: boolean;
+}
+
+export function OfferingCard({
+  offering,
+  merchant,
+  hideMerchant = false,
+}: OfferingCardProps) {
   const t = useTranslations("catalog.card");
   const tType = useTranslations("offering.type");
 
   return (
-    <Link href={`/c/${offering.slug}`} className={styles.link}>
+    <Link
+      href={`/m/${merchant.slug}/c/${offering.slug}`}
+      className={styles.link}
+    >
       <Card variant="hover" className={styles.card}>
         {offering.image_url ? (
           <div className={styles.imageWrap}>
@@ -32,6 +56,9 @@ export function OfferingCard({ offering }: OfferingCardProps) {
 
         <div className={styles.body}>
           <h3 className={styles.title}>{offering.title}</h3>
+          {hideMerchant ? null : (
+            <p className={styles.byline}>{merchant.display_name}</p>
+          )}
           <p className={styles.description}>{offering.description}</p>
           <p className={styles.typeLabel}>{tType(offering.type)}</p>
         </div>

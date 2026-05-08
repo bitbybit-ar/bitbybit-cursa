@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { sql } from "drizzle-orm";
-import { testDb, cleanDb } from "../setup";
+import { testDb, cleanDb, seedMerchant } from "../setup";
 import { offerings } from "@/lib/db/schema";
 import { createOrder, getOrder } from "@/lib/orders";
 import {
@@ -16,8 +16,6 @@ const WEBHOOK_URL = "https://cursa.test/api/wapu/webhook";
 
 beforeEach(async () => {
   vi.unstubAllEnvs();
-  // Force the webhook secret used by both the test signer and the
-  // server-side verifier so the round-trip authenticates.
   vi.stubEnv("WAPU_WEBHOOK_SECRET", "test-webhook-secret");
   delete process.env.WAPU_API_KEY;
   _resetWapuClientForTests();
@@ -38,9 +36,11 @@ beforeEach(async () => {
 });
 
 async function seedOrder() {
+  const merchant = await seedMerchant();
   const [offering] = await testDb
     .insert(offerings)
     .values({
+      merchant_id: merchant.id,
       slug: "test-offering",
       type: "code",
       title: "Test",
@@ -70,8 +70,8 @@ describe("POST /api/wapu/webhook — happy path", () => {
     const { orderId } = await seedOrder();
     const order = await getOrder(orderId);
     const event: WapuWebhookEvent = {
-      event_type: "invoice.paid",
-      invoice_id: order!.wapu_invoice_id!,
+      event_type: "direct_fiat.paid",
+      tentative_uuid: order!.wapu_tentative_uuid!,
       payment_hash: order!.payment_hash!,
       occurred_at: Math.floor(Date.now() / 1000),
       amount_sats: order!.amount_sats,
@@ -105,8 +105,8 @@ describe("POST /api/wapu/webhook — rejections", () => {
     const { orderId } = await seedOrder();
     const order = await getOrder(orderId);
     const event: WapuWebhookEvent = {
-      event_type: "invoice.paid",
-      invoice_id: order!.wapu_invoice_id!,
+      event_type: "direct_fiat.paid",
+      tentative_uuid: order!.wapu_tentative_uuid!,
       payment_hash: order!.payment_hash!,
       occurred_at: Math.floor(Date.now() / 1000),
       amount_sats: order!.amount_sats,
@@ -116,7 +116,10 @@ describe("POST /api/wapu/webhook — rejections", () => {
     };
     const signer = new MockWapuClient("test-webhook-secret");
     const { rawBody, signature } = signer.signWebhookPayload(event);
-    const tamperedBody = rawBody.replace(/invoice\.paid/, "invoice.failed");
+    const tamperedBody = rawBody.replace(
+      /direct_fiat\.paid/,
+      "direct_fiat.failed"
+    );
     const res = await POST(buildWebhookRequest(tamperedBody, signature));
     expect(res.status).toBe(401);
   });
@@ -133,8 +136,8 @@ describe("POST /api/wapu/webhook — rejections", () => {
 
   it("ignores unknown order ids with 200 to stop Wapu retries", async () => {
     const event: WapuWebhookEvent = {
-      event_type: "invoice.paid",
-      invoice_id: "ghost",
+      event_type: "direct_fiat.paid",
+      tentative_uuid: "ghost",
       payment_hash: "a".repeat(64),
       occurred_at: Math.floor(Date.now() / 1000),
       amount_sats: 100,
@@ -153,8 +156,8 @@ describe("POST /api/wapu/webhook — rejections", () => {
   it("returns 200 with ignored=expired/failed events without touching the row", async () => {
     const { orderId } = await seedOrder();
     const event: WapuWebhookEvent = {
-      event_type: "invoice.expired",
-      invoice_id: "x",
+      event_type: "direct_fiat.expired",
+      tentative_uuid: "x",
       payment_hash: "a".repeat(64),
       occurred_at: Math.floor(Date.now() / 1000),
       amount_sats: 0,

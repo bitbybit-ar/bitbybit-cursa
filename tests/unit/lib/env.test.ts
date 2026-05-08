@@ -3,8 +3,8 @@ import {
   getBaseUrl,
   getDatabaseUrl,
   getAuthSecret,
-  getAdminPubkeys,
-  isAdminPubkey,
+  getPlatformAdminPubkeys,
+  isPlatformAdminPubkey,
 } from "@/lib/env";
 
 const originalEnv = { ...process.env };
@@ -65,41 +65,41 @@ describe("env/getAuthSecret", () => {
   });
 });
 
-describe("env/getAdminPubkeys", () => {
+describe("env/getPlatformAdminPubkeys", () => {
   beforeEach(() => {
-    delete process.env.ADMIN_PUBKEYS;
+    delete process.env.PLATFORM_ADMIN_PUBKEYS;
   });
 
   it("returns an empty list when unset", () => {
-    expect(getAdminPubkeys()).toEqual([]);
+    expect(getPlatformAdminPubkeys()).toEqual([]);
   });
 
   it("parses a comma-separated list and trims whitespace", () => {
-    process.env.ADMIN_PUBKEYS = " abc , def , ghi ";
-    expect(getAdminPubkeys()).toEqual(["abc", "def", "ghi"]);
+    process.env.PLATFORM_ADMIN_PUBKEYS = " abc , def , ghi ";
+    expect(getPlatformAdminPubkeys()).toEqual(["abc", "def", "ghi"]);
   });
 
   it("ignores empty entries from trailing commas", () => {
-    process.env.ADMIN_PUBKEYS = "abc,,def,";
-    expect(getAdminPubkeys()).toEqual(["abc", "def"]);
+    process.env.PLATFORM_ADMIN_PUBKEYS = "abc,,def,";
+    expect(getPlatformAdminPubkeys()).toEqual(["abc", "def"]);
   });
 });
 
-describe("env/isAdminPubkey", () => {
+describe("env/isPlatformAdminPubkey", () => {
   beforeEach(() => {
-    process.env.ADMIN_PUBKEYS = "abc,def";
+    process.env.PLATFORM_ADMIN_PUBKEYS = "abc,def";
   });
 
   it("returns true for a listed pubkey", () => {
-    expect(isAdminPubkey("abc")).toBe(true);
-    expect(isAdminPubkey("def")).toBe(true);
+    expect(isPlatformAdminPubkey("abc")).toBe(true);
+    expect(isPlatformAdminPubkey("def")).toBe(true);
   });
 
   it("returns false for an unlisted pubkey", () => {
-    expect(isAdminPubkey("xyz")).toBe(false);
+    expect(isPlatformAdminPubkey("xyz")).toBe(false);
   });
 
   it("is case-sensitive (hex pubkeys are normalised lowercase upstream)", () => {
-    expect(isAdminPubkey("ABC")).toBe(false);
+    expect(isPlatformAdminPubkey("ABC")).toBe(false);
   });
 });

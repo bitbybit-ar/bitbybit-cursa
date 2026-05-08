@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { validateNip98AuthEvent } from "@/lib/nostr/verify";
+import { parseNostrAuthHeader } from "@/lib/nostr/http-auth";
 import { createSession, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { LocaleSchema, SignerTypeSchema, type Locale, type SignerType } from "@/lib/schemas/auth";
 import { SESSION_DURATION_DAYS } from "@/lib/auth-constants";
@@ -29,21 +30,12 @@ import { SESSION_DURATION_DAYS } from "@/lib/auth-constants";
 const SIGNER_TAG = "cursa_signer";
 const LOCALE_TAG = "cursa_locale";
 
-function parseAuthorizationHeader(header: string | null): unknown {
-  if (!header) {
-    throw new BadAuth("auth_missing_header");
-  }
-  const [scheme, encoded] = header.split(/\s+/, 2);
-  if (scheme !== "Nostr" || !encoded) {
-    throw new BadAuth("auth_invalid_scheme");
-  }
-  try {
-    const json = Buffer.from(encoded, "base64").toString("utf8");
-    return JSON.parse(json);
-  } catch {
-    throw new BadAuth("auth_invalid_base64");
-  }
-}
+const PARSE_FAILURE_CODES = {
+  missing: "auth_missing_header",
+  scheme: "auth_invalid_scheme",
+  base64: "auth_invalid_base64",
+  json: "auth_invalid_base64",
+} as const;
 
 function readTag(
   tags: ReadonlyArray<ReadonlyArray<string>>,
@@ -68,22 +60,15 @@ function readLocale(tags: ReadonlyArray<ReadonlyArray<string>>): Locale {
   return parsed.success ? parsed.data : "es";
 }
 
-class BadAuth extends Error {
-  constructor(public readonly code: string) {
-    super(code);
-  }
-}
-
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  let signedEvent: unknown;
-  try {
-    signedEvent = parseAuthorizationHeader(req.headers.get("authorization"));
-  } catch (err) {
-    if (err instanceof BadAuth) {
-      return NextResponse.json({ error: err.code }, { status: 400 });
-    }
-    throw err;
+  const parsed = parseNostrAuthHeader(req.headers.get("authorization"));
+  if (!parsed.ok) {
+    return NextResponse.json(
+      { error: PARSE_FAILURE_CODES[parsed.reason] },
+      { status: 400 }
+    );
   }
+  const signedEvent = parsed.event;
 
   const validation = validateNip98AuthEvent(signedEvent, {
     url: req.nextUrl.toString(),

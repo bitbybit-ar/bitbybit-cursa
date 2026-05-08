@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { sql, eq } from "drizzle-orm";
-import { testDb, cleanDb } from "../../setup";
+import { testDb, cleanDb, seedMerchant } from "../../setup";
 import { adminAuditLog } from "@/lib/db/schema";
 import {
   createOfferingForAdmin,
@@ -34,7 +34,9 @@ beforeEach(async () => {
 
 describe("admin/offerings/createOfferingForAdmin", () => {
   it("inserts a code offering with empty pool and writes an audit row", async () => {
+    const merchant = await seedMerchant({ pubkey: ACTOR });
     const result = await createOfferingForAdmin(
+      merchant.id,
       {
         slug: "intro-bitcoin",
         type: "code",
@@ -47,16 +49,20 @@ describe("admin/offerings/createOfferingForAdmin", () => {
     expect(result.ok).toBe(true);
     if (!result.ok) return;
     expect(result.offering.slug).toBe("intro-bitcoin");
+    expect(result.offering.merchant_id).toBe(merchant.id);
     expect(result.offering.code_pool).toEqual([]);
 
     const audit = await testDb.select().from(adminAuditLog);
     expect(audit.length).toBe(1);
     expect(audit[0].actor_pubkey).toBe(ACTOR);
+    expect(audit[0].merchant_id).toBe(merchant.id);
     expect(audit[0].action).toBe("create");
   });
 
-  it("rejects a duplicate slug with slug_taken", async () => {
+  it("rejects a duplicate slug within one merchant with slug_taken", async () => {
+    const merchant = await seedMerchant({ pubkey: ACTOR });
     await createOfferingForAdmin(
+      merchant.id,
       {
         slug: "dupe",
         type: "code",
@@ -67,6 +73,7 @@ describe("admin/offerings/createOfferingForAdmin", () => {
       ACTOR
     );
     const second = await createOfferingForAdmin(
+      merchant.id,
       {
         slug: "dupe",
         type: "code",
@@ -80,11 +87,48 @@ describe("admin/offerings/createOfferingForAdmin", () => {
     if (second.ok) return;
     expect(second.reason).toBe("slug_taken");
   });
+
+  it("allows the same slug across different merchants", async () => {
+    const a = await seedMerchant({
+      pubkey: "a".repeat(64),
+      slug: "merch-a",
+    });
+    const b = await seedMerchant({
+      pubkey: "b".repeat(64),
+      slug: "merch-b",
+    });
+    const fromA = await createOfferingForAdmin(
+      a.id,
+      {
+        slug: "shared-slug",
+        type: "code",
+        title: "From A",
+        description: "From A.",
+        price_ars: 1000,
+      },
+      a.pubkey
+    );
+    const fromB = await createOfferingForAdmin(
+      b.id,
+      {
+        slug: "shared-slug",
+        type: "code",
+        title: "From B",
+        description: "From B.",
+        price_ars: 1000,
+      },
+      b.pubkey
+    );
+    expect(fromA.ok).toBe(true);
+    expect(fromB.ok).toBe(true);
+  });
 });
 
 describe("admin/offerings/updateOfferingForAdmin", () => {
   it("updates editable fields and writes an audit row with the changed keys", async () => {
+    const merchant = await seedMerchant({ pubkey: ACTOR });
     const created = await createOfferingForAdmin(
+      merchant.id,
       {
         slug: "to-edit",
         type: "code",
@@ -97,6 +141,7 @@ describe("admin/offerings/updateOfferingForAdmin", () => {
     if (!created.ok) throw new Error("seed failed");
 
     const updated = await updateOfferingForAdmin(
+      merchant.id,
       created.offering.id,
       { title: "New title", price_ars: 1500 },
       ACTOR
@@ -117,7 +162,9 @@ describe("admin/offerings/updateOfferingForAdmin", () => {
   });
 
   it("returns not_found for an unknown id", async () => {
+    const merchant = await seedMerchant({ pubkey: ACTOR });
     const res = await updateOfferingForAdmin(
+      merchant.id,
       "00000000-0000-0000-0000-000000000000",
       { title: "X" },
       ACTOR
@@ -127,8 +174,43 @@ describe("admin/offerings/updateOfferingForAdmin", () => {
     expect(res.reason).toBe("not_found");
   });
 
-  it("rejects a slug change that conflicts with another offering", async () => {
+  it("returns not_found when the id belongs to another merchant (cross-tenant scoping)", async () => {
+    const owner = await seedMerchant({
+      pubkey: "a".repeat(64),
+      slug: "owner",
+    });
+    const intruder = await seedMerchant({
+      pubkey: "b".repeat(64),
+      slug: "intruder",
+    });
+    const created = await createOfferingForAdmin(
+      owner.id,
+      {
+        slug: "private",
+        type: "code",
+        title: "Private",
+        description: "Private.",
+        price_ars: 1000,
+      },
+      owner.pubkey
+    );
+    if (!created.ok) throw new Error("seed failed");
+
+    const res = await updateOfferingForAdmin(
+      intruder.id,
+      created.offering.id,
+      { title: "Hijacked" },
+      intruder.pubkey
+    );
+    expect(res.ok).toBe(false);
+    if (res.ok) return;
+    expect(res.reason).toBe("not_found");
+  });
+
+  it("rejects a slug change that conflicts with another offering on the same merchant", async () => {
+    const merchant = await seedMerchant({ pubkey: ACTOR });
     const a = await createOfferingForAdmin(
+      merchant.id,
       {
         slug: "a-slug",
         type: "code",
@@ -139,6 +221,7 @@ describe("admin/offerings/updateOfferingForAdmin", () => {
       ACTOR
     );
     const b = await createOfferingForAdmin(
+      merchant.id,
       {
         slug: "b-slug",
         type: "code",
@@ -151,6 +234,7 @@ describe("admin/offerings/updateOfferingForAdmin", () => {
     if (!a.ok || !b.ok) throw new Error("seed failed");
 
     const result = await updateOfferingForAdmin(
+      merchant.id,
       b.offering.id,
       { slug: "a-slug" },
       ACTOR
@@ -163,7 +247,9 @@ describe("admin/offerings/updateOfferingForAdmin", () => {
 
 describe("admin/offerings/archiveOfferingForAdmin", () => {
   it("sets archived_at and writes an audit row", async () => {
+    const merchant = await seedMerchant({ pubkey: ACTOR });
     const created = await createOfferingForAdmin(
+      merchant.id,
       {
         slug: "to-archive",
         type: "download",
@@ -177,6 +263,7 @@ describe("admin/offerings/archiveOfferingForAdmin", () => {
     if (!created.ok) throw new Error("seed failed");
 
     const result = await archiveOfferingForAdmin(
+      merchant.id,
       created.offering.id,
       ACTOR
     );
@@ -184,7 +271,7 @@ describe("admin/offerings/archiveOfferingForAdmin", () => {
     if (!result.ok) return;
     expect(result.offering.archived_at).not.toBeNull();
 
-    const archived = await listArchivedOfferings();
+    const archived = await listArchivedOfferings(merchant.id);
     expect(archived.length).toBe(1);
     expect(archived[0].id).toBe(created.offering.id);
 
@@ -196,7 +283,9 @@ describe("admin/offerings/archiveOfferingForAdmin", () => {
   });
 
   it("refuses to archive an already-archived offering", async () => {
+    const merchant = await seedMerchant({ pubkey: ACTOR });
     const created = await createOfferingForAdmin(
+      merchant.id,
       {
         slug: "already",
         type: "code",
@@ -207,9 +296,10 @@ describe("admin/offerings/archiveOfferingForAdmin", () => {
       ACTOR
     );
     if (!created.ok) throw new Error("seed failed");
-    await archiveOfferingForAdmin(created.offering.id, ACTOR);
+    await archiveOfferingForAdmin(merchant.id, created.offering.id, ACTOR);
 
     const second = await archiveOfferingForAdmin(
+      merchant.id,
       created.offering.id,
       ACTOR
     );
@@ -220,8 +310,10 @@ describe("admin/offerings/archiveOfferingForAdmin", () => {
 });
 
 describe("admin/offerings/list helpers", () => {
-  it("listAllOfferings returns active rows ordered newest-first", async () => {
+  it("listAllOfferings returns active rows for the merchant, newest-first", async () => {
+    const merchant = await seedMerchant({ pubkey: ACTOR });
     const a = await createOfferingForAdmin(
+      merchant.id,
       {
         slug: "a",
         type: "code",
@@ -232,6 +324,7 @@ describe("admin/offerings/list helpers", () => {
       ACTOR
     );
     const b = await createOfferingForAdmin(
+      merchant.id,
       {
         slug: "b",
         type: "code",
@@ -242,14 +335,52 @@ describe("admin/offerings/list helpers", () => {
       ACTOR
     );
     if (!a.ok || !b.ok) throw new Error("seed failed");
-    const rows = await listAllOfferings();
+    const rows = await listAllOfferings(merchant.id);
     expect(rows.length).toBe(2);
     expect(rows[0].id).toBe(b.offering.id);
     expect(rows[1].id).toBe(a.offering.id);
   });
 
+  it("listAllOfferings does not leak rows from other merchants", async () => {
+    const a = await seedMerchant({
+      pubkey: "a".repeat(64),
+      slug: "merch-a",
+    });
+    const b = await seedMerchant({
+      pubkey: "b".repeat(64),
+      slug: "merch-b",
+    });
+    await createOfferingForAdmin(
+      a.id,
+      {
+        slug: "from-a",
+        type: "code",
+        title: "From A",
+        description: "From A.",
+        price_ars: 100,
+      },
+      a.pubkey
+    );
+    await createOfferingForAdmin(
+      b.id,
+      {
+        slug: "from-b",
+        type: "code",
+        title: "From B",
+        description: "From B.",
+        price_ars: 100,
+      },
+      b.pubkey
+    );
+    const seenByA = await listAllOfferings(a.id);
+    expect(seenByA.length).toBe(1);
+    expect(seenByA[0].slug).toBe("from-a");
+  });
+
   it("getOfferingForAdmin returns archived rows (panel needs them)", async () => {
+    const merchant = await seedMerchant({ pubkey: ACTOR });
     const created = await createOfferingForAdmin(
+      merchant.id,
       {
         slug: "fetched",
         type: "code",
@@ -260,9 +391,9 @@ describe("admin/offerings/list helpers", () => {
       ACTOR
     );
     if (!created.ok) throw new Error("seed failed");
-    await archiveOfferingForAdmin(created.offering.id, ACTOR);
+    await archiveOfferingForAdmin(merchant.id, created.offering.id, ACTOR);
 
-    const found = await getOfferingForAdmin("fetched");
+    const found = await getOfferingForAdmin(merchant.id, "fetched");
     expect(found?.id).toBe(created.offering.id);
     expect(found?.archived_at).not.toBeNull();
   });

@@ -3,10 +3,10 @@ import {
   CreateOfferingSchema,
   createOfferingForAdmin,
 } from "@/lib/admin/offerings";
-import { requireAdmin } from "@/lib/admin/require-admin";
+import { requireMerchant } from "@/lib/admin/require-merchant";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
-  const auth = await requireAdmin();
+  const auth = await requireMerchant();
   if (!auth.ok) return auth.response;
 
   let body: unknown;
@@ -25,6 +25,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 
   const result = await createOfferingForAdmin(
+    auth.merchant.id,
     parsed.data,
     auth.session.pubkey
   );

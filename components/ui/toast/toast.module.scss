@@ -51,7 +51,7 @@
   background: $color-surface;
   border: 1px solid $color-border;
   border-radius: $border-radius-md;
-  box-shadow: 0 8px 32px alpha($static-black, 15%);
+  box-shadow: 0 8px 32px $card-shadow-hover;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
   color: $color-text-primary;
@@ -110,5 +110,12 @@
   .toastIcon {
     background: alpha($color-primary, 15%);
     color: $color-primary;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .toastExiting {
+    animation: none;
   }
 }

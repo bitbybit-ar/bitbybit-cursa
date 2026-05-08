@@ -4,6 +4,7 @@ import { Link } from "@/i18n/routing";
 import { Card } from "@/components/ui/card";
 import { ArrowRightIcon } from "@/components/icons";
 import { getAdminOverview } from "@/lib/admin/stats";
+import { requirePanelMerchant } from "@/lib/admin/panel-context";
 import styles from "./page.module.scss";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +30,8 @@ export default async function PanelOverviewPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const stats = await getAdminOverview();
+  const merchant = await requirePanelMerchant();
+  const stats = await getAdminOverview(merchant.id);
   const t = await getTranslations("panel.overview");
   const tStatus = await getTranslations("orderStatus");
 

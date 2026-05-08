@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
 import { getTableConfig } from "drizzle-orm/pg-core";
 import {
+  merchants,
   offerings,
   orders,
-  settings,
   adminAuditLog,
   offeringType,
   orderStatus,
@@ -24,6 +24,46 @@ describe("db/schema enums", () => {
   });
 });
 
+describe("db/schema merchants", () => {
+  const config = getTableConfig(merchants);
+
+  it("uses snake_case table name", () => {
+    expect(config.name).toBe("merchants");
+  });
+
+  it("requires pubkey, slug, and display_name", () => {
+    for (const name of ["pubkey", "slug", "display_name"]) {
+      const col = config.columns.find((c) => c.name === name);
+      expect(col?.notNull, `${name} should be NOT NULL`).toBe(true);
+    }
+  });
+
+  it("makes pubkey and slug unique (one row per identity, one row per URL)", () => {
+    const pubkey = config.columns.find((c) => c.name === "pubkey");
+    const slug = config.columns.find((c) => c.name === "slug");
+    expect(pubkey?.isUnique).toBe(true);
+    expect(slug?.isUnique).toBe(true);
+  });
+
+  it("defaults active and features_autorenewal", () => {
+    const active = config.columns.find((c) => c.name === "active");
+    expect(active?.default).toBe(true);
+    expect(active?.notNull).toBe(true);
+    const flag = config.columns.find(
+      (c) => c.name === "features_autorenewal"
+    );
+    expect(flag?.default).toBe(false);
+    expect(flag?.notNull).toBe(true);
+  });
+
+  it("makes cbu and alias nullable so a fresh claim can render the panel", () => {
+    for (const name of ["cbu", "alias"]) {
+      const col = config.columns.find((c) => c.name === name);
+      expect(col?.notNull, `${name} should be nullable`).toBe(false);
+    }
+  });
+});
+
 describe("db/schema offerings", () => {
   const config = getTableConfig(offerings);
 
@@ -31,9 +71,11 @@ describe("db/schema offerings", () => {
     expect(config.name).toBe("offerings");
   });
 
-  it("requires slug to be unique", () => {
-    const slug = config.columns.find((c) => c.name === "slug");
-    expect(slug?.isUnique).toBe(true);
+  it("requires merchant_id (per ADR 0012)", () => {
+    const merchantId = config.columns.find(
+      (c) => c.name === "merchant_id"
+    );
+    expect(merchantId?.notNull).toBe(true);
   });
 
   it("makes archived_at nullable for soft-delete", () => {
@@ -52,6 +94,13 @@ describe("db/schema offerings", () => {
     const priceSats = config.columns.find((c) => c.name === "price_sats");
     expect(priceSats?.notNull).toBe(false);
   });
+
+  it("references merchants via merchant_id", () => {
+    const fk = config.foreignKeys.find((f) =>
+      f.reference().columns.some((c) => c.name === "merchant_id")
+    );
+    expect(fk).toBeDefined();
+  });
 });
 
 describe("db/schema orders", () => {
@@ -62,8 +111,13 @@ describe("db/schema orders", () => {
     expect(pubkey?.notNull).toBe(false);
   });
 
-  it("requires offering_id and the amounts", () => {
-    for (const name of ["offering_id", "amount_ars", "amount_sats"]) {
+  it("requires offering_id, merchant_id, and the amounts", () => {
+    for (const name of [
+      "offering_id",
+      "merchant_id",
+      "amount_ars",
+      "amount_sats",
+    ]) {
       const col = config.columns.find((c) => c.name === name);
       expect(col?.notNull, `${name} should be NOT NULL`).toBe(true);
     }
@@ -80,28 +134,21 @@ describe("db/schema orders", () => {
     );
     expect(fk).toBeDefined();
   });
-});
 
-describe("db/schema settings", () => {
-  const config = getTableConfig(settings);
-
-  it("uses smallint id with a singleton check", () => {
-    const id = config.columns.find((c) => c.name === "id");
-    expect(id?.notNull).toBe(true);
-    expect(config.checks.find((c) => c.name === "settings_singleton")).toBeDefined();
+  it("references merchants via merchant_id", () => {
+    const fk = config.foreignKeys.find((f) =>
+      f.reference().columns.some((c) => c.name === "merchant_id")
+    );
+    expect(fk).toBeDefined();
   });
 
-  it("defaults features_autorenewal to false", () => {
-    const flag = config.columns.find((c) => c.name === "features_autorenewal");
-    expect(flag?.default).toBe(false);
-    expect(flag?.notNull).toBe(true);
-  });
-
-  it("makes cbu and alias nullable so a fresh deploy can render the panel", () => {
-    for (const name of ["cbu", "alias"]) {
-      const col = config.columns.find((c) => c.name === name);
-      expect(col?.notNull, `${name} should be nullable`).toBe(false);
-    }
+  it("renamed wapu_invoice_id to wapu_tentative_uuid (direct-payment)", () => {
+    expect(
+      config.columns.find((c) => c.name === "wapu_tentative_uuid")
+    ).toBeDefined();
+    expect(
+      config.columns.find((c) => c.name === "wapu_invoice_id")
+    ).toBeUndefined();
   });
 });
 
@@ -113,6 +160,11 @@ describe("db/schema admin_audit_log", () => {
       const col = config.columns.find((c) => c.name === name);
       expect(col?.notNull, `${name} should be NOT NULL`).toBe(true);
     }
+  });
+
+  it("makes merchant_id nullable for platform-level audit rows", () => {
+    const m = config.columns.find((c) => c.name === "merchant_id");
+    expect(m?.notNull).toBe(false);
   });
 
   it("makes payload_diff nullable so non-mutating audits can omit it", () => {

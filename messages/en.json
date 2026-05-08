@@ -103,7 +103,8 @@
       "orders": "Orders",
       "students": "Students",
       "settings": "Settings",
-      "exit": "← Back to site"
+      "exit": "← Back to site",
+      "viewStore": "View my store"
     },
     "overview": {
       "metadataTitle": "Panel · Overview",
@@ -159,8 +160,20 @@
         "priceArs": "Price (ARS)",
         "priceSats": "Pinned price (sats)",
         "priceSatsHint": "Leave empty to compute the sats price at purchase time.",
-        "imageUrl": "Image URL",
+        "imageUrl": "Image",
         "optional": "Optional",
+        "imageUpload": {
+          "pickFile": "Upload image",
+          "uploading": "Uploading…",
+          "remove": "Remove",
+          "pasteUrlInstead": "Already hosting it elsewhere? Paste the URL.",
+          "hint": "JPG, PNG, or WebP up to 5 MB. The image is uploaded to Blossom with your Nostr signature.",
+          "errorBadType": "Only JPG, PNG, and WebP are accepted.",
+          "errorTooLarge": "That image is over 5 MB.",
+          "errorUploadFailed": "Couldn't upload the image. Try again.",
+          "errorCancelled": "You cancelled the signature. The image wasn't uploaded.",
+          "errorNoServers": "No Blossom servers configured. Tell the deployer."
+        },
         "codePool": "Available codes",
         "codePoolPlaceholder": "AAAA-1111\nBBBB-2222\nCCCC-3333",
         "codePoolHint": "One code per line. Each purchase consumes one; when the pool is empty, new buyers see \"code pending\" until you add more.",
@@ -247,7 +260,11 @@
         "saving": "Saving…",
         "saved": "Settings saved.",
         "saveFailed": "Couldn't save settings. Try again.",
-        "destinationRequired": "You need at least a CBU or an alias."
+        "destinationRequired": "You need at least a CBU or an alias.",
+        "signRequiredTitle": "Confirm the change with your signature",
+        "signRequiredBody": "Changing the CBU or alias requires an additional signature from your Nostr signer.",
+        "signCancelled": "You cancelled the signature. Try again when you're ready.",
+        "signClockSkew": "Your device clock is out of sync. Sync it and try again."
       }
     }
   },
@@ -339,6 +356,46 @@
   "reSignIn": {
     "extensionRejected": "The extension declined to sign.",
     "mismatch": "That key doesn't match your current session.",
-    "authFailed": "We couldn't validate your signature."
+    "authFailed": "We couldn't validate your signature.",
+    "attachKey": "Attach key"
+  },
+  "language": {
+    "switchToEnglish": "Switch to English",
+    "switchToSpanish": "Switch to Spanish"
+  },
+  "storefront": {
+    "offeringsHeading": "What I sell",
+    "empty": "This professor hasn't published any offerings yet."
+  },
+  "onboarding": {
+    "metadataTitle": "Create your store",
+    "title": "Welcome to Cursá",
+    "subtitle": "Pick a name, a store handle, and start selling.",
+    "form": {
+      "slug": "Store handle",
+      "slugPlaceholder": "ana-piano",
+      "slugHint": "Used in your public URL: cursa.bitbybit.com.ar/m/{your-slug}. Lowercase letters, numbers, and hyphens only.",
+      "slugTaken": "That handle is taken. Try another.",
+      "slugErrors": {
+        "format": "Lowercase letters, numbers, and hyphens only (and no leading or trailing hyphens).",
+        "length": "Handle must be 3 to 40 characters.",
+        "reserved": "That handle is reserved by the platform. Pick another."
+      },
+      "displayName": "Display name",
+      "displayNamePlaceholder": "Ana, piano teacher",
+      "displayNameTooShort": "Display name needs at least 2 characters.",
+      "bio": "Bio",
+      "bioPlaceholder": "A line or two about what you teach.",
+      "destination": "Bank alias or CBU for payouts",
+      "destinationPlaceholder": "MY.ALIAS.MP or 22-digit CBU",
+      "destinationHint": "Optional now. Add it from Settings before your first sale — without it, checkout will reject buyers.",
+      "destinationInvalid": "Alias is 6–20 characters (letters, numbers, dots, hyphens). CBU is exactly 22 digits.",
+      "optional": "Optional",
+      "save": "Create my store",
+      "saving": "Creating…",
+      "saved": "Done! Your store is live.",
+      "saveFailed": "Couldn't create the store. Try again.",
+      "alreadyClaimed": "You already have a store on this identity."
+    }
   }
 }

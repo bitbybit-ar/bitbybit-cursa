@@ -1,7 +1,8 @@
 import { config } from "dotenv";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import { offerings } from "@/lib/db/schema";
+import { eq, and } from "drizzle-orm";
+import { merchants, offerings } from "@/lib/db/schema";
 
 // Same dotenv precedence as scripts/migrate.ts so a single
 // MIGRATE_ENV_FILE/.env.local/.env file drives both commands.
@@ -9,6 +10,28 @@ const envFile = process.env.MIGRATE_ENV_FILE;
 if (envFile) config({ path: envFile });
 config({ path: ".env.local" });
 config({ path: ".env" });
+
+// Marketplace pivot (ADR 0012): every offering belongs to a
+// merchant. The seed inserts a single example merchant under a
+// well-known pubkey (all-zeros) and attaches the sample offerings
+// to it. Fresh installs can browse the discovery home before any
+// real merchant has signed up.
+const SEED_MERCHANT_PUBKEY =
+  "0000000000000000000000000000000000000000000000000000000000000000";
+
+const SEED_MERCHANT = {
+  pubkey: SEED_MERCHANT_PUBKEY,
+  slug: "demo",
+  display_name: "Profe Demo",
+  bio:
+    "Cuenta de ejemplo. Sirve para probar el catálogo de Cursá " +
+    "antes de que profesores reales publiquen sus clases.",
+  // Wapu-routable destination. The mock client accepts any string;
+  // a real Wapu account would be required in production.
+  alias: "demo.cursa.ar",
+  cbu: null,
+  active: true,
+};
 
 const SAMPLE_OFFERINGS = [
   {
@@ -55,19 +78,51 @@ async function main() {
   const sql = neon(databaseUrl);
   const db = drizzle(sql);
 
+  // Ensure the seed merchant exists. Idempotent — re-runs of the
+  // seed script will skip if the row is already there.
+  const [existingMerchant] = await db
+    .select()
+    .from(merchants)
+    .where(eq(merchants.pubkey, SEED_MERCHANT.pubkey))
+    .limit(1);
+  let merchant = existingMerchant;
+  if (!merchant) {
+    const [inserted] = await db
+      .insert(merchants)
+      .values(SEED_MERCHANT)
+      .returning();
+    merchant = inserted;
+    console.log(`Seed merchant inserted: slug=${merchant.slug}`);
+  } else {
+    console.log(`Seed merchant present: slug=${merchant.slug}`);
+  }
+
   let inserted = 0;
   let skipped = 0;
   for (const row of SAMPLE_OFFERINGS) {
-    const result = await db
+    // Slug is unique per (merchant_id, slug); check the pair before
+    // inserting so the script stays idempotent.
+    const [existing] = await db
+      .select({ id: offerings.id })
+      .from(offerings)
+      .where(
+        and(
+          eq(offerings.merchant_id, merchant.id),
+          eq(offerings.slug, row.slug)
+        )
+      )
+      .limit(1);
+    if (existing) {
+      skipped += 1;
+      continue;
+    }
+    await db
       .insert(offerings)
-      .values(row)
-      .onConflictDoNothing({ target: offerings.slug })
-      .returning({ id: offerings.id });
-    if (result.length > 0) inserted += 1;
-    else skipped += 1;
+      .values({ ...row, merchant_id: merchant.id });
+    inserted += 1;
   }
   console.log(
-    `Seed complete: ${inserted} inserted, ${skipped} already present`
+    `Seed complete: ${inserted} offering(s) inserted, ${skipped} already present`
   );
 }
 

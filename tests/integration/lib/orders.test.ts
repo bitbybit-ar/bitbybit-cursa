@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { sql, eq } from "drizzle-orm";
-import { testDb, cleanDb } from "../setup";
+import { testDb, cleanDb, seedMerchant } from "../setup";
 import { offerings } from "@/lib/db/schema";
 import {
   createOrder,
@@ -28,12 +28,27 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await cleanDb();
+  // The seedMerchant helper is per-test; the cached id from the
+  // previous test points at a row that cleanDb just truncated.
+  testMerchantId = "";
 });
 
+let testMerchantId: string;
+
+async function ensureTestMerchant() {
+  if (!testMerchantId) {
+    const m = await seedMerchant();
+    testMerchantId = m.id;
+  }
+  return testMerchantId;
+}
+
 async function seedOffering(slug = "bono-4-clases") {
+  const merchantId = await ensureTestMerchant();
   const [row] = await testDb
     .insert(offerings)
     .values({
+      merchant_id: merchantId,
       slug,
       type: "code",
       title: "Bono 4 clases",
@@ -53,15 +68,15 @@ describe("orders/createOrder", () => {
       offering_id: offering.id,
       pubkey: null,
     });
-    expect(result.invoice.amount_ars).toBe(28000);
-    expect(result.invoice.bolt11).toMatch(/^lnbc/);
+    expect(result.funding.amount_ars).toBe(28000);
+    expect(result.funding.bolt11).toMatch(/^lnbc/);
 
     const row = await getOrder(result.order_id);
     expect(row?.pubkey).toBeNull();
     expect(row?.status).toBe("pending");
     expect(row?.amount_ars).toBe(28000);
-    expect(row?.amount_sats).toBe(result.invoice.amount_sats);
-    expect(row?.payment_hash).toBe(result.invoice.payment_hash);
+    expect(row?.amount_sats).toBe(result.funding.amount_sats);
+    expect(row?.payment_hash).toBe(result.funding.payment_hash);
   });
 
   it("attaches the buyer pubkey when provided", async () => {
@@ -80,7 +95,7 @@ describe("orders/createOrder", () => {
         offering_id: "00000000-0000-0000-0000-000000000000",
         pubkey: null,
       })
-    ).rejects.toThrow(/does not exist/);
+    ).rejects.toMatchObject({ code: "offering_not_found" });
   });
 
   it("rejects a checkout against an archived offering", async () => {
@@ -92,7 +107,7 @@ describe("orders/createOrder", () => {
 
     await expect(
       createOrder({ offering_id: offering.id, pubkey: null })
-    ).rejects.toThrow(/archived/);
+    ).rejects.toMatchObject({ code: "offering_archived" });
   });
 });
 
@@ -251,9 +266,11 @@ describe("orders/claimOrderForBuyer", () => {
 
 describe("orders/drawAndAssignCode", () => {
   async function seedCodeOfferingWithPool(codes: string[]) {
+    const merchantId = await ensureTestMerchant();
     const [row] = await testDb
       .insert(offerings)
       .values({
+        merchant_id: merchantId,
         slug: `pool-${codes.length}-${Date.now()}`,
         type: "code",
         title: "Pool offering",
@@ -266,9 +283,11 @@ describe("orders/drawAndAssignCode", () => {
   }
 
   async function seedDownloadOffering() {
+    const merchantId = await ensureTestMerchant();
     const [row] = await testDb
       .insert(offerings)
       .values({
+        merchant_id: merchantId,
         slug: `download-${Date.now()}`,
         type: "download",
         title: "PDF",

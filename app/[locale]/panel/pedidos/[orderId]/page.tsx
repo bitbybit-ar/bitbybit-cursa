@@ -7,6 +7,7 @@ import { Container } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
 import { ArrowLeftIcon } from "@/components/icons";
 import { getAdminOrderDetail } from "@/lib/admin/orders";
+import { requirePanelMerchant } from "@/lib/admin/panel-context";
 import styles from "./page.module.scss";
 
 const ParamsSchema = z.object({ orderId: z.string().uuid() });
@@ -40,7 +41,8 @@ export default async function PanelOrderDetailPage({
   const parsed = ParamsSchema.safeParse({ orderId });
   if (!parsed.success) notFound();
 
-  const order = await getAdminOrderDetail(orderId);
+  const merchant = await requirePanelMerchant();
+  const order = await getAdminOrderDetail(merchant.id, orderId);
   if (!order) notFound();
 
   const t = await getTranslations("panel.orders.detail");
@@ -128,10 +130,10 @@ export default async function PanelOrderDetailPage({
             </>
           ) : null}
 
-          {order.wapu_invoice_id ? (
+          {order.wapu_tentative_uuid ? (
             <>
               <dt>{t("wapuInvoiceId")}</dt>
-              <dd className={styles.mono}>{order.wapu_invoice_id}</dd>
+              <dd className={styles.mono}>{order.wapu_tentative_uuid}</dd>
             </>
           ) : null}
 

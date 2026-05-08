@@ -1,8 +1,8 @@
 // @vitest-environment node
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
-import { sql, eq } from "drizzle-orm";
-import { testDb, cleanDb } from "../setup";
-import { offerings, orders, settings } from "@/lib/db/schema";
+import { sql } from "drizzle-orm";
+import { testDb, cleanDb, seedMerchant } from "../setup";
+import { offerings, orders, merchants } from "@/lib/db/schema";
 
 beforeAll(async () => {
   // Sanity: the test DB must already be migrated.
@@ -24,11 +24,59 @@ beforeEach(async () => {
   await cleanDb();
 });
 
+describe("db/migrate — merchants", () => {
+  it("inserts a merchant keyed by pubkey", async () => {
+    const [row] = await testDb
+      .insert(merchants)
+      .values({
+        pubkey: "a".repeat(64),
+        slug: "test-prof",
+        display_name: "Test Profe",
+      })
+      .returning();
+    expect(row.slug).toBe("test-prof");
+    expect(row.active).toBe(true);
+    expect(row.id).toMatch(/^[0-9a-f-]{36}$/);
+  });
+
+  it("rejects a duplicate pubkey", async () => {
+    await testDb.insert(merchants).values({
+      pubkey: "a".repeat(64),
+      slug: "first",
+      display_name: "First",
+    });
+    await expect(
+      testDb.insert(merchants).values({
+        pubkey: "a".repeat(64),
+        slug: "second",
+        display_name: "Second",
+      })
+    ).rejects.toThrow();
+  });
+
+  it("rejects a duplicate slug", async () => {
+    await testDb.insert(merchants).values({
+      pubkey: "a".repeat(64),
+      slug: "shared",
+      display_name: "First",
+    });
+    await expect(
+      testDb.insert(merchants).values({
+        pubkey: "b".repeat(64),
+        slug: "shared",
+        display_name: "Second",
+      })
+    ).rejects.toThrow();
+  });
+});
+
 describe("db/migrate — offerings", () => {
-  it("inserts and reads back a code offering", async () => {
+  it("inserts and reads back a code offering scoped to a merchant", async () => {
+    const merchant = await seedMerchant();
     const [row] = await testDb
       .insert(offerings)
       .values({
+        merchant_id: merchant.id,
         slug: "bono-4-clases",
         type: "code",
         title: "Bono 4 clases",
@@ -38,13 +86,15 @@ describe("db/migrate — offerings", () => {
       .returning();
 
     expect(row.slug).toBe("bono-4-clases");
+    expect(row.merchant_id).toBe(merchant.id);
     expect(row.type).toBe("code");
     expect(row.archived_at).toBeNull();
-    expect(row.id).toMatch(/^[0-9a-f-]{36}$/);
   });
 
-  it("rejects a duplicate slug", async () => {
+  it("rejects a duplicate slug within one merchant", async () => {
+    const merchant = await seedMerchant();
     await testDb.insert(offerings).values({
+      merchant_id: merchant.id,
       slug: "duplicado",
       type: "code",
       title: "First",
@@ -54,6 +104,7 @@ describe("db/migrate — offerings", () => {
 
     await expect(
       testDb.insert(offerings).values({
+        merchant_id: merchant.id,
         slug: "duplicado",
         type: "code",
         title: "Second",
@@ -62,13 +113,42 @@ describe("db/migrate — offerings", () => {
       })
     ).rejects.toThrow();
   });
+
+  it("allows the same slug across two different merchants", async () => {
+    const a = await seedMerchant({
+      pubkey: "a".repeat(64),
+      slug: "merch-a",
+    });
+    const b = await seedMerchant({
+      pubkey: "b".repeat(64),
+      slug: "merch-b",
+    });
+    await testDb.insert(offerings).values({
+      merchant_id: a.id,
+      slug: "shared",
+      type: "code",
+      title: "From A",
+      description: "From A.",
+      price_ars: 1000,
+    });
+    await testDb.insert(offerings).values({
+      merchant_id: b.id,
+      slug: "shared",
+      type: "code",
+      title: "From B",
+      description: "From B.",
+      price_ars: 1000,
+    });
+  });
 });
 
 describe("db/migrate — orders", () => {
   it("accepts an anonymous order with null pubkey", async () => {
+    const merchant = await seedMerchant();
     const [offering] = await testDb
       .insert(offerings)
       .values({
+        merchant_id: merchant.id,
         slug: "anon-test",
         type: "code",
         title: "Anon",
@@ -81,6 +161,7 @@ describe("db/migrate — orders", () => {
       .insert(orders)
       .values({
         offering_id: offering.id,
+        merchant_id: merchant.id,
         amount_ars: 1000,
         amount_sats: 100,
       })
@@ -88,42 +169,18 @@ describe("db/migrate — orders", () => {
 
     expect(order.pubkey).toBeNull();
     expect(order.status).toBe("pending");
+    expect(order.merchant_id).toBe(merchant.id);
   });
 
   it("rejects an order whose offering_id does not exist", async () => {
+    const merchant = await seedMerchant();
     await expect(
       testDb.insert(orders).values({
         offering_id: "00000000-0000-0000-0000-000000000000",
+        merchant_id: merchant.id,
         amount_ars: 1000,
         amount_sats: 100,
       })
     ).rejects.toThrow();
-  });
-});
-
-describe("db/migrate — settings singleton", () => {
-  it("accepts the id=1 row", async () => {
-    const [row] = await testDb
-      .insert(settings)
-      .values({ id: 1 })
-      .returning();
-    expect(row.id).toBe(1);
-    expect(row.features_autorenewal).toBe(false);
-  });
-
-  it("rejects any id other than 1", async () => {
-    await expect(
-      testDb.insert(settings).values({ id: 2 })
-    ).rejects.toThrow();
-  });
-
-  it("toggles features_autorenewal", async () => {
-    await testDb.insert(settings).values({ id: 1 });
-    await testDb
-      .update(settings)
-      .set({ features_autorenewal: true })
-      .where(eq(settings.id, 1));
-    const [row] = await testDb.select().from(settings);
-    expect(row.features_autorenewal).toBe(true);
   });
 });

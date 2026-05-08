@@ -2,24 +2,24 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { OfferingCard } from "@/components/catalog/offering-card";
-import { listActiveOfferings } from "@/lib/offerings";
+import { listDiscoveryOfferings } from "@/lib/offerings";
 import styles from "./page.module.scss";
 
 type Props = {
   params: Promise<{ locale: string }>;
 };
 
-// Catalog rows live in Postgres (ADR 0009) — render per request so a
-// merchant's panel edits are visible without a deploy. Move to ISR
-// (`export const revalidate`) once write traffic is high enough that
-// the read amplification matters.
+// Marketplace discovery home (ADR 0012). Renders every active
+// merchant's offerings in newest-first order so the platform reads
+// as a feed, not a single store. Per-merchant landing pages live
+// at /[locale]/m/[slug].
 export const dynamic = "force-dynamic";
 
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("catalog");
-  const offerings = await listActiveOfferings();
+  const rows = await listDiscoveryOfferings();
 
   return (
     <>
@@ -35,12 +35,16 @@ export default async function HomePage({ params }: Props) {
       <Section alternate>
         <Container column>
           <h2 className={styles.listHeading}>{t("list.heading")}</h2>
-          {offerings.length === 0 ? (
+          {rows.length === 0 ? (
             <p className={styles.empty}>{t("list.empty")}</p>
           ) : (
             <div className={styles.grid}>
-              {offerings.map((offering) => (
-                <OfferingCard key={offering.id} offering={offering} />
+              {rows.map(({ offering, merchant }) => (
+                <OfferingCard
+                  key={offering.id}
+                  offering={offering}
+                  merchant={merchant}
+                />
               ))}
             </div>
           )}

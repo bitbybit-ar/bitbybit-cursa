@@ -10,6 +10,10 @@ import { writeAuditLog } from "./audit";
  * shapes the panel needs (including archived rows) plus the
  * write paths, which always pair the DB change with an audit-log
  * row.
+ *
+ * Every helper takes a `merchantId` (ADR 0012). Slug uniqueness
+ * is per-merchant, so two merchants can both have an offering at
+ * `/m/<their-slug>/c/intro-bitcoin`.
  */
 
 export type Offering = typeof offerings.$inferSelect;
@@ -38,32 +42,72 @@ export const UpdateOfferingSchema = CreateOfferingSchema.partial();
 export type CreateOfferingInput = z.infer<typeof CreateOfferingSchema>;
 export type UpdateOfferingInput = z.infer<typeof UpdateOfferingSchema>;
 
-export async function listAllOfferings(): Promise<Offering[]> {
+export async function listAllOfferings(
+  merchantId: string
+): Promise<Offering[]> {
   const db = getDb();
   return db
     .select()
     .from(offerings)
-    .where(isNull(offerings.archived_at))
+    .where(
+      and(
+        eq(offerings.merchant_id, merchantId),
+        isNull(offerings.archived_at)
+      )
+    )
     .orderBy(desc(offerings.created_at));
 }
 
-export async function listArchivedOfferings(): Promise<Offering[]> {
+export async function listArchivedOfferings(
+  merchantId: string
+): Promise<Offering[]> {
   const db = getDb();
   return db
     .select()
     .from(offerings)
-    .where(isNotNull(offerings.archived_at))
+    .where(
+      and(
+        eq(offerings.merchant_id, merchantId),
+        isNotNull(offerings.archived_at)
+      )
+    )
     .orderBy(desc(offerings.archived_at));
 }
 
 export async function getOfferingForAdmin(
+  merchantId: string,
   slug: string
 ): Promise<Offering | null> {
   const db = getDb();
   const [row] = await db
     .select()
     .from(offerings)
-    .where(eq(offerings.slug, slug))
+    .where(
+      and(
+        eq(offerings.merchant_id, merchantId),
+        eq(offerings.slug, slug)
+      )
+    )
+    .limit(1);
+  return row ?? null;
+}
+
+/**
+ * Verify an offering exists AND belongs to the named merchant.
+ * Used by API routes that take a path id and must reject if the
+ * caller's session is not the offering's owner.
+ */
+export async function getOfferingForAdminById(
+  merchantId: string,
+  id: string
+): Promise<Offering | null> {
+  const db = getDb();
+  const [row] = await db
+    .select()
+    .from(offerings)
+    .where(
+      and(eq(offerings.merchant_id, merchantId), eq(offerings.id, id))
+    )
     .limit(1);
   return row ?? null;
 }
@@ -73,26 +117,32 @@ export type CreateOfferingResult =
   | { ok: false; reason: "slug_taken" };
 
 export async function createOfferingForAdmin(
+  merchantId: string,
   input: CreateOfferingInput,
   actorPubkey: string
 ): Promise<CreateOfferingResult> {
   const db = getDb();
 
-  // Slug-uniqueness guard before INSERT so the conflict produces
-  // a structured "slug_taken" rather than a Postgres unique-violation
-  // exception in the route handler. Race-windowed but cheap; if
-  // two admins create the same slug simultaneously the INSERT
-  // catches the second via the DB constraint.
+  // Slug-uniqueness guard before INSERT — per-merchant scope, ADR
+  // 0012. A different merchant can hold the same slug. Race-
+  // windowed but cheap; the DB unique index on (merchant_id, slug)
+  // catches a simultaneous insert.
   const [existing] = await db
     .select({ id: offerings.id })
     .from(offerings)
-    .where(eq(offerings.slug, input.slug))
+    .where(
+      and(
+        eq(offerings.merchant_id, merchantId),
+        eq(offerings.slug, input.slug)
+      )
+    )
     .limit(1);
   if (existing) return { ok: false, reason: "slug_taken" };
 
   const [row] = await db
     .insert(offerings)
     .values({
+      merchant_id: merchantId,
       slug: input.slug,
       type: input.type,
       title: input.title,
@@ -106,6 +156,7 @@ export async function createOfferingForAdmin(
     .returning();
 
   await writeAuditLog({
+    merchant_id: merchantId,
     actor_pubkey: actorPubkey,
     route: "/api/admin/offerings",
     action: "create",
@@ -127,17 +178,14 @@ export type UpdateOfferingResult =
   | { ok: false; reason: "slug_taken" };
 
 export async function updateOfferingForAdmin(
+  merchantId: string,
   id: string,
   patch: UpdateOfferingInput,
   actorPubkey: string
 ): Promise<UpdateOfferingResult> {
   const db = getDb();
 
-  const [existing] = await db
-    .select()
-    .from(offerings)
-    .where(eq(offerings.id, id))
-    .limit(1);
+  const existing = await getOfferingForAdminById(merchantId, id);
   if (!existing) return { ok: false, reason: "not_found" };
 
   if (patch.slug && patch.slug !== existing.slug) {
@@ -145,7 +193,10 @@ export async function updateOfferingForAdmin(
       .select({ id: offerings.id })
       .from(offerings)
       .where(
-        and(eq(offerings.slug, patch.slug))
+        and(
+          eq(offerings.merchant_id, merchantId),
+          eq(offerings.slug, patch.slug)
+        )
       )
       .limit(1);
     if (conflict && conflict.id !== id) {
@@ -176,7 +227,9 @@ export async function updateOfferingForAdmin(
           : patch.download_url,
       updated_at: new Date(),
     })
-    .where(eq(offerings.id, id))
+    .where(
+      and(eq(offerings.merchant_id, merchantId), eq(offerings.id, id))
+    )
     .returning();
 
   // Compute a small diff summary for the audit row. We DO NOT
@@ -191,6 +244,7 @@ export async function updateOfferingForAdmin(
         JSON.stringify(patch[k]) !== JSON.stringify(existing[k as keyof Offering])
     );
   await writeAuditLog({
+    merchant_id: merchantId,
     actor_pubkey: actorPubkey,
     route: "/api/admin/offerings/[id]",
     action: "update",
@@ -209,16 +263,13 @@ export type ArchiveOfferingResult =
   | { ok: false; reason: "already_archived" };
 
 export async function archiveOfferingForAdmin(
+  merchantId: string,
   id: string,
   actorPubkey: string
 ): Promise<ArchiveOfferingResult> {
   const db = getDb();
 
-  const [existing] = await db
-    .select()
-    .from(offerings)
-    .where(eq(offerings.id, id))
-    .limit(1);
+  const existing = await getOfferingForAdminById(merchantId, id);
   if (!existing) return { ok: false, reason: "not_found" };
   if (existing.archived_at !== null) {
     return { ok: false, reason: "already_archived" };
@@ -227,10 +278,13 @@ export async function archiveOfferingForAdmin(
   const [row] = await db
     .update(offerings)
     .set({ archived_at: new Date(), updated_at: new Date() })
-    .where(eq(offerings.id, id))
+    .where(
+      and(eq(offerings.merchant_id, merchantId), eq(offerings.id, id))
+    )
     .returning();
 
   await writeAuditLog({
+    merchant_id: merchantId,
     actor_pubkey: actorPubkey,
     route: "/api/admin/offerings/[id]",
     action: "archive",

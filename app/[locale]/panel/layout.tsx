@@ -1,6 +1,8 @@
+import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { redirect, Link } from "@/i18n/routing";
-import { getSession, sessionIsAdmin } from "@/lib/auth";
+import { getSession } from "@/lib/auth";
+import { getMerchantByPubkey } from "@/lib/admin/merchants";
 import { SignOutButton } from "@/components/auth/sign-out-button";
 import { PanelNavLink } from "@/components/admin/panel-nav-link";
 import {
@@ -14,13 +16,22 @@ import styles from "./layout.module.scss";
 export const dynamic = "force-dynamic";
 
 /**
- * Admin panel layout.
+ * Merchant panel layout (ADR 0012).
  *
- * The edge middleware (`proxy.ts`) already gates access to
- * `/[locale]/panel/*` and 404s non-admins. This layout repeats the
- * session check on the server so a server-side render that
- * somehow bypassed the middleware (e.g. a misconfigured matcher)
- * still fails closed. Redundancy is the goal.
+ * The edge middleware (`proxy.ts`) bounces anonymous visitors to
+ * sign-in. This layout finishes the gate:
+ *
+ *   - no session                   → bounce to /iniciar-sesion
+ *     (defence in depth — middleware already catches this)
+ *   - session, no merchant claimed → redirect to /onboarding
+ *   - session, deactivated merchant → 404
+ *   - signed-in active merchant     → render
+ *
+ * The merchant row is also exposed to children pages via the
+ * panel pages reading `getMerchantByPubkey` themselves; this
+ * layout intentionally does not propagate it through props or a
+ * context to keep the data path uniform with the API routes
+ * (which read it via `requireMerchant` on each call).
  */
 export default async function PanelLayout({
   children,
@@ -37,13 +48,14 @@ export default async function PanelLayout({
     redirect({ href: "/iniciar-sesion?next=/panel", locale });
     return null;
   }
-  if (!sessionIsAdmin(session)) {
-    // Belt-and-braces: middleware should have caught this, but if
-    // a request slipped through we still refuse to render the
-    // panel. notFound() would surface the 404 page in the active
-    // locale.
-    redirect({ href: "/", locale });
+
+  const merchant = await getMerchantByPubkey(session.pubkey);
+  if (!merchant) {
+    redirect({ href: "/onboarding", locale });
     return null;
+  }
+  if (!merchant.active) {
+    notFound();
   }
 
   const t = await getTranslations("panel");
@@ -52,7 +64,7 @@ export default async function PanelLayout({
     <div className={styles.layout}>
       <aside className={styles.sidebar}>
         <div className={styles.brand}>
-          <span className={styles.brandTitle}>{t("brand")}</span>
+          <span className={styles.brandTitle}>{merchant.display_name}</span>
           <span className={styles.brandSubtitle}>
             {t("brandSubtitle")}
           </span>
@@ -89,8 +101,8 @@ export default async function PanelLayout({
         </nav>
 
         <div className={styles.footer}>
-          <Link href="/" className={styles.exitLink}>
-            {t("nav.exit")}
+          <Link href={`/m/${merchant.slug}`} className={styles.exitLink}>
+            {t("nav.viewStore")}
           </Link>
           <SignOutButton label={t("signOut")} />
         </div>

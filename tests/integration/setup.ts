@@ -31,6 +31,38 @@ export const testDb = drizzle(sqlClient, { schema });
  */
 export async function cleanDb() {
   await testDb.execute(
-    sql`TRUNCATE TABLE admin_audit_log, orders, offerings, settings RESTART IDENTITY CASCADE`
+    sql`TRUNCATE TABLE admin_audit_log, orders, offerings, merchants RESTART IDENTITY CASCADE`
   );
+}
+
+/**
+ * Insert a merchant row with optional overrides. Tests that need
+ * an offering or order start by calling this so the FK in
+ * `offerings.merchant_id` / `orders.merchant_id` always points at
+ * a real row. ADR 0012.
+ */
+export async function seedMerchant(
+  overrides: Partial<{
+    pubkey: string;
+    slug: string;
+    display_name: string;
+    alias: string | null;
+    cbu: string | null;
+    active: boolean;
+  }> = {}
+) {
+  const pubkey = overrides.pubkey ?? "f".repeat(64);
+  const slug = overrides.slug ?? "demo";
+  const [row] = await testDb
+    .insert(schema.merchants)
+    .values({
+      pubkey,
+      slug,
+      display_name: overrides.display_name ?? "Demo Merchant",
+      alias: overrides.alias ?? "demo.test.alias",
+      cbu: overrides.cbu ?? null,
+      active: overrides.active ?? true,
+    })
+    .returning();
+  return row;
 }

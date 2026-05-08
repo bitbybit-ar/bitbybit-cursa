@@ -40,11 +40,15 @@ export function getAuthSecret(): Uint8Array {
   return new TextEncoder().encode("dev-secret-change-in-production");
 }
 
-// Comma-separated list of hex pubkeys allowed into /panel/*. Decision
-// in ADR 0008 — env (not DB) so the very first admin can sign in
-// before any row exists.
-export function getAdminPubkeys(): string[] {
-  const raw = process.env.ADMIN_PUBKEYS;
+// Comma-separated list of hex pubkeys allowed into the
+// platform-admin moderation surface (separate from per-merchant
+// panel access). ADR 0012 renamed this from `ADMIN_PUBKEYS`
+// because the marketplace pivot turned "admin" into two distinct
+// roles: every merchant administers their own /panel; only
+// platform admins moderate other merchants. Env (not DB) so the
+// very first platform admin can act before any row exists.
+export function getPlatformAdminPubkeys(): string[] {
+  const raw = process.env.PLATFORM_ADMIN_PUBKEYS;
   if (!raw) return [];
   return raw
     .split(",")
@@ -52,8 +56,8 @@ export function getAdminPubkeys(): string[] {
     .filter((s) => s.length > 0);
 }
 
-// Whether a given pubkey (hex) is permitted into /panel/*. Caller is
-// responsible for normalising npub→hex before checking.
-export function isAdminPubkey(pubkey: string): boolean {
-  return getAdminPubkeys().includes(pubkey);
+// Whether a given pubkey (hex) holds the platform-admin role.
+// Caller is responsible for normalising npub→hex before checking.
+export function isPlatformAdminPubkey(pubkey: string): boolean {
+  return getPlatformAdminPubkeys().includes(pubkey);
 }

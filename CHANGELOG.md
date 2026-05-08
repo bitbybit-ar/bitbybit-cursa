@@ -10,7 +10,54 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- **Marketplace pivot.** ADR 0012 turns Cursá from a single-
+  tenant tool (one fork per merchant) into a multi-tenant
+  marketplace where each professor signs in with their Nostr
+  key, claims a slug, and sells from their own storefront at
+  `/m/[slug]`. The platform never custodies funds — Wapu's
+  direct-payment routes ARS straight to each merchant's
+  CBU/alias on every invoice. New `merchants` table, every
+  offering and order is `merchant_id`-scoped, panel reads/writes
+  scope to the signed-in merchant, slug uniqueness is per-
+  merchant. ADR 0012 supersedes the single-tenancy half of
+  ADRs 0004, 0008, 0009.
+- **Wapu integration switched from invoice to direct-payment.**
+  `WapuClient.createInvoice` is gone; in its place
+  `createDirectPayment` and `issueDirectPaymentFunding` mirror
+  the endpoints from `wapu-app/wapu-cli#7`. The `orders` table
+  renamed `wapu_invoice_id` to `wapu_tentative_uuid`. Webhook
+  events now key on `direct_fiat.*` (`paid`/`expired`/`failed`)
+  and the schema validation is flagged TODO(Q1) until Wapu
+  publishes the canonical settlement-event shape.
+- **Auth model: `requireMerchant` replaces `requireAdmin`.**
+  `ADMIN_PUBKEYS` env renamed to `PLATFORM_ADMIN_PUBKEYS` and
+  is reserved for the moderation surface (no UI yet); the
+  per-merchant panel gate is now "do you have an active
+  `merchants` row?", not "is your pubkey in an env list."
+  Session JSON includes a slim `merchant` summary +
+  `platform_admin: boolean`; the legacy `is_admin` field is
+  gone.
+
 ### Added
+
+- **Onboarding flow at `/[locale]/onboarding`.** First-time
+  merchants land here from the panel layout when they have a
+  session but no `merchants` row. The form captures slug,
+  display name, optional bio, and an optional CBU/alias.
+  Validation lives in `lib/admin/ar-bank-id.ts` (alias 6–20
+  `[A-Za-z0-9.-]` per BCRA, CBU 22 digits, reserved-slug list).
+- **Per-merchant storefront at `/[locale]/m/[slug]`.** Hero
+  with display name + bio + avatar (Blossom-hosted) and the
+  merchant's active offerings. Offering detail moves to
+  `/[locale]/m/[mslug]/c/[oslug]`; the legacy `/c/[slug]`
+  route is removed.
+- **Discovery home.** The locale root now lists offerings
+  across every active merchant (newest first), with each
+  card byline naming the merchant.
+- **Audit log carries `merchant_id`** so a future platform-
+  admin moderation surface can filter by merchant.
 
 - Settings page at `/[locale]/panel/configuracion`: payout
   details (CBU + alias) plus the `features_autorenewal` toggle
@@ -24,12 +71,39 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
   toast feedback. Six new integration tests in
   `tests/integration/lib/admin/settings.test.ts` cover lazy
   init, idempotency, full update, and changed-key-only diff.
-- `PATCH /api/admin/settings` route. ADR 0008 calls for a
-  NIP-07 re-sign on payment-destination changes (CBU/alias);
-  that gate is NOT enforced here yet — the v1 admin panel
-  landed without the `signWithPrompt` machinery, and the
-  audit log captures every change with the actor's pubkey in
-  the meantime. Tracked as a follow-up.
+- `PATCH /api/admin/settings` route. ADR 0008's NIP-07 re-sign
+  on payment-destination changes (CBU/alias) is now enforced:
+  the route reads the request body as raw bytes, hashes them
+  with sha256, and validates a NIP-98 kind:27235 event whose
+  `payload` tag matches that hash. The event's pubkey must
+  equal the session pubkey (so an admin can't sign with a
+  non-admin key). Errors are mapped to discrete codes
+  (`auth_required`, `auth_clock_skew`, `auth_invalid_signature`,
+  `auth_mismatch`) so the client can surface user-actionable
+  messages. The signed event id lands in
+  `payload_diff.signed.event_id` of the audit row.
+- Language toggle in the locale layout
+  (`components/ui/language-toggle/`). Single ES↔EN button
+  positioned top-right, ports the pattern from arena's Navbar.
+  Preserves the current path on switch via
+  `router.replace(pathname, { locale })`.
+- Re-attach signer modal (`components/auth/re-sign-prompt/`) +
+  `signWithPrompt` / `requestReSignIn` on `useSignerContext()`.
+  Ported from arena's signer-context. Triggered by any post-
+  login signing action; nsec/NIP-46 users who reloaded the tab
+  re-attach via the modal, extension users see only the native
+  prompt. Methods are narrowed by the original signer hierarchy
+  (an extension user cannot fall back to nsec on re-attach).
+- Offering image upload via Blossom (ADR 0011). New
+  `lib/blossom/client.ts` (kind:24242 signed PUT to N servers in
+  parallel, any-ok semantics) and `<ImageUpload>` field replacing
+  the previous paste-box on the offering form. JPG/PNG/WebP
+  ≤5MB, paste-URL fallback survives. Server list is the comma-
+  separated `NEXT_PUBLIC_BLOSSOM_SERVERS` env var; default ships
+  with `blossom.primal.net` + `cdn.satellite.earth`. The
+  `@vercel/blob` dep was dropped from `package.json` and the
+  unused `/api/admin/upload` row was removed from
+  `docs/architecture/routing.md`.
 - Read-only orders list at `/[locale]/panel/pedidos` and
   detail at `/[locale]/panel/pedidos/[orderId]`. The list
   shows the 50 most recent rows with status pills + pubkey
@@ -332,6 +406,24 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 - "A note on the name" section in `docs/about/mission.md`
   explaining the voseo origin of "Cursá" and the cursa-vs-Cursá
   surface convention.
+
+### Fixed
+
+- Non-admin requests to `/[locale]/panel/*` now `notFound()`
+  instead of redirecting to `/`, matching ADR 0008's "404 not
+  403" rule. The middleware was already correct; the layout
+  is the belt-and-braces second check.
+- `:focus-visible` rings on the modal close/back buttons,
+  panel sidebar links, and the offering/settings form inputs.
+  Keyboard users now see a clear focus ring everywhere a Tab
+  can land.
+- Animations on Toast, Button, and Modal are now wrapped in
+  `@media (prefers-reduced-motion: reduce)` so users with that
+  preference see no slide / lift / fade.
+- Autorenewal toggle in the settings form uses an explicit
+  `htmlFor`/`id` label association instead of the implicit
+  wrapping `<label>`, so screen readers announce it
+  consistently.
 
 ### Changed
 

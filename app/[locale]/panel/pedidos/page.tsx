@@ -5,6 +5,7 @@ import { Container } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
 import { ArrowRightIcon } from "@/components/icons";
 import { listAdminOrders } from "@/lib/admin/orders";
+import { requirePanelMerchant } from "@/lib/admin/panel-context";
 import styles from "./page.module.scss";
 
 export const dynamic = "force-dynamic";
@@ -30,7 +31,8 @@ export default async function PanelOrdersPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const orders = await listAdminOrders();
+  const merchant = await requirePanelMerchant();
+  const orders = await listAdminOrders(merchant.id);
   const t = await getTranslations("panel.orders");
   const tStatus = await getTranslations("orderStatus");
   const arsFormatter = new Intl.NumberFormat(

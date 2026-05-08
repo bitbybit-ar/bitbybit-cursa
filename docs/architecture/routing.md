@@ -1,7 +1,7 @@
 # Routing
 
 > **Status:** Active
-> **Last updated:** 2026-05-07
+> **Last updated:** 2026-05-08
 
 ---
 
@@ -9,6 +9,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-08 | Panel API | Removed `/api/admin/upload`; image uploads now go browser-direct to Blossom servers. | ADR 0011 pins Blossom for image storage. There is no server-side proxy, so the route does not exist; documenting it would mislead contributors into building one. |
 | 2026-05-07 | Buyer flow | Renamed checkout segment from `[invoiceId]` to `[orderId]`. | Status polling lives at `/api/orders/[orderId]`; the order id is the opaque key the buyer carries from checkout to receipt; using the same name across all three surfaces removes a translation step for contributors. |
 | 2026-05-06 | — | Initial version. | Pin the full route map (buyer, account, subscriber, static, panel, API) before app code lands so contributors do not have to reconstruct it from this conversation or scattered ADRs. |
 
@@ -164,7 +165,12 @@ admin session for `/api/admin/*`).
 | `/api/admin/stats` | GET | Aggregates for `/panel` and `/panel/ventas` |
 | `/api/admin/offerings` | GET, POST, PATCH, DELETE | Offering CRUD for `/panel/ofertas/*` |
 | `/api/admin/settings` | GET, PATCH | Read + update settings; CBU/alias updates require a NIP-07 re-sign payload |
-| `/api/admin/upload` | POST | Image upload to Vercel Blob; returns the public URL |
+
+Image uploads do **not** ride a server route. Per ADR 0011 the
+panel uploads directly from the browser to one or more Blossom
+servers (`NEXT_PUBLIC_BLOSSOM_SERVERS`), authenticated by a
+kind:24242 signed event produced via `signWithPrompt`. The
+returned hash-addressed URL lands in `offerings.image_url`.
 
 ### Subscriber (only mounted when `features_autorenewal` is on)
 

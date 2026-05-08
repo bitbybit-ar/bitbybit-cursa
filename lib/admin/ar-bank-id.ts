@@ -1,0 +1,139 @@
+/**
+ * Validators for the Argentine identifiers a merchant types into the
+ * panel: bank alias, CBU, and the marketplace's URL slug.
+ *
+ * Sources for the alias rule:
+ *   - BCRA: https://www.bcra.gob.ar/MediosPago/Alias-CBU.asp
+ *   - https://es.wikipedia.org/wiki/Clave_Bancaria_Uniforme
+ *
+ * BCRA's published format is **6–20 characters** drawn from
+ *   `[A-Za-z0-9.-]`
+ * — letters case-insensitive, plus digits, plus dots and hyphens.
+ * No spaces or other symbols. The "three-words-divided-by-dots"
+ * convention many banks suggest is *not* enforced by BCRA, so this
+ * validator stays permissive on segmenting.
+ *
+ * One soft rule we do enforce: the alias must contain at least one
+ * letter. That distinguishes it from a CBU paste in the alias field
+ * (CBUs are 22 digits) and matches the convention several big banks
+ * use anyway.
+ *
+ * CBU is 22 digits flat. We do not verify the CBU check-digit
+ * algorithm here — Wapu will reject a malformed CBU at create-
+ * payment time, and surfacing a generic Wapu error is acceptable
+ * for the rare typo where the digits look right but the checksum
+ * is off.
+ */
+
+import { z } from "zod";
+
+const ALIAS_REGEX = /^[A-Za-z0-9.-]{6,20}$/;
+const ALIAS_HAS_LETTER = /[A-Za-z]/;
+const CBU_REGEX = /^\d{22}$/;
+
+/**
+ * Slug used in URLs (`/m/[slug]`). Lowercase URL-safe, hyphen-
+ * separated. We reject leading/trailing hyphens and consecutive
+ * hyphens so the slug renders cleanly in nav copy and
+ * breadcrumbs without a separate sanitizer.
+ */
+const MERCHANT_SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const MERCHANT_SLUG_MIN = 3;
+const MERCHANT_SLUG_MAX = 40;
+
+export type AliasError = "format" | "length" | "no_letter";
+export type CbuError = "format";
+export type SlugError = "format" | "length" | "reserved";
+
+const RESERVED_SLUGS = new Set([
+  "panel",
+  "onboarding",
+  "iniciar-sesion",
+  "mis-compras",
+  "reclamar",
+  "checkout",
+  "gracias",
+  "api",
+  "c",
+  "m",
+  "admin",
+  "_next",
+  "favicon",
+]);
+
+/**
+ * Returns `null` if the alias is valid, or a discriminated reason
+ * suitable for an i18n key dispatch.
+ */
+export function checkAlias(input: string): AliasError | null {
+  const trimmed = input.trim();
+  if (trimmed.length < 6 || trimmed.length > 20) return "length";
+  if (!ALIAS_REGEX.test(trimmed)) return "format";
+  if (!ALIAS_HAS_LETTER.test(trimmed)) return "no_letter";
+  return null;
+}
+
+export function checkCbu(input: string): CbuError | null {
+  const trimmed = input.trim();
+  if (!CBU_REGEX.test(trimmed)) return "format";
+  return null;
+}
+
+export function checkMerchantSlug(input: string): SlugError | null {
+  const trimmed = input.trim().toLowerCase();
+  if (
+    trimmed.length < MERCHANT_SLUG_MIN ||
+    trimmed.length > MERCHANT_SLUG_MAX
+  ) {
+    return "length";
+  }
+  if (!MERCHANT_SLUG_REGEX.test(trimmed)) return "format";
+  if (RESERVED_SLUGS.has(trimmed)) return "reserved";
+  return null;
+}
+
+/**
+ * Zod schemas for the three identifiers, used by the merchant
+ * onboarding/profile API routes. Each refines on the relevant
+ * `check*` so the failure code rides through Zod's `issues` array
+ * and is surface-able to the form via the existing toast pattern.
+ */
+export const AliasSchema = z
+  .string()
+  .transform((v) => v.trim())
+  .refine((v) => checkAlias(v) === null, {
+    message: "alias_invalid",
+  });
+
+export const CbuSchema = z
+  .string()
+  .transform((v) => v.trim())
+  .refine((v) => checkCbu(v) === null, { message: "cbu_invalid" });
+
+export const MerchantSlugSchema = z
+  .string()
+  .transform((v) => v.trim().toLowerCase())
+  .refine((v) => checkMerchantSlug(v) === null, {
+    message: "slug_invalid",
+  });
+
+/**
+ * The merchant's payout destination. They store either an alias
+ * OR a CBU; we do not need both. The schema accepts either shape
+ * and tags the kind so callers (Wapu integration) can decide
+ * which they actually got.
+ */
+export type PayoutDestination =
+  | { kind: "alias"; value: string }
+  | { kind: "cbu"; value: string };
+
+export function classifyPayoutDestination(
+  raw: string
+): PayoutDestination | null {
+  const trimmed = raw.trim();
+  if (checkCbu(trimmed) === null) return { kind: "cbu", value: trimmed };
+  if (checkAlias(trimmed) === null) return { kind: "alias", value: trimmed };
+  return null;
+}
+
+export const RESERVED_SLUG_LIST = Array.from(RESERVED_SLUGS).sort();

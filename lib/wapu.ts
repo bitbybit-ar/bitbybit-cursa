@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual, randomBytes } from "node:crypto";
 
 /**
- * Wapu integration seam.
+ * Wapu integration seam (marketplace edition, ADR 0012).
  *
  * The buyer flow talks to Wapu through the WapuClient interface
  * defined below. Two implementations live in this file:
@@ -9,23 +9,61 @@ import { createHmac, timingSafeEqual, randomBytes } from "node:crypto";
  *   - MockWapuClient: deterministic, in-process, no network. Used
  *     in dev and tests so the whole buyer flow runs end-to-end
  *     without any Wapu credentials.
- *   - RealWapuClient: not implemented yet. Throws clearly until the
- *     Wapu API contract is wired up.
+ *   - UnimplementedWapuClient: throws clearly until the real
+ *     direct-payment endpoint is wired through to a live Wapu
+ *     account.
  *
  * `getWapuClient()` returns the mock when WAPU_API_KEY is unset
  * (default for dev and CI) and the real client otherwise.
  *
- * The webhook signature scheme below (HMAC-SHA256 of raw body with
- * WAPU_WEBHOOK_SECRET, base64-encoded, sent in `X-Wapu-Signature`)
- * is a *placeholder* matching the pattern Stripe / Resend / most
- * webhook providers use. When the real Wapu spec lands it may be
- * different — swap the verifier inside RealWapuClient and keep the
- * interface stable.
+ * Direct-payment shape (per `wapu-app/wapu-cli#7`):
+ *   - POST /transactions/direct-fiat/tentatives
+ *       body { amount_ars, type, alias, receiver_name,
+ *              funding_method, network }
+ *       → { uuid, status: "CREATED" }
+ *   - POST /transactions/direct-fiat/tentatives/{uuid}/funding
+ *       body {}
+ *       → funding instructions (BOLT11 invoice + amount + expiry)
+ *
+ * The webhook signature scheme below (HMAC-SHA256 of raw body
+ * with WAPU_WEBHOOK_SECRET, base64-encoded, sent in
+ * `X-Wapu-Signature`) is a placeholder matching the pattern most
+ * webhook providers use. TODO(Q1): when Wapu publishes the
+ * direct-payment settlement-event shape, swap the verifier and
+ * `WapuWebhookEvent` accordingly.
  */
 
-export interface WapuInvoice {
-  /** Wapu's identifier for the invoice. Stored on orders.wapu_invoice_id. */
-  id: string;
+// --- Direct-payment types ----------------------------------------
+
+/** Funding rails Wapu accepts; we only use LIGHTNING in v1. */
+export type WapuFundingMethod = "LIGHTNING" | "USDT";
+export type WapuFundingNetwork = "LIGHTNING" | "POLYGON";
+export type WapuTransferType = "fiat_transfer" | "fast_fiat_transfer";
+
+export interface CreateDirectPaymentRequest {
+  amount_ars: number;
+  /**
+   * Argentine bank alias OR 22-digit CBU. Wapu accepts both via
+   * the same `alias` field per the CLI (validated by us before
+   * we get here — see `lib/admin/ar-bank-id.ts`).
+   */
+  alias: string;
+  /** Merchant's display name; appears on the buyer's Wapu receipt. */
+  receiver_name: string;
+  type?: WapuTransferType;
+  funding_method?: WapuFundingMethod;
+  network?: WapuFundingNetwork;
+  /** Internal order id we want correlated back in the webhook. */
+  external_id: string;
+}
+
+export interface DirectPaymentTentative {
+  /** UUID Wapu issued. Stored on orders.wapu_tentative_uuid. */
+  uuid: string;
+  status: string;
+}
+
+export interface DirectPaymentFunding {
   /** BOLT11-encoded Lightning invoice the buyer pays. */
   bolt11: string;
   /** 32-byte payment hash, hex-encoded. */
@@ -38,29 +76,29 @@ export interface WapuInvoice {
   expires_at: number;
 }
 
-export interface CreateInvoiceRequest {
-  amount_ars: number;
-  /** Free-form description shown in the buyer's wallet. */
-  description: string;
-  /** Internal order id we want correlated back in the webhook. */
-  external_id: string;
-}
+export type WapuTentativeStatus = "pending" | "paid" | "expired" | "failed";
 
-export type WapuInvoiceStatus = "pending" | "paid" | "expired" | "failed";
-
-export interface WapuInvoiceState {
-  id: string;
-  status: WapuInvoiceStatus;
+export interface WapuTentativeState {
+  uuid: string;
+  status: WapuTentativeStatus;
   payment_hash: string;
   paid_at: number | null;
   /** Wapu's reference for the ARS settlement to the merchant's CBU. */
   settlement_ref: string | null;
 }
 
+/**
+ * Webhook event shape. v1 mirrors the prior invoice-based vocabulary
+ * (paid / expired / failed) but keys on `tentative_uuid` instead of
+ * `invoice_id`. TODO(Q1): confirm against the real Wapu direct-
+ * payment settlement webhook once the contract is shared.
+ */
 export interface WapuWebhookEvent {
-  /** Discriminator. v1 only handles `invoice.paid`. */
-  event_type: "invoice.paid" | "invoice.expired" | "invoice.failed";
-  invoice_id: string;
+  event_type:
+    | "direct_fiat.paid"
+    | "direct_fiat.expired"
+    | "direct_fiat.failed";
+  tentative_uuid: string;
   payment_hash: string;
   /** Unix seconds. */
   occurred_at: number;
@@ -71,8 +109,13 @@ export interface WapuWebhookEvent {
 }
 
 export interface WapuClient {
-  createInvoice(req: CreateInvoiceRequest): Promise<WapuInvoice>;
-  getInvoice(id: string): Promise<WapuInvoiceState>;
+  createDirectPayment(
+    req: CreateDirectPaymentRequest
+  ): Promise<DirectPaymentTentative>;
+  issueDirectPaymentFunding(
+    tentative_uuid: string
+  ): Promise<DirectPaymentFunding>;
+  getTentative(tentative_uuid: string): Promise<WapuTentativeState>;
   /**
    * Verify a webhook delivery. Returns true iff the signature
    * matches the body under the configured secret. Implementations
@@ -88,37 +131,67 @@ export interface WapuClient {
 
 /**
  * Deterministic mock used by dev and tests. The "exchange rate" is
- * fixed at MOCK_SATS_PER_ARS for every invoice, the BOLT11 payload
- * is a non-routable placeholder string (clients will recognise it as
- * not real and refuse to pay it — this is intentional), and getInvoice
- * always reports `pending` so the only way to mark an order paid is to
- * call `simulatePaymentEvent` from a test or a dev tool.
+ * fixed at MOCK_SATS_PER_ARS for every tentative, the BOLT11 payload
+ * is a non-routable placeholder (clients will recognise it as not
+ * real and refuse to pay it — intentional), and getTentative always
+ * reports `pending` so the only way to mark an order paid is to
+ * deliver a webhook via the test helpers.
  */
-const MOCK_SATS_PER_ARS = 4; // 1 ARS = 4 sats. Updated only for tests.
-const MOCK_INVOICE_TTL_SECONDS = 600;
+export const MOCK_SATS_PER_ARS = 4; // 1 ARS = 4 sats. Updated only for tests.
+const MOCK_TENTATIVE_TTL_SECONDS = 600;
+
+interface StoredTentative {
+  amount_ars: number;
+  alias: string;
+  receiver_name: string;
+  external_id: string;
+  payment_hash: string;
+  bolt11: string;
+}
 
 export class MockWapuClient implements WapuClient {
+  private readonly tentatives = new Map<string, StoredTentative>();
+
   constructor(private readonly secret: string = "mock-webhook-secret") {}
 
-  async createInvoice(req: CreateInvoiceRequest): Promise<WapuInvoice> {
-    const id = `mock_inv_${randomBytes(8).toString("hex")}`;
+  async createDirectPayment(
+    req: CreateDirectPaymentRequest
+  ): Promise<DirectPaymentTentative> {
+    const uuid = `mock_dp_${randomBytes(8).toString("hex")}`;
     const paymentHash = randomBytes(32).toString("hex");
     const amountSats = req.amount_ars * MOCK_SATS_PER_ARS;
-    return {
-      id,
-      bolt11: `lnbc${amountSats}n1mock${paymentHash.slice(0, 32)}`,
-      payment_hash: paymentHash,
-      amount_sats: amountSats,
+    this.tentatives.set(uuid, {
       amount_ars: req.amount_ars,
-      expires_at: Math.floor(Date.now() / 1000) + MOCK_INVOICE_TTL_SECONDS,
+      alias: req.alias,
+      receiver_name: req.receiver_name,
+      external_id: req.external_id,
+      payment_hash: paymentHash,
+      bolt11: `lnbc${amountSats}n1mock${paymentHash.slice(0, 32)}`,
+    });
+    return { uuid, status: "CREATED" };
+  }
+
+  async issueDirectPaymentFunding(
+    tentative_uuid: string
+  ): Promise<DirectPaymentFunding> {
+    const stored = this.tentatives.get(tentative_uuid);
+    if (!stored) {
+      throw new Error(`mock_tentative_not_found: ${tentative_uuid}`);
+    }
+    return {
+      bolt11: stored.bolt11,
+      payment_hash: stored.payment_hash,
+      amount_sats: stored.amount_ars * MOCK_SATS_PER_ARS,
+      amount_ars: stored.amount_ars,
+      expires_at: Math.floor(Date.now() / 1000) + MOCK_TENTATIVE_TTL_SECONDS,
     };
   }
 
-  async getInvoice(id: string): Promise<WapuInvoiceState> {
+  async getTentative(uuid: string): Promise<WapuTentativeState> {
     return {
-      id,
+      uuid,
       status: "pending",
-      payment_hash: "",
+      payment_hash: this.tentatives.get(uuid)?.payment_hash ?? "",
       paid_at: null,
       settlement_ref: null,
     };
@@ -175,15 +248,19 @@ function verifyHmacSignature(
 class UnimplementedWapuClient implements WapuClient {
   private fail(method: string): never {
     throw new Error(
-      `RealWapuClient.${method} is not implemented yet. The Wapu API contract has not been wired in. ` +
+      `RealWapuClient.${method} is not implemented yet. The Wapu direct-payment endpoints are documented at ` +
+        `https://github.com/wapu-app/wapu-cli/pull/7 but not yet wired here. ` +
         `Set WAPU_API_KEY to empty (the default) to fall back to MockWapuClient.`
     );
   }
-  async createInvoice(): Promise<WapuInvoice> {
-    this.fail("createInvoice");
+  async createDirectPayment(): Promise<DirectPaymentTentative> {
+    this.fail("createDirectPayment");
   }
-  async getInvoice(): Promise<WapuInvoiceState> {
-    this.fail("getInvoice");
+  async issueDirectPaymentFunding(): Promise<DirectPaymentFunding> {
+    this.fail("issueDirectPaymentFunding");
+  }
+  async getTentative(): Promise<WapuTentativeState> {
+    this.fail("getTentative");
   }
   verifyWebhookSignature(): boolean {
     this.fail("verifyWebhookSignature");

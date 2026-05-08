@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
 import { SettingsForm } from "@/components/admin/settings-form";
-import { getOrInitSettings } from "@/lib/admin/settings";
+import { getSession } from "@/lib/auth";
+import { getMerchantByPubkey } from "@/lib/admin/merchants";
 import styles from "./page.module.scss";
 
 export const dynamic = "force-dynamic";
@@ -29,7 +31,13 @@ export default async function PanelSettingsPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const current = await getOrInitSettings();
+  const session = await getSession();
+  if (!session) notFound();
+  const merchant = await getMerchantByPubkey(session.pubkey);
+  // The panel layout already redirected if no merchant; this is a
+  // redundant guard so the type-narrowing reads cleanly.
+  if (!merchant) notFound();
+
   const t = await getTranslations("panel.settings");
 
   return (
@@ -45,9 +53,9 @@ export default async function PanelSettingsPage({
       </Card>
 
       <SettingsForm
-        initialCbu={current.cbu ?? ""}
-        initialAlias={current.alias ?? ""}
-        initialAutorenewal={current.features_autorenewal}
+        initialCbu={merchant.cbu ?? ""}
+        initialAlias={merchant.alias ?? ""}
+        initialAutorenewal={merchant.features_autorenewal}
       />
     </Container>
   );

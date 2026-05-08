@@ -1,4 +1,4 @@
-import { count, desc, eq, sql } from "drizzle-orm";
+import { and, count, desc, eq, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { orders, offerings } from "@/lib/db/schema";
 
@@ -16,7 +16,7 @@ export interface AdminOrderRow {
 
 export interface AdminOrderDetail extends AdminOrderRow {
   payment_hash: string | null;
-  wapu_invoice_id: string | null;
+  wapu_tentative_uuid: string | null;
   wapu_settlement_ref: string | null;
   redemption_code: string | null;
 }
@@ -24,6 +24,7 @@ export interface AdminOrderDetail extends AdminOrderRow {
 const DEFAULT_LIMIT = 50;
 
 export async function listAdminOrders(
+  merchantId: string,
   opts: { limit?: number } = {}
 ): Promise<AdminOrderRow[]> {
   const db = getDb();
@@ -41,11 +42,13 @@ export async function listAdminOrders(
     })
     .from(orders)
     .leftJoin(offerings, eq(orders.offering_id, offerings.id))
+    .where(eq(orders.merchant_id, merchantId))
     .orderBy(desc(orders.created_at))
     .limit(opts.limit ?? DEFAULT_LIMIT);
 }
 
 export async function getAdminOrderDetail(
+  merchantId: string,
   orderId: string
 ): Promise<AdminOrderDetail | null> {
   const db = getDb();
@@ -59,7 +62,7 @@ export async function getAdminOrderDetail(
       paid_at: orders.paid_at,
       pubkey: orders.pubkey,
       payment_hash: orders.payment_hash,
-      wapu_invoice_id: orders.wapu_invoice_id,
+      wapu_tentative_uuid: orders.wapu_tentative_uuid,
       wapu_settlement_ref: orders.wapu_settlement_ref,
       redemption_code: orders.redemption_code,
       offering_title: offerings.title,
@@ -67,7 +70,9 @@ export async function getAdminOrderDetail(
     })
     .from(orders)
     .leftJoin(offerings, eq(orders.offering_id, offerings.id))
-    .where(eq(orders.id, orderId))
+    .where(
+      and(eq(orders.id, orderId), eq(orders.merchant_id, merchantId))
+    )
     .limit(1);
   return row ?? null;
 }
@@ -81,6 +86,7 @@ export interface AdminStudentRow {
 }
 
 export async function listAdminStudents(
+  merchantId: string,
   opts: { limit?: number } = {}
 ): Promise<AdminStudentRow[]> {
   const db = getDb();
@@ -99,6 +105,7 @@ export async function listAdminStudents(
       MAX(created_at) AS most_recent
     FROM ${orders}
     WHERE pubkey IS NOT NULL
+      AND merchant_id = ${merchantId}
     GROUP BY pubkey
     ORDER BY most_recent DESC
     LIMIT ${opts.limit ?? DEFAULT_LIMIT}
@@ -113,6 +120,7 @@ export async function listAdminStudents(
 }
 
 export async function getAdminStudentDetail(
+  merchantId: string,
   pubkey: string
 ): Promise<{
   pubkey: string;
@@ -130,7 +138,12 @@ export async function getAdminStudentDetail(
       paid_count: sql<number>`COUNT(*) FILTER (WHERE ${orders.status} = 'paid')::int`,
     })
     .from(orders)
-    .where(eq(orders.pubkey, pubkey));
+    .where(
+      and(
+        eq(orders.pubkey, pubkey),
+        eq(orders.merchant_id, merchantId)
+      )
+    );
 
   if (!aggregateRow || aggregateRow.count === 0) return null;
 
@@ -148,7 +161,12 @@ export async function getAdminStudentDetail(
     })
     .from(orders)
     .leftJoin(offerings, eq(orders.offering_id, offerings.id))
-    .where(eq(orders.pubkey, pubkey))
+    .where(
+      and(
+        eq(orders.pubkey, pubkey),
+        eq(orders.merchant_id, merchantId)
+      )
+    )
     .orderBy(desc(orders.created_at));
 
   return {

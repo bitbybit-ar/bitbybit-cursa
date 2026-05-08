@@ -3,23 +3,20 @@
 /**
  * SignerProvider — combined session + in-memory Nostr signer state.
  *
- * The arena reference (bitbybit-arena/lib/signer-context.tsx) splits
- * this into a SessionProvider + SignerProvider pair plus a
- * re-sign-in modal so logged-in users who reload mid-session can
- * re-attach their nsec/nip46 signer for ad-hoc signing actions.
+ * Cursá's buyer flow only signs once at login; after that, the
+ * session cookie carries the user. The merchant panel adds a second
+ * surface that needs post-login signing — payment-destination edits
+ * (CBU, alias) require a NIP-07 re-sign per ADR 0008. The
+ * `signWithPrompt` + `requestReSignIn` machinery (ported from
+ * `bitbybit-arena/lib/signer-context.tsx`) services that flow.
  *
- * Cursá's buyer flow only signs once — at login. After that, the
- * session cookie carries the user; nothing else needs the signer.
- * So this slimmed version owns:
+ * Owns:
  *   - session fetch (`/api/auth/session`)
- *   - the in-memory signer for the current page session only
+ *   - the in-memory signer for the current page session
  *   - the NIP-98 login round-trip
  *   - sign-out (clears cookie + signer)
- *
- * If a future feature needs post-login signing (e.g. a buyer
- * re-publishing a receipt DM), reach for the arena reference and
- * pull in the `signWithPrompt` + `requestReSignIn` machinery rather
- * than retrofitting it here.
+ *   - re-attach prompt for nsec/NIP-46 users who reloaded
+ *   - signWithPrompt for ad-hoc post-login signing actions
  */
 
 import {
@@ -28,6 +25,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import type { ReactNode } from "react";
@@ -35,13 +33,28 @@ import {
   type SignerHandle,
   makeExtensionSigner,
 } from "@/lib/nostr/signers";
+import type { NostrEvent, UnsignedNostrEvent } from "@/lib/nostr/types";
 import type { SignerType, Locale } from "@/lib/schemas/auth";
+
+export interface SessionMerchantSummary {
+  id: string;
+  slug: string;
+  display_name: string;
+}
 
 export interface SessionUser {
   pubkey: string;
   locale: Locale;
   signer_type: SignerType | null;
-  is_admin: boolean;
+  /**
+   * The merchant row keyed to this pubkey, or null when the user
+   * has not claimed a slug yet (or has been deactivated). The
+   * panel layout redirects null merchants to /onboarding;
+   * client-side consumers gate the "manage your store" CTA.
+   */
+  merchant: SessionMerchantSummary | null;
+  /** Whether this pubkey is in PLATFORM_ADMIN_PUBKEYS. */
+  platform_admin: boolean;
 }
 
 /**
@@ -80,6 +93,19 @@ interface SignerContextValue {
   signOut: () => Promise<void>;
   /** Re-fetch the session from /api/auth/session. */
   refresh: () => Promise<void>;
+  /**
+   * Open the re-sign modal and resolve with the new signer once the
+   * user re-attaches. Rejects if the modal is closed without a
+   * signer, or if no `renderReSignInModal` was passed to the
+   * provider (e.g. the buyer-only mount).
+   */
+  requestReSignIn: () => Promise<SignerHandle>;
+  /**
+   * Sign and return an event using whatever signer is currently in
+   * memory. If no signer is available, opens the re-sign modal first
+   * via `requestReSignIn`.
+   */
+  signWithPrompt: (event: UnsignedNostrEvent) => Promise<NostrEvent>;
 }
 
 const SignerContext = createContext<SignerContextValue | null>(null);
@@ -92,10 +118,40 @@ export function useSignerContext(): SignerContextValue {
   return ctx;
 }
 
-export function SignerProvider({ children }: { children: ReactNode }) {
+interface PendingPrompt {
+  resolve: (signer: SignerHandle) => void;
+  reject: (err: Error) => void;
+}
+
+interface SignerProviderProps {
+  children: ReactNode;
+  /**
+   * Optional render-prop for the re-attach modal. Buyer-only mounts
+   * can skip it; surfaces that need post-login signing must pass
+   * one (see `SignerProviderClient`). When omitted,
+   * `requestReSignIn` rejects immediately with `no_modal_provider`.
+   */
+  renderReSignInModal?: (props: {
+    open: boolean;
+    onSigner: (signer: SignerHandle) => void;
+    onCancel: () => void;
+  }) => ReactNode;
+}
+
+export function SignerProvider({
+  children,
+  renderReSignInModal,
+}: SignerProviderProps) {
   const [session, setSession] = useState<SessionUser | null>(null);
   const [sessionLoading, setSessionLoading] = useState(true);
   const [signer, setSignerState] = useState<SignerHandle | null>(null);
+  // Mirror of `signer` state. signWithPrompt reads from this ref so a
+  // handler that called `requestReSignIn()` and THEN falls through to
+  // `signWithPrompt` can see the freshly-attached signer instead of a
+  // closed-over null.
+  const signerRef = useRef<SignerHandle | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const pendingPromptRef = useRef<PendingPrompt | null>(null);
 
   const refresh = useCallback(async () => {
     try {
@@ -123,6 +179,7 @@ export function SignerProvider({ children }: { children: ReactNode }) {
   }, [refresh]);
 
   const setSigner = useCallback((next: SignerHandle) => {
+    signerRef.current = next;
     setSignerState((prev) => {
       if (prev && prev !== next) prev.close?.();
       return next;
@@ -226,12 +283,54 @@ export function SignerProvider({ children }: { children: ReactNode }) {
     } catch {
       // Best-effort — clear local state regardless.
     }
+    signerRef.current = null;
     setSignerState((prev) => {
       prev?.close?.();
       return null;
     });
     setSession(null);
   }, []);
+
+  const requestReSignIn = useCallback((): Promise<SignerHandle> => {
+    return new Promise<SignerHandle>((resolve, reject) => {
+      if (!renderReSignInModal) {
+        reject(new Error("no_modal_provider"));
+        return;
+      }
+      // Reject any prior pending call so callers don't leak. The
+      // single modal can only service one prompt at a time.
+      pendingPromptRef.current?.reject(new Error("re_sign_in_superseded"));
+      pendingPromptRef.current = { resolve, reject };
+      setModalOpen(true);
+    });
+  }, [renderReSignInModal]);
+
+  const handleModalSigner = useCallback((next: SignerHandle) => {
+    // The modal has already run the reattach check and called
+    // setSigner. Resolve the pending promise and close.
+    const pending = pendingPromptRef.current;
+    pendingPromptRef.current = null;
+    setModalOpen(false);
+    pending?.resolve(next);
+  }, []);
+
+  const handleModalCancel = useCallback(() => {
+    const pending = pendingPromptRef.current;
+    pendingPromptRef.current = null;
+    setModalOpen(false);
+    pending?.reject(new Error("re_sign_in_cancelled"));
+  }, []);
+
+  const signWithPrompt = useCallback(
+    async (event: UnsignedNostrEvent): Promise<NostrEvent> => {
+      let active = signerRef.current;
+      if (!active) {
+        active = await requestReSignIn();
+      }
+      return active.sign(event);
+    },
+    [requestReSignIn]
+  );
 
   const value = useMemo<SignerContextValue>(
     () => ({
@@ -242,6 +341,8 @@ export function SignerProvider({ children }: { children: ReactNode }) {
       completeLoginWithSigner,
       signOut,
       refresh,
+      requestReSignIn,
+      signWithPrompt,
     }),
     [
       session,
@@ -251,10 +352,19 @@ export function SignerProvider({ children }: { children: ReactNode }) {
       completeLoginWithSigner,
       signOut,
       refresh,
+      requestReSignIn,
+      signWithPrompt,
     ]
   );
 
   return (
-    <SignerContext.Provider value={value}>{children}</SignerContext.Provider>
+    <SignerContext.Provider value={value}>
+      {children}
+      {renderReSignInModal?.({
+        open: modalOpen,
+        onSigner: handleModalSigner,
+        onCancel: handleModalCancel,
+      })}
+    </SignerContext.Provider>
   );
 }

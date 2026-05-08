@@ -3,7 +3,7 @@
 - **Date**: 2026-05-06
 - **Status**: Accepted
 - **Deciders**: BitByBit team
-- **Last updated**: 2026-05-06
+- **Last updated**: 2026-05-08
 
 ---
 
@@ -11,6 +11,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-08 | Implementation status | NIP-07 re-sign for CBU/alias landed via `signWithPrompt` ported from arena; PATCH `/api/admin/settings` enforces a NIP-98 signature whose `payload` tag binds to the body sha256, with pubkey-match against the session. | Closes the deferred half of the original ADR; the panel's payment-destination edits now meet the signed-confirmation requirement. |
 | 2026-05-06 | — | Initial version. | Pin the panel surface, auth model, and read-vs-write boundaries before any admin code lands so the first-pass implementation does not accidentally expose mutation paths over orders or buyers. |
 
 ---

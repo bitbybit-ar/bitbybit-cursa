@@ -27,7 +27,7 @@
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  border-radius: 12px;
+  border-radius: $border-radius-md;
   overflow: hidden;
   background-color: $color-bg-3;
 }
@@ -51,6 +51,13 @@
   color: $color-text-primary;
   margin: 0;
   line-height: $line-height-heading;
+}
+
+.byline {
+  margin: 0;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
 }
 
 .description {

@@ -6,6 +6,7 @@ import { Container } from "@/components/ui/container";
 import { ArrowLeftIcon } from "@/components/icons";
 import { OfferingForm } from "@/components/admin/offering-form";
 import { getOfferingForAdmin } from "@/lib/admin/offerings";
+import { requirePanelMerchant } from "@/lib/admin/panel-context";
 import styles from "./page.module.scss";
 
 export const dynamic = "force-dynamic";
@@ -34,7 +35,8 @@ export default async function EditOfferingPage({
   const { locale, slug } = await params;
   setRequestLocale(locale);
 
-  const offering = await getOfferingForAdmin(slug);
+  const merchant = await requirePanelMerchant();
+  const offering = await getOfferingForAdmin(merchant.id, slug);
   if (!offering) notFound();
 
   const t = await getTranslations("panel.offerings.edit");

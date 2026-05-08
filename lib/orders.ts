@@ -1,7 +1,11 @@
 import { and, eq, desc, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
-import { orders, offerings } from "@/lib/db/schema";
-import { getWapuClient, type WapuInvoice } from "@/lib/wapu";
+import { orders, offerings, merchants } from "@/lib/db/schema";
+import {
+  getWapuClient,
+  type DirectPaymentFunding,
+} from "@/lib/wapu";
+import { pickPayoutAlias } from "@/lib/admin/merchants";
 
 export interface CreateOrderInput {
   offering_id: string;
@@ -11,57 +15,102 @@ export interface CreateOrderInput {
 
 export interface CreateOrderResult {
   order_id: string;
-  invoice: WapuInvoice;
+  funding: DirectPaymentFunding;
+}
+
+export type CreateOrderError =
+  | "offering_not_found"
+  | "offering_archived"
+  | "merchant_inactive"
+  | "merchant_payout_missing";
+
+export class OrderCreateError extends Error {
+  constructor(public readonly code: CreateOrderError) {
+    super(code);
+    this.name = "OrderCreateError";
+  }
 }
 
 /**
  * Atomically create a pending order row and the matching Wapu
- * invoice. The order id is the opaque `orderId` that powers the
- * receipt URL `/[locale]/gracias/[orderId]`.
+ * direct-payment funding instructions. The order id is the opaque
+ * `orderId` that powers the receipt URL
+ * `/[locale]/gracias/[orderId]`.
  *
- * If Wapu rejects the invoice creation we surface the error to the
- * caller and never write the order row — failed checkouts should not
- * leave orphaned `pending` rows polluting the dashboard.
+ * Marketplace edition (ADR 0012):
+ *   - The offering's merchant must be active and have a payout
+ *     destination (alias or CBU) on file.
+ *   - Wapu routes the ARS straight to the merchant's
+ *     `pickPayoutAlias` value at settlement time. The platform
+ *     never holds funds.
+ *
+ * If Wapu rejects the tentative or funding step we surface the
+ * error to the caller and never write the order row — failed
+ * checkouts should not leave orphaned `pending` rows polluting any
+ * dashboard.
  */
 export async function createOrder(
   input: CreateOrderInput
 ): Promise<CreateOrderResult> {
   const db = getDb();
 
-  const [offering] = await db
-    .select()
+  const [row] = await db
+    .select({ offering: offerings, merchant: merchants })
     .from(offerings)
+    .innerJoin(merchants, eq(offerings.merchant_id, merchants.id))
     .where(eq(offerings.id, input.offering_id))
     .limit(1);
 
-  if (!offering) {
-    throw new Error(`Offering ${input.offering_id} does not exist`);
-  }
+  if (!row) throw new OrderCreateError("offering_not_found");
+  const { offering, merchant } = row;
   if (offering.archived_at !== null) {
-    throw new Error(`Offering ${input.offering_id} is archived`);
+    throw new OrderCreateError("offering_archived");
   }
+  if (!merchant.active) throw new OrderCreateError("merchant_inactive");
 
-  const wapu = getWapuClient();
-  const invoice = await wapu.createInvoice({
-    amount_ars: offering.price_ars,
-    description: offering.title,
-    external_id: "pending", // overwritten with order id below
-  });
+  const payoutAlias = pickPayoutAlias(merchant);
+  if (!payoutAlias) throw new OrderCreateError("merchant_payout_missing");
 
-  const [order] = await db
+  // Insert the order BEFORE calling Wapu so we have an external_id
+  // to send (the order's row id). If Wapu fails we delete the row
+  // before throwing so failed checkouts do not leave pending rows.
+  const [pendingRow] = await db
     .insert(orders)
     .values({
       pubkey: input.pubkey,
-      offering_id: input.offering_id,
-      amount_ars: invoice.amount_ars,
-      amount_sats: invoice.amount_sats,
-      payment_hash: invoice.payment_hash,
-      wapu_invoice_id: invoice.id,
-      bolt11: invoice.bolt11,
+      offering_id: offering.id,
+      merchant_id: merchant.id,
+      amount_ars: offering.price_ars,
+      amount_sats: 0,
     })
     .returning();
 
-  return { order_id: order.id, invoice };
+  try {
+    const wapu = getWapuClient();
+    const tentative = await wapu.createDirectPayment({
+      amount_ars: offering.price_ars,
+      alias: payoutAlias,
+      receiver_name: merchant.display_name,
+      external_id: pendingRow.id,
+    });
+    const funding = await wapu.issueDirectPaymentFunding(tentative.uuid);
+
+    await db
+      .update(orders)
+      .set({
+        amount_sats: funding.amount_sats,
+        payment_hash: funding.payment_hash,
+        wapu_tentative_uuid: tentative.uuid,
+        bolt11: funding.bolt11,
+        updated_at: new Date(),
+      })
+      .where(eq(orders.id, pendingRow.id));
+
+    return { order_id: pendingRow.id, funding };
+  } catch (err) {
+    await db.delete(orders).where(eq(orders.id, pendingRow.id));
+    throw err;
+  }
 }
 
 /**

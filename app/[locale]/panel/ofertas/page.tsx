@@ -9,6 +9,7 @@ import {
   listAllOfferings,
   listArchivedOfferings,
 } from "@/lib/admin/offerings";
+import { requirePanelMerchant } from "@/lib/admin/panel-context";
 import styles from "./page.module.scss";
 
 export const dynamic = "force-dynamic";
@@ -34,9 +35,10 @@ export default async function PanelOfferingsPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
+  const merchant = await requirePanelMerchant();
   const [active, archived] = await Promise.all([
-    listAllOfferings(),
-    listArchivedOfferings(),
+    listAllOfferings(merchant.id),
+    listArchivedOfferings(merchant.id),
   ]);
 
   const t = await getTranslations("panel.offerings");

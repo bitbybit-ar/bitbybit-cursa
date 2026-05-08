@@ -6,6 +6,7 @@ import { Container } from "@/components/ui/container";
 import { Card } from "@/components/ui/card";
 import { ArrowLeftIcon, ArrowRightIcon } from "@/components/icons";
 import { getAdminStudentDetail } from "@/lib/admin/orders";
+import { requirePanelMerchant } from "@/lib/admin/panel-context";
 import styles from "./page.module.scss";
 
 export const dynamic = "force-dynamic";
@@ -37,7 +38,8 @@ export default async function PanelStudentDetailPage({
   // Bare hex sanity check before hitting the DB.
   if (!/^[0-9a-f]{64}$/i.test(pubkey)) notFound();
 
-  const student = await getAdminStudentDetail(pubkey);
+  const merchant = await requirePanelMerchant();
+  const student = await getAdminStudentDetail(merchant.id, pubkey);
   if (!student) notFound();
 
   const t = await getTranslations("panel.students.detail");

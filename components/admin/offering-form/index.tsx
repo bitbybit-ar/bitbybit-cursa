@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/toast";
+import { ImageUpload } from "@/components/admin/image-upload";
 import type { Offering } from "@/lib/admin/offerings";
 import styles from "./offering-form.module.scss";
 
@@ -276,20 +277,13 @@ export function OfferingForm({ offering }: OfferingFormProps) {
         </div>
       </div>
 
-      <div className={styles.field}>
-        <label htmlFor="imageUrl" className={styles.label}>
-          {t("imageUrl")}
-          <span className={styles.optional}>{t("optional")}</span>
-        </label>
-        <input
-          id="imageUrl"
-          type="url"
-          className={styles.input}
-          value={imageUrl}
-          onChange={(e) => setImageUrl(e.target.value)}
-          placeholder="https://…"
-        />
-      </div>
+      <ImageUpload
+        value={imageUrl ? imageUrl : null}
+        onChange={(next) => setImageUrl(next ?? "")}
+        label={t("imageUrl")}
+        optionalLabel={t("optional")}
+      />
+
 
       {type === "code" ? (
         <div className={styles.field}>

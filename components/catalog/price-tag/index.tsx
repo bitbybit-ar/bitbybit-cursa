@@ -17,6 +17,10 @@ interface PriceTagProps {
 // mock wallet agree on this constant.
 const FALLBACK_SATS_PER_ARS = 4;
 
+// Why: ARS prices are intrinsically Argentinean. Pin both formatters to
+// es-AR (1.234, dot-grouped) regardless of UI locale so en viewers see
+// the same numbers a buyer in Argentina would. Sats track es-AR for
+// visual consistency with the ARS line directly below it.
 const arsFormatter = new Intl.NumberFormat("es-AR", {
   maximumFractionDigits: 0,
 });

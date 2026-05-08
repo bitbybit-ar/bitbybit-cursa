@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { createOrder } from "@/lib/orders";
+import { createOrder, OrderCreateError } from "@/lib/orders";
 import { getSession } from "@/lib/auth";
 import { NostrPubkeySchema } from "@/lib/schemas/primitives";
 
@@ -43,19 +43,26 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     });
     return NextResponse.json({
       order_id: result.order_id,
-      invoice: {
-        bolt11: result.invoice.bolt11,
-        amount_sats: result.invoice.amount_sats,
-        amount_ars: result.invoice.amount_ars,
-        expires_at: result.invoice.expires_at,
+      funding: {
+        bolt11: result.funding.bolt11,
+        amount_sats: result.funding.amount_sats,
+        amount_ars: result.funding.amount_ars,
+        expires_at: result.funding.expires_at,
       },
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "unknown_error";
-    if (message.includes("does not exist") || message.includes("archived")) {
+    if (err instanceof OrderCreateError) {
+      // The merchant configuration errors (missing payout, inactive)
+      // are platform-side states the buyer cannot fix. The
+      // offering_* errors are what they expect when they hit a stale
+      // URL.
+      const status =
+        err.code === "offering_not_found" || err.code === "offering_archived"
+          ? 404
+          : 503;
       return NextResponse.json(
-        { error: "offering_unavailable", detail: message },
-        { status: 404 }
+        { error: "offering_unavailable", reason: err.code },
+        { status }
       );
     }
     console.error("[checkout] failed:", err);
