@@ -3,14 +3,24 @@ import { ExternalLinkIcon } from "@/components/icons";
 import styles from "./receipt-download.module.scss";
 
 interface ReceiptDownloadProps {
-  /** Source URL on the offering. Signed-URL generation is a later chunk. */
-  downloadUrl: string | null;
+  orderId: string;
+  /**
+   * Whether the offering has a download URL on file. When false,
+   * the component renders the "missing" pending state instead of a
+   * dead link. The actual URL lives on the offering and never
+   * reaches the client; the proxy at `/api/downloads/[orderId]`
+   * resolves it after re-checking access.
+   */
+  isAvailable: boolean;
 }
 
-export function ReceiptDownload({ downloadUrl }: ReceiptDownloadProps) {
+export function ReceiptDownload({
+  orderId,
+  isAvailable,
+}: ReceiptDownloadProps) {
   const t = useTranslations("receipt.download");
 
-  if (!downloadUrl) {
+  if (!isAvailable) {
     return (
       <div className={styles.box}>
         <p className={styles.label}>{t("label")}</p>
@@ -19,14 +29,14 @@ export function ReceiptDownload({ downloadUrl }: ReceiptDownloadProps) {
     );
   }
 
-  // Plain <a> rather than the shared Button component because the
-  // Button uses next-intl's locale-aware Link, which is for internal
-  // routes; an external download URL needs a normal anchor.
+  // Anchor (not the shared Button) because the proxy URL lives
+  // outside next-intl's locale-aware Link routing; the Button
+  // component would try to localise the href.
   return (
     <div className={styles.box}>
       <p className={styles.label}>{t("label")}</p>
       <a
-        href={downloadUrl}
+        href={`/api/downloads/${orderId}`}
         target="_blank"
         rel="noopener noreferrer"
         className={styles.cta}

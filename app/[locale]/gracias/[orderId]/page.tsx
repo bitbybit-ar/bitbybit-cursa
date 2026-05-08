@@ -74,7 +74,10 @@ export default async function ReceiptPage({ params }: Props) {
           ) : null}
 
           {offering?.type === "download" ? (
-            <ReceiptDownload downloadUrl={offering.download_url} />
+            <ReceiptDownload
+              orderId={orderId}
+              isAvailable={offering.download_url !== null}
+            />
           ) : null}
 
           {order.pubkey === null ? (

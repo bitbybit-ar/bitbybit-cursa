@@ -12,6 +12,22 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `/api/downloads/[orderId]` proxy route for `type=download`
+  offerings. The receipt page's download CTA now points here
+  instead of the raw `offering.download_url`, keeping the source
+  URL out of the public DOM. The proxy validates that the order
+  exists, is `paid`, and that the offering is download-type, not
+  archived, and has a URL on file, then 302-redirects to the
+  source. Status matrix: 400 (invalid uuid), 403 (not paid), 404
+  (missing / wrong type / archived / no URL), 302 (redirect).
+  The orderId in the URL stays the access key per ADR 0006 (no
+  session required — anonymous buyers must redeem from any
+  device). `<ReceiptDownload>` now takes
+  `{ orderId, isAvailable }` instead of the raw download URL.
+  Seven new integration tests in
+  `tests/integration/api/downloads.test.ts` cover the full
+  status matrix. Future hardening (per-order expiry, single-use
+  semantics) noted inline in the route comment.
 - Wapu webhook now draws a redemption code from
   `offerings.code_pool` and assigns it to `orders.redemption_code`
   on the same delivery that flips the order to `paid`. New
