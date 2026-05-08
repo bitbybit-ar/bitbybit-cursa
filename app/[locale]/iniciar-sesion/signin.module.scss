@@ -50,3 +50,131 @@
     color: $color-text-primary;
   }
 }
+
+// — Create-new-identity divider + button —
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: $spacing-12;
+  color: $color-text-secondary;
+  font-size: $font-size-xs;
+  text-transform: uppercase;
+  letter-spacing: $letter-spacing-wide;
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: $color-border;
+  }
+}
+
+.createButton {
+  justify-content: center;
+  gap: $spacing-8;
+}
+
+// — Create-identity modal contents —
+
+.createdSuccess {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  margin: 0 auto $spacing-12;
+  background: color-mix(in srgb, $color-success 16%, transparent);
+  color: $color-success;
+}
+
+.createdIntro {
+  margin: 0 0 $spacing-16;
+  text-align: center;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  line-height: $line-height-base;
+}
+
+.createdLabel {
+  display: block;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-4;
+}
+
+.createdNsecBox {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+  padding: $spacing-12;
+  background: $color-bg-2;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  margin-bottom: $spacing-12;
+}
+
+.createdNsec {
+  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+  font-size: $font-size-xs;
+  color: $color-text-primary;
+  word-break: break-all;
+  line-height: 1.4;
+}
+
+.createdCopyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-4;
+  padding: $spacing-4 $spacing-8;
+  background: transparent;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-sm;
+  color: $color-text-secondary;
+  font-size: $font-size-xs;
+  cursor: pointer;
+  align-self: flex-start;
+
+  &:hover {
+    color: $color-text-primary;
+    border-color: $color-primary;
+  }
+}
+
+.createdWarning {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-8;
+  padding: $spacing-12;
+  background: alpha($color-warning, 12%);
+  border-radius: $border-radius-sm;
+  color: $color-text-primary;
+  font-size: $font-size-xs;
+  line-height: $line-height-base;
+  margin-bottom: $spacing-16;
+}
+
+.createdAuthError {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+  margin-bottom: $spacing-12;
+}
+
+.createdAck {
+  display: flex;
+  align-items: center;
+  gap: $spacing-8;
+  font-size: $font-size-xs;
+  color: $color-text-primary;
+  margin-bottom: $spacing-12;
+  cursor: pointer;
+
+  input[type="checkbox"] {
+    accent-color: $color-primary;
+  }
+}

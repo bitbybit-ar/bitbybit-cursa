@@ -144,7 +144,19 @@
     "nostr_signing_rejected": "You cancelled the signature. Try again whenever you're ready.",
     "nsecInvalidKey": "That doesn't look like a valid key. Check the format (nsec1… or 64 hex chars).",
     "rate_limited": "Too many attempts. Wait a moment and try again.",
-    "error": "We could not sign you in. Try again in a moment."
+    "error": "We could not sign you in. Try again in a moment.",
+    "orNew": "Or",
+    "createIdentity": "Create a new identity",
+    "creatingIdentity": "Generating identity…",
+    "createdTitle": "Identity ready!",
+    "createdIntro": "We generated a new Nostr key for you. Save it before you continue — without it you cannot sign back in.",
+    "createdNsecLabel": "Your private key (nsec)",
+    "createdCopy": "Copy",
+    "createdCopied": "Copied!",
+    "createdWarning": "If you lose this key, you lose access to your account. Don't share it with anyone.",
+    "createdRetryAuth": "Retry sign-in",
+    "createdAckLabel": "I saved my key somewhere safe.",
+    "createdContinue": "Continue"
   },
   "reSignIn": {
     "extensionRejected": "The extension declined to sign.",

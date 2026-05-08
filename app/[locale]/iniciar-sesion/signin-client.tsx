@@ -8,7 +8,14 @@ import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { Card } from "@/components/ui/card";
 import { Modal } from "@/components/ui/modal";
-import { ArrowLeftIcon } from "@/components/icons";
+import { Button } from "@/components/ui/button";
+import {
+  ArrowLeftIcon,
+  BoltIcon,
+  CheckIcon,
+  CopyIcon,
+  FlagIcon,
+} from "@/components/icons";
 import { SignerMethodButtons } from "@/components/auth/signer-method-buttons";
 import { NsecSignerForm } from "@/components/auth/nsec-signer-form";
 import {
@@ -21,11 +28,40 @@ import {
   loginError,
   isSignerCancellation,
 } from "@/lib/nostr/auth-errors";
-import type { SignerHandle } from "@/lib/nostr/signers";
+import { createNewIdentity } from "@/lib/nostr/create-account";
+import {
+  makeNsecSigner,
+  type SignerHandle,
+} from "@/lib/nostr/signers";
 import type { Locale } from "@/lib/schemas/auth";
 import styles from "./signin.module.scss";
 
 type Panel = "picker" | "nsec";
+
+// Discriminated state machine for the create-identity flow:
+//
+//  - `idle`        — no identity generation in flight; modal closed.
+//  - `auth_failed` — nsec is on screen but the auth round-trip
+//                    failed; carries the signer for retry + the
+//                    localised error to render. Continue stays
+//                    disabled until we leave this state.
+//  - `ready`       — auth succeeded; modal stays open so the user
+//                    can copy the nsec and click Continue.
+//
+// Encoding it as a tagged union makes it impossible to forget the
+// signer-clearing step on success — the success transition is
+// `auth_failed` → `ready` which simply swaps to a variant without
+// a `signer` field, so any code that tried to reuse it post-
+// success would fail to type-check.
+type CreateState =
+  | { kind: "idle" }
+  | {
+      kind: "auth_failed";
+      nsec: string;
+      signer: SignerHandle;
+      error: string | null;
+    }
+  | { kind: "ready"; nsec: string };
 
 const ALLOWED_NEXT_PREFIXES = ["/mis-compras", "/reclamar/", "/gracias/"];
 
@@ -54,13 +90,20 @@ export function SignInClient({ locale }: SignInClientProps) {
   const [panel, setPanel] = useState<Panel>("picker");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const [isCreating, setIsCreating] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+  const [isAcknowledged, setIsAcknowledged] = useState(false);
+  const [createState, setCreateState] = useState<CreateState>({
+    kind: "idle",
+  });
+  const createdNsec =
+    createState.kind === "idle" ? null : createState.nsec;
+  const isAuthFailed = createState.kind === "auth_failed";
+
   const messageFor = (
     result: Extract<LoginResult, { ok: false }>
   ): string | null => {
     if (result.reason === "signer") {
-      // Cancel-clicks land here too — swallow them silently per the
-      // arena pattern so the user doesn't see a red banner for
-      // backing out of the extension prompt.
       if (isSignerCancellation(result.cause)) return null;
       return lookupAuthError(loginError("nostr_signing_rejected"));
     }
@@ -93,6 +136,92 @@ export function SignInClient({ locale }: SignInClientProps) {
     setErrorMessage(null);
   };
 
+  const handleCreateIdentity = async () => {
+    setErrorMessage(null);
+    setIsCreating(true);
+    try {
+      const { secretKey, pubkey, nsec } = createNewIdentity();
+      const signer = makeNsecSigner(secretKey, pubkey);
+      // Enter `auth_failed` BEFORE awaiting the round-trip — this
+      // pins the freshly-generated nsec on screen immediately so a
+      // network blip mid-call never strips the user of the only
+      // copy of their key. Same posture as the arena reference.
+      setCreateState({ kind: "auth_failed", nsec, signer, error: null });
+      const result = await completeLoginWithSigner(signer, locale);
+      if (!result.ok) {
+        const msg = messageFor(result);
+        setCreateState({
+          kind: "auth_failed",
+          nsec,
+          signer,
+          error: msg ?? null,
+        });
+        return;
+      }
+      // Success — swap to `ready`. The signer field drops off the
+      // variant so any code that tried to reuse it would not
+      // type-check.
+      setCreateState({ kind: "ready", nsec });
+    } catch {
+      setErrorMessage(t("error"));
+      setCreateState({ kind: "idle" });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  // Retry the auth round-trip with the SAME signer we already
+  // generated. Crucial: do NOT call createNewIdentity again — that
+  // would burn the user's first nsec and hand them a fresh one
+  // they have not memorised.
+  const handleRetryCreateAuth = async () => {
+    if (createState.kind !== "auth_failed") return;
+    const { nsec, signer } = createState;
+    setCreateState({ kind: "auth_failed", nsec, signer, error: null });
+    setIsCreating(true);
+    try {
+      const result = await completeLoginWithSigner(signer, locale);
+      if (!result.ok) {
+        const msg = messageFor(result);
+        setCreateState({
+          kind: "auth_failed",
+          nsec,
+          signer,
+          error: msg ?? null,
+        });
+        return;
+      }
+      setCreateState({ kind: "ready", nsec });
+    } catch {
+      setCreateState({
+        kind: "auth_failed",
+        nsec,
+        signer,
+        error: t("error"),
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  const handleCopyNsec = async () => {
+    if (!createdNsec) return;
+    try {
+      await navigator.clipboard.writeText(createdNsec);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch {
+      // Clipboard unavailable — the visible code box is the
+      // fallback; nothing else to do.
+    }
+  };
+
+  const handleContinueAfterCreate = () => {
+    setCreateState({ kind: "idle" });
+    setIsAcknowledged(false);
+    router.push(nextPath);
+  };
+
   return (
     <Section>
       <Container column>
@@ -106,6 +235,22 @@ export function SignInClient({ locale }: SignInClientProps) {
             onSelectNsec={() => setPanel("nsec")}
             animate
           />
+
+          <div className={styles.divider}>
+            <span>{t("orNew")}</span>
+          </div>
+
+          <Button
+            type="button"
+            variant="secondary"
+            fullWidth
+            onClick={handleCreateIdentity}
+            disabled={isCreating}
+            className={styles.createButton}
+          >
+            <BoltIcon size={20} />
+            {isCreating ? t("creatingIdentity") : t("createIdentity")}
+          </Button>
 
           {errorMessage && panel === "picker" ? (
             <p className={styles.error} role="alert">
@@ -134,6 +279,96 @@ export function SignInClient({ locale }: SignInClientProps) {
                 {errorMessage}
               </p>
             ) : null}
+          </Modal>
+        ) : null}
+
+        {createdNsec ? (
+          <Modal
+            onClose={handleContinueAfterCreate}
+            title={t("createdTitle")}
+            size="sm"
+          >
+            <div className={styles.createdSuccess}>
+              <CheckIcon size={32} />
+            </div>
+            <p className={styles.createdIntro}>{t("createdIntro")}</p>
+
+            <label className={styles.createdLabel}>
+              {t("createdNsecLabel")}
+            </label>
+            <div className={styles.createdNsecBox}>
+              <code className={styles.createdNsec}>{createdNsec}</code>
+              <button
+                type="button"
+                className={styles.createdCopyBtn}
+                onClick={handleCopyNsec}
+                aria-label={t("createdCopy")}
+              >
+                {isCopied ? (
+                  <CheckIcon size={14} />
+                ) : (
+                  <CopyIcon size={14} />
+                )}
+                {isCopied ? t("createdCopied") : t("createdCopy")}
+              </button>
+            </div>
+
+            <div className={styles.createdWarning}>
+              <FlagIcon size={16} />
+              <span>{t("createdWarning")}</span>
+            </div>
+
+            {/*
+              Auth-failed branch: the nsec is on screen so the user
+              can save it, but we couldn't establish a session.
+              Render the localised failure + a Retry button that
+              re-uses the already-generated signer (NEVER spawns a
+              new identity — that would orphan the key the user is
+              reading right now).
+            */}
+            {createState.kind === "auth_failed" ? (
+              <div className={styles.createdAuthError}>
+                {createState.error ? (
+                  <p className={styles.error} role="alert">
+                    {createState.error}
+                  </p>
+                ) : null}
+                <Button
+                  type="button"
+                  variant="primary"
+                  fullWidth
+                  onClick={handleRetryCreateAuth}
+                  disabled={isCreating}
+                >
+                  {isCreating
+                    ? t("creatingIdentity")
+                    : t("createdRetryAuth")}
+                </Button>
+              </div>
+            ) : null}
+
+            <label className={styles.createdAck}>
+              <input
+                type="checkbox"
+                checked={isAcknowledged}
+                onChange={(e) => setIsAcknowledged(e.target.checked)}
+              />
+              <span>{t("createdAckLabel")}</span>
+            </label>
+
+            <Button
+              type="button"
+              variant="primary"
+              fullWidth
+              onClick={handleContinueAfterCreate}
+              // Continue is only meaningful in the `ready` variant.
+              // Disabling it whenever auth has not succeeded prevents
+              // a click from pushing the user into the app with an
+              // unauthenticated session.
+              disabled={!isAcknowledged || isAuthFailed}
+            >
+              {t("createdContinue")}
+            </Button>
           </Modal>
         ) : null}
       </Container>

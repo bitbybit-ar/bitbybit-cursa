@@ -144,7 +144,19 @@
     "nostr_signing_rejected": "Cancelaste la firma. Probá de nuevo cuando estés listo.",
     "nsecInvalidKey": "Esa no parece una clave válida. Revisá el formato (nsec1… o 64 caracteres hex).",
     "rate_limited": "Demasiados intentos. Esperá un momento y volvé a probar.",
-    "error": "No pudimos iniciar sesión. Probá de nuevo en un momento."
+    "error": "No pudimos iniciar sesión. Probá de nuevo en un momento.",
+    "orNew": "O bien",
+    "createIdentity": "Crear una identidad nueva",
+    "creatingIdentity": "Generando identidad…",
+    "createdTitle": "¡Identidad lista!",
+    "createdIntro": "Generamos una clave Nostr nueva para vos. Guardala bien antes de continuar — sin ella no podrás acceder de nuevo.",
+    "createdNsecLabel": "Tu clave privada (nsec)",
+    "createdCopy": "Copiar",
+    "createdCopied": "¡Copiada!",
+    "createdWarning": "Si perdés esta clave, perdés el acceso a tu cuenta. No la compartas con nadie.",
+    "createdRetryAuth": "Reintentar inicio de sesión",
+    "createdAckLabel": "Guardé mi clave en un lugar seguro.",
+    "createdContinue": "Continuar"
   },
   "reSignIn": {
     "extensionRejected": "La extensión rechazó la firma.",

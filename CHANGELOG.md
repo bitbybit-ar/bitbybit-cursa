@@ -12,6 +12,24 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- "Create a new identity" flow on the sign-in page. New
+  `lib/nostr/create-account.ts:createNewIdentity` generates a
+  fresh secp256k1 keypair via nostr-tools, encodes it to nsec
+  bech32, and returns `{ secretKey, pubkey, nsec }`. The sign-in
+  page renders a divider + secondary CTA below the signer-method
+  picker; clicking it opens a modal that shows the freshly-
+  generated nsec, lets the buyer copy it, and requires a
+  "saved my key" checkbox before proceeding. Internal state
+  machine (`idle` / `auth_failed` / `ready`) matches the arena
+  reference: the nsec is pinned on screen BEFORE the auth
+  round-trip so a network blip mid-call never strips the user
+  of their only copy of the key, and the retry CTA reuses the
+  same already-generated signer rather than spawning a fresh
+  identity. Four new unit tests in
+  `tests/unit/lib/nostr/create-account.test.ts` cover key
+  shape, nsec round-trip, schnorr-pubkey derivation, and
+  per-call freshness. New i18n keys under `login` in both locale
+  files.
 - `/api/downloads/[orderId]` proxy route for `type=download`
   offerings. The receipt page's download CTA now points here
   instead of the raw `offering.download_url`, keeping the source
