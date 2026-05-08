@@ -1,0 +1,48 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+// Extends the shared Button's fullWidth layout: the extension
+// sign-in shows an icon plus a two-line label (title + description),
+// so we override the default center alignment to keep the icon on
+// the left and let the label stack expand.
+.extensionButton {
+  justify-content: flex-start;
+  text-align: left;
+  gap: $spacing-12;
+  padding: $spacing-12 $spacing-16;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.name {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+}
+
+.description {
+  font-size: $font-size-xs;
+  opacity: 0.85;
+  font-weight: $font-weight-normal;
+}
+
+// Inline help text shown below the disabled button when no NIP-07
+// extension is detected. Replaces the Tooltip used in arena (we
+// haven't ported the Tooltip primitive into cursa yet).
+.help {
+  margin: 0;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  text-align: center;
+}

@@ -87,5 +87,37 @@
     "checkoutFailed": "No pudimos generar la invoice. Probá de nuevo en un momento.",
     "network": "No pudimos conectarnos. Revisá tu conexión y reintentá.",
     "notFound": "No encontramos lo que buscabas."
+  },
+  "common": {
+    "back": "Atrás",
+    "closeDialog": "Cerrar"
+  },
+  "login": {
+    "metadataTitle": "Iniciar sesión",
+    "title": "Iniciá sesión con Nostr",
+    "subtitle": "Conectá tu identidad para guardar tus compras y recibir tus códigos por DM. La cuenta es opcional: podés comprar sin iniciar sesión.",
+    "backToHome": "Volver al inicio",
+    "extensionTitle": "Usar extensión",
+    "extensionDescription": "Firmá con tu extensión Nostr (Alby, nos2x).",
+    "nsecTitle": "Iniciar sesión con clave privada",
+    "nsecDescription": "Pegá tu clave privada (nsec). Solo se usa en este navegador.",
+    "nsecLabel": "Tu clave privada (nsec…)",
+    "nsecPlaceholder": "nsec1…",
+    "nsecWarning": "Tu clave privada nunca debería salir de tu dispositivo. Pegala solo en sitios de confianza, y considerá usar una extensión Nostr para no exponerla.",
+    "nsecAcceptRisk": "Entiendo el riesgo y prefiero pegar mi clave en este navegador.",
+    "nsecSignIn": "Iniciar sesión",
+    "nsecSigningIn": "Iniciando sesión…",
+    "showKey": "Mostrar clave",
+    "hideKey": "Ocultar clave",
+    "no_extension": "No detectamos una extensión Nostr en este navegador.",
+    "nostr_signing_rejected": "Cancelaste la firma. Probá de nuevo cuando estés listo.",
+    "nsecInvalidKey": "Esa no parece una clave válida. Revisá el formato (nsec1… o 64 caracteres hex).",
+    "rate_limited": "Demasiados intentos. Esperá un momento y volvé a probar.",
+    "error": "No pudimos iniciar sesión. Probá de nuevo en un momento."
+  },
+  "reSignIn": {
+    "extensionRejected": "La extensión rechazó la firma.",
+    "mismatch": "La clave no coincide con tu sesión actual.",
+    "authFailed": "No pudimos validar tu firma."
   }
 }

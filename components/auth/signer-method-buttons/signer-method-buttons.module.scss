@@ -1,0 +1,61 @@
+@use "@/styles/spacing" as *;
+@use "@/styles/common-mixins" as *;
+@use "@/styles/media-mixins" as *;
+
+.methods {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-12;
+
+  @include mobile {
+    gap: $spacing-8;
+  }
+}
+
+// Stagger fade-in applied only when the consumer opts in via
+// `animate`. Used on the sign-in page first load. Kept off inside
+// modals so the animation doesn't replay on back navigation.
+.animate > * {
+  animation: methodFadeIn 0.4s ease both;
+
+  &:nth-child(1) {
+    animation-delay: 0.35s;
+  }
+  &:nth-child(2) {
+    animation-delay: 0.45s;
+  }
+}
+
+@keyframes methodFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate > * {
+    animation: none;
+  }
+}
+
+.methodButton {
+  @include method-button-layout;
+  flex: 1;
+}
+
+.methodInfo {
+  @include method-button-stack;
+}
+
+.methodName {
+  @include method-button-title;
+}
+
+.methodDescription {
+  @include method-button-subtitle;
+}

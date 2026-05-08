@@ -87,5 +87,37 @@
     "checkoutFailed": "We could not create the invoice. Try again in a moment.",
     "network": "Connection failed. Check your network and try again.",
     "notFound": "We couldn't find what you were looking for."
+  },
+  "common": {
+    "back": "Back",
+    "closeDialog": "Close"
+  },
+  "login": {
+    "metadataTitle": "Sign in",
+    "title": "Sign in with Nostr",
+    "subtitle": "Connect your identity to save your orders and receive codes by DM. Accounts are optional — you can also buy without signing in.",
+    "backToHome": "Back to home",
+    "extensionTitle": "Use extension",
+    "extensionDescription": "Sign with your Nostr extension (Alby, nos2x).",
+    "nsecTitle": "Sign in with private key",
+    "nsecDescription": "Paste your private key (nsec). Only used in this browser.",
+    "nsecLabel": "Your private key (nsec…)",
+    "nsecPlaceholder": "nsec1…",
+    "nsecWarning": "Your private key should never leave your device. Only paste it on trusted sites, and consider using a Nostr extension instead.",
+    "nsecAcceptRisk": "I understand the risk and want to paste my key in this browser.",
+    "nsecSignIn": "Sign in",
+    "nsecSigningIn": "Signing in…",
+    "showKey": "Show key",
+    "hideKey": "Hide key",
+    "no_extension": "No Nostr extension detected in this browser.",
+    "nostr_signing_rejected": "You cancelled the signature. Try again whenever you're ready.",
+    "nsecInvalidKey": "That doesn't look like a valid key. Check the format (nsec1… or 64 hex chars).",
+    "rate_limited": "Too many attempts. Wait a moment and try again.",
+    "error": "We could not sign you in. Try again in a moment."
+  },
+  "reSignIn": {
+    "extensionRejected": "The extension declined to sign.",
+    "mismatch": "That key doesn't match your current session.",
+    "authFailed": "We couldn't validate your signature."
   }
 }

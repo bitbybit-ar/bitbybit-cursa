@@ -1,0 +1,91 @@
+"use client";
+
+import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
+import { ExtensionSignerButton } from "@/components/auth/extension-signer-button";
+import { KeyIcon } from "@/components/icons";
+import type { SignerHandle, SignerType } from "@/lib/nostr/signers";
+import type { AuthError } from "@/lib/nostr/auth-errors";
+import styles from "./signer-method-buttons.module.scss";
+
+interface SignerMethodButtonsProps {
+  /** Fires when any of the methods produces a ready signer. */
+  onSigner: (signer: SignerHandle) => void | Promise<void>;
+  /** Fires with a structured error from any of the child flows. */
+  onError: (error: AuthError) => void;
+  /**
+   * When provided, the extension flow enforces that the produced
+   * signer's pubkey matches this value (re-attach flow).
+   */
+  expectedPubkey?: string;
+  /** Called when the user picks the nsec paste option. */
+  onSelectNsec: () => void;
+  /** Disables the picker buttons while the parent is busy. */
+  disabled?: boolean;
+  /**
+   * Restrict which signer methods are rendered. Defaults to extension
+   * + nsec — NIP-46 (Nostr Connect) is not yet implemented in cursa.
+   */
+  allowedMethods?: SignerType[];
+  /**
+   * Play the stagger fade-in when mounted. Useful on first page load
+   * (sign-in page). Should stay off inside modals that re-mount the
+   * picker on back navigation.
+   */
+  animate?: boolean;
+}
+
+const ALL_METHODS: SignerType[] = ["extension", "nsec"];
+
+export function SignerMethodButtons({
+  onSigner,
+  onError,
+  expectedPubkey,
+  onSelectNsec,
+  disabled,
+  allowedMethods = ALL_METHODS,
+  animate = false,
+}: SignerMethodButtonsProps) {
+  const t = useTranslations("login");
+
+  const wrapperClassName = animate
+    ? `${styles.methods} ${styles.animate}`
+    : styles.methods;
+
+  const allowed = new Set(allowedMethods);
+  const showExtension = allowed.has("extension");
+  const showNsec = allowed.has("nsec");
+
+  return (
+    <div className={wrapperClassName}>
+      {showExtension ? (
+        <ExtensionSignerButton
+          onSigner={onSigner}
+          onError={onError}
+          expectedPubkey={expectedPubkey}
+        />
+      ) : null}
+
+      {showNsec ? (
+        <Button
+          type="button"
+          variant="ghost"
+          fullWidth
+          className={styles.methodButton}
+          onClick={onSelectNsec}
+          disabled={disabled}
+        >
+          <KeyIcon size={20} />
+          <div className={styles.methodInfo}>
+            <span className={styles.methodName}>{t("nsecTitle")}</span>
+            <span className={styles.methodDescription}>
+              {t("nsecDescription")}
+            </span>
+          </div>
+        </Button>
+      ) : null}
+    </div>
+  );
+}
+
+export default SignerMethodButtons;

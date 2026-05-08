@@ -12,6 +12,27 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Sign-in page at `/[locale]/iniciar-sesion`. Buyers can connect a
+  Nostr identity via NIP-07 browser extension (Alby, nos2x) or by
+  pasting an nsec; NIP-46 (Nostr Connect) is intentionally
+  deferred. Honors a `?next=...` query param so the
+  Nostr-prompt-card on `/[locale]/gracias/[orderId]` can bounce
+  buyers through sign-in straight to `/reclamar/[orderId]`. Path
+  whitelist (`/mis-compras`, `/reclamar/`, `/gracias/`) prevents
+  open-redirect on the `next` param.
+- `Modal` UI primitive (`components/ui/modal/`) — accessible
+  dialog with click-outside / Escape close, focus trap, and
+  return-focus on close. Used by the nsec sub-panel on the
+  sign-in page.
+- Auth UI components ported from arena (kebab-case naming):
+  `extension-signer-button` (NIP-07 button with inline
+  no-extension help text — replaces the arena Tooltip dep),
+  `nsec-signer-form` (paste + show/hide + accept-risk + parse
+  via nostr-tools nip19/pure), and `signer-method-buttons`
+  (picker that today renders extension + nsec).
+- `lib/hooks/useClickOutside.ts` — used by Modal.
+- i18n: new `common`, `login`, `reSignIn` namespaces in both
+  `messages/es.json` and `messages/en.json`.
 - Nostr signer infrastructure ported from `bitbybit-arena`:
   `lib/nostr/signers.ts` (extension + nsec; NIP-46 deferred),
   `lib/nostr/auth-errors.ts` (discriminated `AuthError` for

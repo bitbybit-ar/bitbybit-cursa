@@ -1,0 +1,138 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/common-mixins" as *;
+@use "@/styles/media-mixins" as *;
+@use "@/styles/z-index" as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: $z-index-modal;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-16;
+  padding-top: max($spacing-16, env(safe-area-inset-top));
+  padding-bottom: max($spacing-16, env(safe-area-inset-bottom));
+  background: alpha($static-black, 50%);
+  animation: fadeIn 0.15s ease;
+  // 100dvh tracks the dynamic viewport (browser chrome expand/
+  // collapse on mobile) so the backdrop covers the visible area.
+  height: 100vh;
+  height: 100dvh;
+
+  @include mobile {
+    padding: $spacing-12;
+    padding-top: max($spacing-12, env(safe-area-inset-top));
+    padding-bottom: max($spacing-12, env(safe-area-inset-bottom));
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal {
+  @include ceramic-card;
+  position: relative;
+  padding: $spacing-32;
+  width: 100%;
+  max-height: 85vh;
+  max-height: 85dvh;
+  overflow-y: auto;
+  animation: slideIn 0.25s ease;
+  border-radius: $border-radius-xl;
+  box-shadow:
+    0 24px 64px alpha($static-black, 30%),
+    0 4px 16px alpha($static-black, 12%),
+    inset 0 2px 0 $ceramic-highlight,
+    inset 0 -3px 6px $ceramic-inner-shadow;
+
+  @include mobile {
+    max-width: 100%;
+    max-height: 90vh;
+    max-height: 90dvh;
+    padding: $spacing-24 $spacing-20;
+  }
+}
+
+.sm { max-width: 420px; }
+.md { max-width: 520px; }
+.lg {
+  max-width: 640px;
+
+  @include mobile {
+    padding: $spacing-24 $spacing-20;
+  }
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-8;
+  margin-bottom: $spacing-24;
+  padding-right: $spacing-32;
+  min-width: 0;
+}
+
+.title {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+  margin: 0;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: $spacing-4;
+  background: none;
+  border: none;
+  color: $color-text-secondary;
+  cursor: pointer;
+  border-radius: $border-radius-sm;
+  @include transition;
+
+  &:hover {
+    color: $color-primary;
+    background: alpha($color-text-primary, 6%);
+  }
+}
+
+.closeButton {
+  position: absolute;
+  top: $spacing-20;
+  right: $spacing-20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-4;
+  border: none;
+  background: transparent;
+  color: $color-text-secondary;
+  cursor: pointer;
+  border-radius: $border-radius-sm;
+  @include transition;
+
+  &:hover {
+    color: $color-text-primary;
+    background: alpha($color-text-primary, 8%);
+  }
+}
