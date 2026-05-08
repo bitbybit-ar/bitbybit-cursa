@@ -18,6 +18,7 @@ import {
 } from "@/components/icons";
 import { SignerMethodButtons } from "@/components/auth/signer-method-buttons";
 import { NsecSignerForm } from "@/components/auth/nsec-signer-form";
+import { NostrConnectPanel } from "@/components/auth/nostr-connect-panel";
 import {
   useSignerContext,
   type LoginResult,
@@ -36,7 +37,7 @@ import {
 import type { Locale } from "@/lib/schemas/auth";
 import styles from "./signin.module.scss";
 
-type Panel = "picker" | "nsec";
+type Panel = "picker" | "nsec" | "nip46";
 
 // Discriminated state machine for the create-identity flow:
 //
@@ -232,6 +233,7 @@ export function SignInClient({ locale }: SignInClientProps) {
           <SignerMethodButtons
             onSigner={handleSigner}
             onError={handleError}
+            onSelectNip46={() => setPanel("nip46")}
             onSelectNsec={() => setPanel("nsec")}
             animate
           />
@@ -273,6 +275,20 @@ export function SignInClient({ locale }: SignInClientProps) {
               requireAcceptRisk
               submitLabel={t("nsecSignIn")}
               submittingLabel={t("nsecSigningIn")}
+            />
+            {errorMessage ? (
+              <p className={styles.error} role="alert">
+                {errorMessage}
+              </p>
+            ) : null}
+          </Modal>
+        ) : null}
+
+        {panel === "nip46" ? (
+          <Modal onClose={closePanel} title={t("connectTitle")} size="sm">
+            <NostrConnectPanel
+              onSigner={handleSigner}
+              onError={handleError}
             />
             {errorMessage ? (
               <p className={styles.error} role="alert">

@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ExtensionSignerButton } from "@/components/auth/extension-signer-button";
-import { KeyIcon } from "@/components/icons";
+import { KeyIcon, LinkIcon } from "@/components/icons";
 import type { SignerHandle, SignerType } from "@/lib/nostr/signers";
 import type { AuthError } from "@/lib/nostr/auth-errors";
 import styles from "./signer-method-buttons.module.scss";
@@ -18,29 +18,33 @@ interface SignerMethodButtonsProps {
    * signer's pubkey matches this value (re-attach flow).
    */
   expectedPubkey?: string;
+  /** Called when the user picks the NIP-46 Nostr Connect option. */
+  onSelectNip46: () => void;
   /** Called when the user picks the nsec paste option. */
   onSelectNsec: () => void;
   /** Disables the picker buttons while the parent is busy. */
   disabled?: boolean;
   /**
-   * Restrict which signer methods are rendered. Defaults to extension
-   * + nsec — NIP-46 (Nostr Connect) is not yet implemented in cursa.
+   * Restrict which signer methods are rendered. Defaults to all
+   * three (extension + nip46 + nsec). The re-attach flow uses this
+   * to hide methods weaker than the user's original signer.
    */
   allowedMethods?: SignerType[];
   /**
-   * Play the stagger fade-in when mounted. Useful on first page load
-   * (sign-in page). Should stay off inside modals that re-mount the
-   * picker on back navigation.
+   * Play the stagger fade-in when mounted. Useful on first page
+   * load (sign-in page). Should stay off inside modals that re-
+   * mount the picker on back navigation.
    */
   animate?: boolean;
 }
 
-const ALL_METHODS: SignerType[] = ["extension", "nsec"];
+const ALL_METHODS: SignerType[] = ["extension", "nip46", "nsec"];
 
 export function SignerMethodButtons({
   onSigner,
   onError,
   expectedPubkey,
+  onSelectNip46,
   onSelectNsec,
   disabled,
   allowedMethods = ALL_METHODS,
@@ -54,6 +58,7 @@ export function SignerMethodButtons({
 
   const allowed = new Set(allowedMethods);
   const showExtension = allowed.has("extension");
+  const showNip46 = allowed.has("nip46");
   const showNsec = allowed.has("nsec");
 
   return (
@@ -64,6 +69,27 @@ export function SignerMethodButtons({
           onError={onError}
           expectedPubkey={expectedPubkey}
         />
+      ) : null}
+
+      {showNip46 ? (
+        <Button
+          type="button"
+          variant="primary"
+          fullWidth
+          className={styles.methodButton}
+          onClick={onSelectNip46}
+          disabled={disabled}
+        >
+          <LinkIcon size={20} />
+          <div className={styles.methodInfo}>
+            <span className={styles.methodName}>
+              {t("connectTitle")}
+            </span>
+            <span className={styles.methodDescription}>
+              {t("connectDescription")}
+            </span>
+          </div>
+        </Button>
       ) : null}
 
       {showNsec ? (

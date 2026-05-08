@@ -18,6 +18,8 @@ export type LoginErrorKey =
   | "no_extension"
   | "nostr_signing_rejected"
   | "nsecInvalidKey"
+  | "connectError"
+  | "connectInvalidBunker"
   | "rate_limited"
   | "error";
 

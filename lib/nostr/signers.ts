@@ -7,14 +7,10 @@
  * can be signed without re-prompting the user. None of these handles
  * persist across reloads — see `SignerProvider` for the auto-restore
  * policy.
- *
- * NIP-46 (Nostr Connect bunker) is intentionally out of scope for v1
- * of the buyer flow. Adding it later means dropping a `makeNip46Signer`
- * factory in this file alongside the bunker handshake (see
- * `bitbybit-arena/lib/nostr/nip46-login.ts` for the reference port).
  */
 
 import { finalizeEvent } from "nostr-tools/pure";
+import type { BunkerSigner } from "nostr-tools/nip46";
 import type { NostrEvent, UnsignedNostrEvent } from "./types";
 import type { SignerType } from "@/lib/schemas/auth";
 
@@ -57,6 +53,35 @@ export function makeNsecSigner(
         content: signed.content,
         sig: signed.sig,
       };
+    },
+  };
+}
+
+export function makeNip46Signer(
+  bunker: BunkerSigner,
+  pubkey: string
+): SignerHandle {
+  return {
+    type: "nip46",
+    pubkey,
+    sign: async (event) => {
+      const signed = await bunker.signEvent(event);
+      return {
+        id: signed.id,
+        pubkey: signed.pubkey,
+        created_at: signed.created_at,
+        kind: signed.kind,
+        tags: signed.tags,
+        content: signed.content,
+        sig: signed.sig,
+      };
+    },
+    close: async () => {
+      try {
+        await bunker.close();
+      } catch {
+        // Ignore — we're tearing down anyway.
+      }
     },
   };
 }

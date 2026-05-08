@@ -1,0 +1,195 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+
+.scanTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-12;
+  text-align: center;
+}
+
+.qrWrapper {
+  display: flex;
+  justify-content: center;
+  padding: $spacing-16;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  margin-bottom: $spacing-8;
+  color: $color-text-primary;
+
+  @include mobile {
+    padding: $spacing-12;
+  }
+}
+
+.copyURIBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-4;
+  margin-bottom: $spacing-4;
+}
+
+.waiting {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-12;
+  text-align: center;
+}
+
+.connectingState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-16;
+  padding: $spacing-16 0;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid color-mix(in srgb, $color-primary 25%, transparent);
+  border-top-color: $color-primary;
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: $spacing-12;
+  margin: $spacing-12 0;
+
+  &::before,
+  &::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: $color-border;
+  }
+
+  span {
+    font-size: $font-size-xs;
+    color: $color-text-secondary;
+    white-space: nowrap;
+  }
+}
+
+.bunkerLabel {
+  display: block;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-4;
+  text-align: left;
+}
+
+.bunkerInputRow {
+  display: flex;
+  gap: $spacing-8;
+  margin-bottom: $spacing-12;
+  min-width: 0;
+
+  // On narrow screens the input + Connect button get squeezed,
+  // leaving the bunker URI cropped to a few characters before the
+  // ellipsis. Stack them vertically so the input keeps full width.
+  @include mobile {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.bunkerInput {
+  flex: 1;
+  width: 100%;
+  padding: $spacing-8 $spacing-12;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  font-family: monospace;
+  font-size: $font-size-xs;
+  color: $color-text-primary;
+  outline: none;
+  min-width: 0;
+  // Long bunker:// URIs were forcing the modal wider than the
+  // viewport on narrow phone widths. Box-sizing keeps padding inside
+  // the flex basis; text-overflow ellipses anything that still
+  // does not fit.
+  box-sizing: border-box;
+  text-overflow: ellipsis;
+  transition: border-color 0.15s ease;
+
+  &::placeholder {
+    font-family: $font-body;
+    color: $color-text-secondary;
+  }
+
+  &:focus {
+    border-color: $color-primary;
+  }
+}
+
+.errorInModal {
+  color: $color-error;
+  font-size: $font-size-xs;
+  margin-bottom: $spacing-8;
+}
+
+.compatible {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-top: $spacing-4;
+  text-align: center;
+}
+
+.expired {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-12;
+  padding: $spacing-12 0;
+
+  p {
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    text-align: center;
+  }
+}
+
+.approveBanner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-8;
+  padding: $spacing-12;
+  margin-bottom: $spacing-12;
+  background: alpha($color-primary, 12%);
+  border: 1px solid alpha($color-primary, 45%);
+  border-radius: $border-radius-md;
+  color: $color-primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  text-align: center;
+  text-decoration: none;
+
+  &:hover {
+    background: alpha($color-primary, 20%);
+  }
+}
+
+.slowHint {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin-top: $spacing-4;
+  margin-bottom: $spacing-12;
+  text-align: center;
+}

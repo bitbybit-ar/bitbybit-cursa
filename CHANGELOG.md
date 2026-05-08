@@ -12,6 +12,29 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- NIP-46 (Nostr Connect / "bunker") signer method on the sign-in
+  page. Buyers with a remote signer (nsec.app, Amber, …) can now
+  pair via QR scan (we generate a `nostrconnect://` URI) or by
+  pasting a `bunker://` URL their signer produced. New
+  `lib/nostr/nip46-login.ts` ports the arena reference: persistent
+  client-key in localStorage so re-mounting the panel does not
+  rotate identity, abort-signal-aware
+  `BunkerSigner.fromURI`, and an `auth_url` callback for signers
+  that need an extra approval click. New
+  `<NostrConnectPanel>` component renders the QR + paste
+  fallback + auth-url banner + slow-hint + expired/retry states.
+  `makeNip46Signer` added to `lib/nostr/signers.ts` (it
+  delegates `signEvent` to the live BunkerSigner and exposes
+  `close()` so the SignerProvider can tear down the relay
+  connection on sign-out). `<SignerMethodButtons>` now renders
+  all three methods by default (extension, NIP-46, nsec) with
+  the picker UI. New `login.connect*` keys in both
+  `messages/es.json` and `messages/en.json`. The
+  `BunkerLoginError` class carries a stable `bunker_invalid_url`
+  code for the localised invalid-paste path. No new tests —
+  this is glue around `nostr-tools/nip46`'s already-tested
+  primitives plus UI orchestration; relay-handshake testing is
+  out of scope for unit/integration suites.
 - "Create a new identity" flow on the sign-in page. New
   `lib/nostr/create-account.ts:createNewIdentity` generates a
   fresh secp256k1 keypair via nostr-tools, encodes it to nsec
