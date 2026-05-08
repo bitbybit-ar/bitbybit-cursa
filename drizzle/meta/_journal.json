@@ -8,6 +8,13 @@
       "when": 1778159361818,
       "tag": "0000_plain_eternals",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1778189922476,
+      "tag": "0001_magical_fat_cobra",
+      "breakpoints": true
     }
   ]
 }

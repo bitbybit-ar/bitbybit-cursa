@@ -12,6 +12,20 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- `lib/offerings.ts` data-layer reads — `listActiveOfferings`,
+  `getOfferingBySlug`, `getOfferingById`. Used by the catalog,
+  offering detail, checkout, and receipt pages to pull rows from
+  Postgres. Mirrors the shape of `lib/orders.ts` and reuses
+  `getDb()` from `lib/db/index.ts`.
+- `orders.bolt11` column (drizzle migration 0001) so the
+  checkout page can re-render the QR after a reload without
+  re-calling Wapu. Populated by `createOrder` at invoice time;
+  the public `WapuInvoiceState` shape does not surface BOLT11,
+  so persisting it on the row is the only way to recover it.
+- `scripts/seed-offerings.ts` — seeds three sample offerings
+  (two `code`, one `download`) via `npm run db:seed`.
+  Idempotent (`ON CONFLICT (slug) DO NOTHING`) and shares the
+  dotenv precedence pattern with `scripts/migrate.ts`.
 - ADR
   [0010-no-yaml-config](docs/architecture/decisions/0010-no-yaml-config.md):
   no YAML configuration file ships in the repo. Branding lives in

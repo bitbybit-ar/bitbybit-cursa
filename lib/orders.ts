@@ -57,6 +57,7 @@ export async function createOrder(
       amount_sats: invoice.amount_sats,
       payment_hash: invoice.payment_hash,
       wapu_invoice_id: invoice.id,
+      bolt11: invoice.bolt11,
     })
     .returning();
 

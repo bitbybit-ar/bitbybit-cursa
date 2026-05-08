@@ -87,6 +87,11 @@ export const orders = pgTable(
     amount_sats: integer("amount_sats").notNull(),
     payment_hash: varchar("payment_hash", { length: 64 }),
     wapu_invoice_id: text("wapu_invoice_id"),
+    // BOLT11 invoice string returned by Wapu at create time. Cached
+    // on the row so the checkout page survives reloads (and so the
+    // QR can re-render) without re-calling Wapu. Nullable for
+    // forward-compat with rails that do not produce a BOLT11.
+    bolt11: text("bolt11"),
     wapu_settlement_ref: text("wapu_settlement_ref"),
     redemption_code: text("redemption_code"),
     created_at: timestamp("created_at").notNull().defaultNow(),
