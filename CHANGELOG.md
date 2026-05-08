@@ -12,6 +12,19 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Nostr signer infrastructure ported from `bitbybit-arena`:
+  `lib/nostr/signers.ts` (extension + nsec; NIP-46 deferred),
+  `lib/nostr/auth-errors.ts` (discriminated `AuthError` for
+  cross-namespace localisation), and a slim
+  `lib/contexts/signer-context.tsx` that owns session fetch +
+  in-memory signer + the NIP-98 login round-trip + sign-out.
+  Wired as `<SignerProvider>` inside `app/[locale]/layout.tsx`.
+  Auto-restores the extension signer on reload when the session
+  cookie matches the extension's pubkey. The arena reference
+  splits this into Session/Signer/ReSignIn — Cursá's buyer flow
+  only signs at login, so the slimmed combined version covers
+  v1; pull in the arena machinery if a future feature signs
+  beyond auth.
 - Buyer critical-path UI: catalog at `/[locale]`, offering detail
   at `/[locale]/c/[slug]`, Lightning checkout at
   `/[locale]/checkout/[orderId]` (BOLT11 QR + copy + 3-second

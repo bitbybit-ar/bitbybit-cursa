@@ -7,6 +7,7 @@ import { alternatesFor } from "@/lib/seo";
 import { getBaseUrl } from "@/lib/env";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/lib/contexts/theme-context";
+import { SignerProvider } from "@/lib/contexts/signer-context";
 import { ToastProvider } from "@/components/ui/toast";
 import "@/styles/globals.scss";
 
@@ -143,12 +144,14 @@ export default async function LocaleLayout({
       <body suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
-            <ToastProvider>
-              <a href="#main" className="skip-link">
-                {t("skipToContent")}
-              </a>
-              <main id="main">{children}</main>
-            </ToastProvider>
+            <SignerProvider>
+              <ToastProvider>
+                <a href="#main" className="skip-link">
+                  {t("skipToContent")}
+                </a>
+                <main id="main">{children}</main>
+              </ToastProvider>
+            </SignerProvider>
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>
