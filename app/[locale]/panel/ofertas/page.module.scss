@@ -1,0 +1,136 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $spacing-16;
+  margin-bottom: $spacing-32;
+
+  @include mobile {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.title {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+}
+
+.subtitle {
+  margin: $spacing-4 0 0;
+  color: $color-text-secondary;
+}
+
+.sectionTitle {
+  margin: $spacing-32 0 $spacing-12;
+  font-family: $font-family-display;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+
+  &:first-of-type {
+    margin-top: 0;
+  }
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-12;
+  text-align: center;
+  padding: $spacing-32;
+  color: $color-text-secondary;
+}
+
+.emptyLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-4;
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+}
+
+.item {
+  margin: 0;
+}
+
+.archivedItem {
+  opacity: 0.6;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-16;
+  padding: $spacing-16 $spacing-20;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  text-decoration: none;
+  color: $color-text-primary;
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: $color-primary;
+  }
+}
+
+.rowMain {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  flex: 1;
+  min-width: 0;
+}
+
+.rowTitle {
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rowMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  flex-wrap: wrap;
+}
+
+.slug {
+  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+  background: $color-bg-2;
+  padding: 0 $spacing-4;
+  border-radius: 4px;
+}
+
+.dot {
+  opacity: 0.5;
+}

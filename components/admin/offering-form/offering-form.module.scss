@@ -1,0 +1,133 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-20;
+  max-width: 640px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-12;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  padding: $spacing-16;
+  background: $color-bg-2;
+}
+
+.legend {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  padding: 0 $spacing-4;
+}
+
+.radio {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-12;
+  cursor: pointer;
+  font-size: $font-size-sm;
+
+  input[type="radio"] {
+    accent-color: $color-primary;
+    margin-top: $spacing-2;
+  }
+
+  > span {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+  }
+
+  strong {
+    color: $color-text-primary;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.radioHint {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: $spacing-8;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.optional {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-normal;
+  color: $color-text-secondary;
+  text-transform: uppercase;
+  letter-spacing: $letter-spacing-wide;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: $spacing-8 $spacing-12;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  font-family: $font-family-base;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  outline: none;
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: $color-text-secondary;
+  }
+
+  &:focus {
+    border-color: $color-primary;
+  }
+}
+
+.textarea {
+  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+  font-size: $font-size-xs;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.hint {
+  margin: 0;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-16;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: $spacing-12;
+  padding-top: $spacing-16;
+  border-top: 1px solid $color-border;
+}

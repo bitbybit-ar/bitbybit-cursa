@@ -12,6 +12,43 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Offerings CRUD on the admin panel. The merchant can list,
+  create, edit, and archive their catalog from the browser; this
+  is the only mutable surface in v1 per ADR 0008. Three pages:
+  `/[locale]/panel/ofertas` (active + archived sections),
+  `/[locale]/panel/ofertas/nueva` (create form), and
+  `/[locale]/panel/ofertas/[slug]/editar` (edit + archive button
+  with confirm prompt). Form is shared (`<OfferingForm>`) and
+  POSTs/PATCHes the new admin API.
+- Admin API: `POST /api/admin/offerings`,
+  `PATCH /api/admin/offerings/[id]`, and
+  `DELETE /api/admin/offerings/[id]` (soft delete via
+  `archived_at`). All gated by a new `requireAdmin()` helper that
+  returns 401 (no session) or 404 (logged-in non-admin) — same
+  posture as the panel middleware.
+- `lib/admin/offerings.ts` — discriminated-result helpers for
+  create / update / archive (`slug_taken`, `not_found`,
+  `already_archived` branches), plus list helpers
+  (`listAllOfferings`, `listArchivedOfferings`,
+  `getOfferingForAdmin`). Zod schemas
+  (`CreateOfferingSchema`, `UpdateOfferingSchema`) live in the
+  same module.
+- `lib/admin/audit.ts:writeAuditLog` — every admin mutation now
+  writes an `admin_audit_log` row before returning success
+  (actor pubkey, route, action, structured payload diff). Diff
+  for updates records the changed-key list rather than full
+  values so the log stays compact and avoids leaking secrets.
+- Eleven new integration tests in
+  `tests/integration/lib/admin/offerings.test.ts` cover create /
+  update / archive happy paths, slug-taken on create, slug-
+  conflict on update, not_found, archive idempotency, and list
+  ordering.
+- `<OfferingForm>` client component (shared between create and
+  edit) with type radio (code/download), conditional code-pool
+  textarea, conditional download-url field, in-line validation,
+  toast feedback, and an archive button on edit. New i18n keys
+  under `panel.offerings` and `panel.offerings.form` in both
+  locale files.
 - Admin panel scaffold at `/[locale]/panel` (ADR 0008). Edge
   middleware (`proxy.ts`) gates every `/[locale]/panel/*` path:
   anonymous visitors bounce through sign-in with a `?next=` that

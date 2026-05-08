@@ -120,6 +120,66 @@
       "viewAll": "Ver todos",
       "recentEmpty": "Todavía no hay pedidos.",
       "unknownOffering": "Oferta desconocida"
+    },
+    "offerings": {
+      "metadataTitle": "Panel · Ofertas",
+      "title": "Ofertas",
+      "subtitle": "Catálogo de cursos y materiales que vendés.",
+      "createCta": "Nueva oferta",
+      "activeHeading": "Activas",
+      "archivedHeading": "Archivadas",
+      "emptyActive": "Todavía no creaste ninguna oferta.",
+      "archivedAt": "Archivada el {date}",
+      "type": {
+        "code": "Código de canje",
+        "download": "Descarga"
+      },
+      "create": {
+        "metadataTitle": "Panel · Nueva oferta",
+        "back": "Volver al catálogo",
+        "title": "Nueva oferta",
+        "subtitle": "Definí los detalles para que la oferta aparezca en tu storefront."
+      },
+      "edit": {
+        "metadataTitle": "Panel · Editar {slug}",
+        "back": "Volver al catálogo",
+        "title": "Editar oferta",
+        "archived": "Archivada"
+      },
+      "form": {
+        "slug": "Slug",
+        "slugHint": "Identificador para la URL. Solo minúsculas, números y guiones.",
+        "type": "Tipo",
+        "typeCode": "Código de canje",
+        "typeCodeHint": "El comprador recibe un código de la lista al pagar.",
+        "typeDownload": "Descarga",
+        "typeDownloadHint": "El comprador descarga un archivo después del pago.",
+        "title": "Título",
+        "description": "Descripción",
+        "priceArs": "Precio (ARS)",
+        "priceSats": "Precio fijo (sats)",
+        "priceSatsHint": "Si lo dejás vacío, calculamos el precio en sats al momento de la compra.",
+        "imageUrl": "URL de imagen",
+        "optional": "Opcional",
+        "codePool": "Códigos disponibles",
+        "codePoolPlaceholder": "AAAA-1111\nBBBB-2222\nCCCC-3333",
+        "codePoolHint": "Un código por línea. Cada compra consume uno; cuando se acaben, los nuevos compradores ven \"código pendiente\" hasta que cargues más.",
+        "downloadUrl": "URL del archivo",
+        "downloadUrlHint": "URL donde está alojado el archivo. La servimos detrás de un proxy con control de acceso.",
+        "saveCreate": "Crear oferta",
+        "saveEdit": "Guardar cambios",
+        "saving": "Guardando…",
+        "saved": "Oferta guardada.",
+        "saveFailed": "No pudimos guardar la oferta. Probá de nuevo.",
+        "slugTaken": "Ya existe una oferta con ese slug.",
+        "invalidPriceArs": "El precio en ARS tiene que ser un número entero positivo.",
+        "invalidPriceSats": "El precio en sats tiene que ser un número entero positivo.",
+        "archive": "Archivar oferta",
+        "archiving": "Archivando…",
+        "archived": "Oferta archivada.",
+        "archiveFailed": "No pudimos archivar la oferta.",
+        "archiveConfirm": "¿Seguro que querés archivar esta oferta? Dejará de mostrarse en el storefront."
+      }
     }
   },
   "account": {

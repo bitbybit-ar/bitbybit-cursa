@@ -1,0 +1,54 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-4;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  text-decoration: none;
+  margin-bottom: $spacing-16;
+
+  &:hover {
+    color: $color-text-primary;
+  }
+}
+
+.title {
+  margin: 0 0 $spacing-4;
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+}
+
+.subtitle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-12;
+  margin: 0 0 $spacing-32;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+}
+
+.slug {
+  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+  font-size: $font-size-xs;
+  background: $color-bg-2;
+  padding: $spacing-2 $spacing-8;
+  border-radius: 4px;
+}
+
+.archivedTag {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: $letter-spacing-wide;
+  padding: $spacing-2 $spacing-8;
+  border-radius: 4px;
+  background: color-mix(in srgb, $color-error 15%, transparent);
+  color: $color-error;
+}

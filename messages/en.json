@@ -120,6 +120,66 @@
       "viewAll": "View all",
       "recentEmpty": "No orders yet.",
       "unknownOffering": "Unknown offering"
+    },
+    "offerings": {
+      "metadataTitle": "Panel · Offerings",
+      "title": "Offerings",
+      "subtitle": "Catalog of courses and materials you sell.",
+      "createCta": "New offering",
+      "activeHeading": "Active",
+      "archivedHeading": "Archived",
+      "emptyActive": "You haven't created any offerings yet.",
+      "archivedAt": "Archived on {date}",
+      "type": {
+        "code": "Redemption code",
+        "download": "Download"
+      },
+      "create": {
+        "metadataTitle": "Panel · New offering",
+        "back": "Back to catalog",
+        "title": "New offering",
+        "subtitle": "Set the details so the offering shows up in your storefront."
+      },
+      "edit": {
+        "metadataTitle": "Panel · Edit {slug}",
+        "back": "Back to catalog",
+        "title": "Edit offering",
+        "archived": "Archived"
+      },
+      "form": {
+        "slug": "Slug",
+        "slugHint": "URL identifier. Lowercase letters, numbers, and hyphens only.",
+        "type": "Type",
+        "typeCode": "Redemption code",
+        "typeCodeHint": "Buyer receives one code from the pool when they pay.",
+        "typeDownload": "Download",
+        "typeDownloadHint": "Buyer downloads a file after payment.",
+        "title": "Title",
+        "description": "Description",
+        "priceArs": "Price (ARS)",
+        "priceSats": "Pinned price (sats)",
+        "priceSatsHint": "Leave empty to compute the sats price at purchase time.",
+        "imageUrl": "Image URL",
+        "optional": "Optional",
+        "codePool": "Available codes",
+        "codePoolPlaceholder": "AAAA-1111\nBBBB-2222\nCCCC-3333",
+        "codePoolHint": "One code per line. Each purchase consumes one; when the pool is empty, new buyers see \"code pending\" until you add more.",
+        "downloadUrl": "File URL",
+        "downloadUrlHint": "Where the file is hosted. We serve it through an access-controlled proxy.",
+        "saveCreate": "Create offering",
+        "saveEdit": "Save changes",
+        "saving": "Saving…",
+        "saved": "Offering saved.",
+        "saveFailed": "Couldn't save the offering. Try again.",
+        "slugTaken": "An offering with that slug already exists.",
+        "invalidPriceArs": "ARS price must be a positive integer.",
+        "invalidPriceSats": "Sats price must be a positive integer.",
+        "archive": "Archive offering",
+        "archiving": "Archiving…",
+        "archived": "Offering archived.",
+        "archiveFailed": "Couldn't archive the offering.",
+        "archiveConfirm": "Are you sure you want to archive this offering? It will stop appearing in the storefront."
+      }
     }
   },
   "account": {
