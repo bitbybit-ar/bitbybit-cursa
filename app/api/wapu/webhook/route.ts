@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getWapuClient } from "@/lib/wapu";
-import { markOrderPaid } from "@/lib/orders";
+import { markOrderPaid, drawAndAssignCode } from "@/lib/orders";
 
 const SIGNATURE_HEADER = "x-wapu-signature";
 
@@ -69,7 +69,35 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       settlement_ref: parsed.settlement_ref,
       paid_at: new Date(parsed.occurred_at * 1000),
     });
-    return NextResponse.json({ ok: true, updated: result.updated });
+
+    // Draw a redemption code on the SAME webhook delivery that
+    // flipped the order to paid. Idempotent: a second delivery for
+    // the same order short-circuits via `already_assigned` without
+    // burning another code from the pool. For `type=download`
+    // offerings the helper no-ops; the receipt page proxies the
+    // download URL via /api/downloads/[orderId] instead.
+    let drawStatus: string | null = null;
+    if (result.updated) {
+      const draw = await drawAndAssignCode({
+        order_id: parsed.external_id,
+      });
+      drawStatus = draw.status;
+      if (draw.status === "pool_empty") {
+        // Real merchant problem — they sold something they have no
+        // codes left for. Loud log so it shows up in the panel /
+        // monitoring; the receipt page renders the graceful
+        // "tu código está siendo asignado" pending state.
+        console.warn(
+          `[wapu/webhook] code pool empty for order ${parsed.external_id} — manual intervention required`
+        );
+      }
+    }
+
+    return NextResponse.json({
+      ok: true,
+      updated: result.updated,
+      draw: drawStatus,
+    });
   } catch (err) {
     const message = err instanceof Error ? err.message : "unknown_error";
     if (message.includes("not found")) {

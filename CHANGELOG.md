@@ -12,6 +12,20 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Wapu webhook now draws a redemption code from
+  `offerings.code_pool` and assigns it to `orders.redemption_code`
+  on the same delivery that flips the order to `paid`. New
+  `lib/orders.ts:drawAndAssignCode` helper handles concurrency
+  via optimistic-concurrency retry (neon-http does not support
+  interactive transactions): the UPDATE on offerings matches the
+  candidate's exact pool position, so a racing webhook that
+  picked the same code sees zero rows updated and retries with
+  the shrunken pool. Idempotent on repeat delivery
+  (`already_assigned` short-circuit). Five new integration tests
+  in `tests/integration/lib/orders.test.ts` cover assigned,
+  idempotent, pool_empty, not_a_code_offering, and a parallel
+  race smoke test. Closes the receipt-page "código pendiente"
+  gap that was deferred from chunk 4.
 - `/[locale]/mis-compras` — order history for the logged-in
   buyer. Server-rendered list of `listOrdersByPubkey(session.
   pubkey)` results, each row linking back to

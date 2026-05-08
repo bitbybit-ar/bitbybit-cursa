@@ -9,6 +9,7 @@ import {
   getOrder,
   listOrdersByPubkey,
   claimOrderForBuyer,
+  drawAndAssignCode,
 } from "@/lib/orders";
 
 beforeAll(async () => {
@@ -245,5 +246,151 @@ describe("orders/claimOrderForBuyer", () => {
       pubkey: HEX_PUBKEY,
     });
     expect(result.status).toBe("not_found");
+  });
+});
+
+describe("orders/drawAndAssignCode", () => {
+  async function seedCodeOfferingWithPool(codes: string[]) {
+    const [row] = await testDb
+      .insert(offerings)
+      .values({
+        slug: `pool-${codes.length}-${Date.now()}`,
+        type: "code",
+        title: "Pool offering",
+        description: "Has a pool.",
+        price_ars: 1000,
+        code_pool: codes,
+      })
+      .returning();
+    return row;
+  }
+
+  async function seedDownloadOffering() {
+    const [row] = await testDb
+      .insert(offerings)
+      .values({
+        slug: `download-${Date.now()}`,
+        type: "download",
+        title: "PDF",
+        description: "A download.",
+        price_ars: 500,
+        download_url: "https://example.com/pdf",
+      })
+      .returning();
+    return row;
+  }
+
+  it("pops the first code from the pool and assigns it to the order", async () => {
+    const offering = await seedCodeOfferingWithPool([
+      "CODE-A",
+      "CODE-B",
+      "CODE-C",
+    ]);
+    const { order_id } = await createOrder({
+      offering_id: offering.id,
+      pubkey: null,
+    });
+
+    const result = await drawAndAssignCode({ order_id });
+
+    expect(result.status).toBe("assigned");
+    if (result.status === "assigned") {
+      expect(result.code).toBe("CODE-A");
+    }
+    const order = await getOrder(order_id);
+    expect(order?.redemption_code).toBe("CODE-A");
+
+    const [updatedOffering] = await testDb
+      .select()
+      .from(offerings)
+      .where(eq(offerings.id, offering.id))
+      .limit(1);
+    expect(updatedOffering.code_pool).toEqual(["CODE-B", "CODE-C"]);
+  });
+
+  it("is idempotent on repeat delivery — does not consume a second code", async () => {
+    const offering = await seedCodeOfferingWithPool(["ONE", "TWO"]);
+    const { order_id } = await createOrder({
+      offering_id: offering.id,
+      pubkey: null,
+    });
+
+    const first = await drawAndAssignCode({ order_id });
+    expect(first.status).toBe("assigned");
+    const second = await drawAndAssignCode({ order_id });
+    expect(second.status).toBe("already_assigned");
+    if (second.status === "already_assigned") {
+      expect(second.code).toBe("ONE");
+    }
+
+    const [updatedOffering] = await testDb
+      .select()
+      .from(offerings)
+      .where(eq(offerings.id, offering.id))
+      .limit(1);
+    expect(updatedOffering.code_pool).toEqual(["TWO"]);
+  });
+
+  it("returns pool_empty when there is nothing to draw", async () => {
+    const offering = await seedCodeOfferingWithPool([]);
+    const { order_id } = await createOrder({
+      offering_id: offering.id,
+      pubkey: null,
+    });
+    const result = await drawAndAssignCode({ order_id });
+    expect(result.status).toBe("pool_empty");
+    const order = await getOrder(order_id);
+    expect(order?.redemption_code).toBeNull();
+  });
+
+  it("returns not_a_code_offering for download offerings", async () => {
+    const offering = await seedDownloadOffering();
+    const { order_id } = await createOrder({
+      offering_id: offering.id,
+      pubkey: null,
+    });
+    const result = await drawAndAssignCode({ order_id });
+    expect(result.status).toBe("not_a_code_offering");
+    const order = await getOrder(order_id);
+    expect(order?.redemption_code).toBeNull();
+  });
+
+  it("assigns distinct codes to distinct orders racing the same pool", async () => {
+    // Smoke test for the optimistic-concurrency loop: kick off two
+    // draws against the same offering in parallel; both must land
+    // on different codes and the pool must shrink by exactly two.
+    const offering = await seedCodeOfferingWithPool([
+      "X1",
+      "X2",
+      "X3",
+    ]);
+    const a = await createOrder({
+      offering_id: offering.id,
+      pubkey: null,
+    });
+    const b = await createOrder({
+      offering_id: offering.id,
+      pubkey: null,
+    });
+
+    const [resA, resB] = await Promise.all([
+      drawAndAssignCode({ order_id: a.order_id }),
+      drawAndAssignCode({ order_id: b.order_id }),
+    ]);
+
+    expect(resA.status).toBe("assigned");
+    expect(resB.status).toBe("assigned");
+    if (resA.status === "assigned" && resB.status === "assigned") {
+      expect(resA.code).not.toBe(resB.code);
+      expect(["X1", "X2"]).toContain(resA.code);
+      expect(["X1", "X2"]).toContain(resB.code);
+    }
+
+    const [updated] = await testDb
+      .select()
+      .from(offerings)
+      .where(eq(offerings.id, offering.id))
+      .limit(1);
+    expect(updated.code_pool).toEqual(["X3"]);
   });
 });

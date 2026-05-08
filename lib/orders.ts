@@ -1,4 +1,4 @@
-import { eq, desc } from "drizzle-orm";
+import { and, eq, desc, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { orders, offerings } from "@/lib/db/schema";
 import { getWapuClient, type WapuInvoice } from "@/lib/wapu";
@@ -185,4 +185,103 @@ export async function claimOrderForBuyer(opts: {
     .where(eq(orders.id, opts.order_id))
     .returning();
   return { status: "claimed", order: updated };
+}
+
+export type RedemptionDrawResult =
+  | { status: "assigned"; code: string }
+  | { status: "pool_empty" }
+  | { status: "not_a_code_offering" }
+  | { status: "already_assigned"; code: string };
+
+const DRAW_MAX_ATTEMPTS = 5;
+
+/**
+ * Pop a redemption code from `offerings.code_pool` and assign it to
+ * `orders.redemption_code`. Called from the Wapu webhook handler
+ * after the order transitions to `paid`.
+ *
+ * Concurrency
+ *   neon-http does not support interactive transactions, so we
+ *   serialise via optimistic concurrency: the UPDATE on offerings
+ *   matches the chosen first-of-pool value, and a racing webhook
+ *   that picked the same value sees zero rows updated and retries.
+ *   With a 5-attempt cap, simultaneous webhooks for distinct
+ *   orders against the same offering converge to distinct codes
+ *   even under high concurrency.
+ *
+ * Idempotency
+ *   If the order already has a `redemption_code` (a previous draw
+ *   succeeded; the webhook fired again), returns `already_assigned`
+ *   without consuming another code from the pool.
+ */
+export async function drawAndAssignCode(opts: {
+  order_id: string;
+}): Promise<RedemptionDrawResult> {
+  const db = getDb();
+
+  for (let attempt = 0; attempt < DRAW_MAX_ATTEMPTS; attempt++) {
+    const [order] = await db
+      .select()
+      .from(orders)
+      .where(eq(orders.id, opts.order_id))
+      .limit(1);
+    if (!order) throw new Error(`Order ${opts.order_id} not found`);
+    if (order.redemption_code) {
+      return { status: "already_assigned", code: order.redemption_code };
+    }
+
+    const [offering] = await db
+      .select()
+      .from(offerings)
+      .where(eq(offerings.id, order.offering_id))
+      .limit(1);
+    if (!offering) {
+      throw new Error(`Offering ${order.offering_id} not found`);
+    }
+    if (offering.type !== "code") {
+      return { status: "not_a_code_offering" };
+    }
+
+    const pool = offering.code_pool ?? [];
+    if (pool.length === 0) {
+      return { status: "pool_empty" };
+    }
+
+    const candidate = pool[0];
+    const remaining = pool.slice(1);
+
+    // Optimistic pop: only succeed if the pool's first element is
+    // still the candidate we picked. A racing webhook that chose
+    // the same candidate gets zero rows updated and falls into the
+    // next loop iteration, which re-reads the (now-shrunken) pool.
+    const popResult = await db
+      .update(offerings)
+      .set({ code_pool: remaining, updated_at: new Date() })
+      .where(
+        and(
+          eq(offerings.id, offering.id),
+          sql`${offerings.code_pool}[1] = ${candidate}`
+        )
+      )
+      .returning({ id: offerings.id });
+
+    if (popResult.length === 0) {
+      // Another writer popped this candidate; retry with fresh state.
+      continue;
+    }
+
+    await db
+      .update(orders)
+      .set({ redemption_code: candidate, updated_at: new Date() })
+      .where(eq(orders.id, opts.order_id));
+
+    return { status: "assigned", code: candidate };
+  }
+
+  // Exhausted retries — caller should log + return 500 so Wapu
+  // re-delivers the webhook. This should be vanishingly rare in
+  // practice; loud failure beats silently dropping the assignment.
+  throw new Error(
+    `drawAndAssignCode exhausted ${DRAW_MAX_ATTEMPTS} attempts for order ${opts.order_id}`
+  );
 }
