@@ -12,6 +12,31 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Admin panel scaffold at `/[locale]/panel` (ADR 0008). Edge
+  middleware (`proxy.ts`) gates every `/[locale]/panel/*` path:
+  anonymous visitors bounce through sign-in with a `?next=` that
+  preserves the original target; signed-in non-admins receive a
+  bare 404 (NOT 403 — the surface is intentionally unadvertised).
+  The middleware uses `verifySessionToken` (jose-only, no
+  `next/headers`) so it runs on the edge runtime; admin status is
+  computed at every request from `ADMIN_PUBKEYS` env, which means
+  revoking a key from env immediately locks every existing session
+  out of the panel without re-issuing JWTs. The page layout
+  repeats the session check server-side for defence in depth.
+  Sign-in `next` whitelist now includes `/panel`.
+- Panel layout (`app/[locale]/panel/layout.tsx`) — sidebar with
+  five nav links (Overview, Offerings, Orders, Students, Settings)
+  plus a sign-out button reusing the existing `<SignOutButton>`.
+  Active link highlighting via a new `<PanelNavLink>` client
+  component (`aria-current="page"`).
+- Panel overview at `/[locale]/panel` — three stat cards (revenue
+  MTD, pending orders, paid in last 30 days) plus a recent-orders
+  feed (10 most recent, regardless of status, with status pills
+  matching the buyer-side `/mis-compras` palette). All queries
+  live in `lib/admin/stats.ts:getAdminOverview` which fans out
+  four small selects in parallel via `Promise.all`.
+- New i18n namespace `panel` with `nav.*` and `overview.*`
+  sub-sections in both `messages/es.json` and `messages/en.json`.
 - NIP-46 (Nostr Connect / "bunker") signer method on the sign-in
   page. Buyers with a remote signer (nsec.app, Amber, …) can now
   pair via QR scan (we generate a `nostrconnect://` URI) or by

@@ -92,6 +92,36 @@
     "back": "Atrás",
     "closeDialog": "Cerrar"
   },
+  "panel": {
+    "brand": "Panel del merchant",
+    "brandSubtitle": "Cursá",
+    "signOut": "Cerrar sesión",
+    "nav": {
+      "label": "Navegación del panel",
+      "overview": "Resumen",
+      "offerings": "Ofertas",
+      "orders": "Pedidos",
+      "students": "Estudiantes",
+      "settings": "Configuración",
+      "exit": "← Volver al sitio"
+    },
+    "overview": {
+      "metadataTitle": "Panel · Resumen",
+      "title": "Resumen",
+      "subtitle": "Tus métricas clave de hoy.",
+      "statGridLabel": "Métricas principales",
+      "revenueMtd": "Ingresos del mes",
+      "revenueHint": "Pedidos pagados, este mes calendario.",
+      "pendingOrders": "Pedidos pendientes",
+      "pendingHint": "Esperando confirmación de pago.",
+      "paidLast30": "Pagados (30 días)",
+      "paidHint": "Pedidos confirmados en los últimos 30 días.",
+      "recentOrders": "Pedidos recientes",
+      "viewAll": "Ver todos",
+      "recentEmpty": "Todavía no hay pedidos.",
+      "unknownOffering": "Oferta desconocida"
+    }
+  },
   "account": {
     "metadataTitle": "Mis compras",
     "title": "Mis compras",

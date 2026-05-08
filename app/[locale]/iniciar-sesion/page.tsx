@@ -45,7 +45,12 @@ export default async function SignInPage({
   return <SignInClient locale={locale === "en" ? "en" : "es"} />;
 }
 
-const ALLOWED_NEXT_PREFIXES = ["/mis-compras", "/reclamar/", "/gracias/"];
+const ALLOWED_NEXT_PREFIXES = [
+  "/mis-compras",
+  "/reclamar/",
+  "/gracias/",
+  "/panel",
+];
 
 function safeNext(raw: string | undefined): string {
   if (!raw) return "/mis-compras";

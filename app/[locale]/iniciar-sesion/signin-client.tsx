@@ -64,7 +64,12 @@ type CreateState =
     }
   | { kind: "ready"; nsec: string };
 
-const ALLOWED_NEXT_PREFIXES = ["/mis-compras", "/reclamar/", "/gracias/"];
+const ALLOWED_NEXT_PREFIXES = [
+  "/mis-compras",
+  "/reclamar/",
+  "/gracias/",
+  "/panel",
+];
 
 function safeNext(raw: string | null): string {
   if (!raw) return "/mis-compras";

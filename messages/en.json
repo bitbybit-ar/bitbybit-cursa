@@ -92,6 +92,36 @@
     "back": "Back",
     "closeDialog": "Close"
   },
+  "panel": {
+    "brand": "Merchant panel",
+    "brandSubtitle": "Cursá",
+    "signOut": "Sign out",
+    "nav": {
+      "label": "Panel navigation",
+      "overview": "Overview",
+      "offerings": "Offerings",
+      "orders": "Orders",
+      "students": "Students",
+      "settings": "Settings",
+      "exit": "← Back to site"
+    },
+    "overview": {
+      "metadataTitle": "Panel · Overview",
+      "title": "Overview",
+      "subtitle": "Your key metrics today.",
+      "statGridLabel": "Key metrics",
+      "revenueMtd": "Revenue this month",
+      "revenueHint": "Paid orders, this calendar month.",
+      "pendingOrders": "Pending orders",
+      "pendingHint": "Waiting for payment confirmation.",
+      "paidLast30": "Paid (30 days)",
+      "paidHint": "Orders confirmed in the last 30 days.",
+      "recentOrders": "Recent orders",
+      "viewAll": "View all",
+      "recentEmpty": "No orders yet.",
+      "unknownOffering": "Unknown offering"
+    }
+  },
   "account": {
     "metadataTitle": "My orders",
     "title": "My orders",
