@@ -1,0 +1,92 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  margin-bottom: $spacing-32;
+}
+
+.title {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+}
+
+.subtitle {
+  margin: 0;
+  color: $color-text-secondary;
+}
+
+.empty {
+  padding: $spacing-32;
+  text-align: center;
+  color: $color-text-secondary;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+}
+
+.item {
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-16;
+  padding: $spacing-12 $spacing-16;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  text-decoration: none;
+  color: $color-text-primary;
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: $color-primary;
+  }
+}
+
+.rowMain {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  flex: 1;
+  min-width: 0;
+}
+
+.pubkey {
+  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+  font-size: $font-size-xs;
+  color: $color-text-primary;
+  background: $color-bg-2;
+  padding: $spacing-2 $spacing-8;
+  border-radius: 4px;
+  align-self: flex-start;
+  word-break: break-all;
+}
+
+.rowMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  flex-wrap: wrap;
+}
+
+.dot {
+  opacity: 0.5;
+}

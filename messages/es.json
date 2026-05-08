@@ -180,6 +180,75 @@
         "archiveFailed": "No pudimos archivar la oferta.",
         "archiveConfirm": "¿Seguro que querés archivar esta oferta? Dejará de mostrarse en el storefront."
       }
+    },
+    "orders": {
+      "metadataTitle": "Panel · Pedidos",
+      "title": "Pedidos",
+      "subtitle": "Historial de pedidos de tu storefront. Solo lectura en v1.",
+      "empty": "Todavía no hay pedidos.",
+      "anonymous": "Anónimo",
+      "unknownOffering": "Oferta desconocida",
+      "detail": {
+        "metadataTitle": "Panel · Detalle del pedido",
+        "back": "Volver a pedidos",
+        "title": "Detalle del pedido",
+        "orderId": "ID del pedido",
+        "offering": "Oferta",
+        "createdAt": "Creado",
+        "paidAt": "Pagado",
+        "amountArs": "Monto ARS",
+        "amountSats": "Monto sats",
+        "buyer": "Comprador",
+        "anonymous": "Anónimo",
+        "redemptionCode": "Código de canje",
+        "paymentHash": "Hash de pago",
+        "wapuInvoiceId": "Wapu invoice ID",
+        "wapuSettlementRef": "Referencia de liquidación",
+        "unknownOffering": "Oferta desconocida",
+        "readOnlyHint": "Los pedidos son de solo lectura en v1: ni reembolsos, ni reenvíos, ni marcado manual de entrega."
+      }
+    },
+    "students": {
+      "metadataTitle": "Panel · Estudiantes",
+      "title": "Estudiantes",
+      "subtitle": "Compradores con identidad Nostr asociada.",
+      "empty": "Todavía no hay estudiantes con identidad.",
+      "orderCount": "{n, plural, one {# pedido} other {# pedidos}}",
+      "paidCount": "{n, plural, one {# pagado} other {# pagados}}",
+      "lastSeen": "Último: {date}",
+      "detail": {
+        "metadataTitle": "Panel · Detalle del estudiante",
+        "back": "Volver a estudiantes",
+        "title": "Estudiante",
+        "orderCount": "Pedidos",
+        "paidCount": "Pagados",
+        "totalArs": "Total ARS",
+        "ordersHeading": "Pedidos",
+        "unknownOffering": "Oferta desconocida"
+      }
+    },
+    "settings": {
+      "metadataTitle": "Panel · Configuración",
+      "title": "Configuración",
+      "subtitle": "Datos de cobro y opciones del storefront.",
+      "warningTitle": "Cambios visibles para todos los compradores.",
+      "warningBody": "El CBU/alias acá define a dónde se acreditan tus pagos. Verificá los datos antes de guardar.",
+      "form": {
+        "payoutLegend": "Datos de cobro",
+        "payoutHint": "Wapu deposita los pesos en este CBU o alias. Necesitás al menos uno.",
+        "cbu": "CBU",
+        "cbuPlaceholder": "0000003100000000000000",
+        "alias": "Alias",
+        "aliasPlaceholder": "MI.ALIAS.MP",
+        "featuresLegend": "Funciones",
+        "autorenewal": "Auto-renovación con NWC",
+        "autorenewalHint": "Mostrá la opción de auto-renovación en el checkout. Apagada deja el código dormante.",
+        "save": "Guardar configuración",
+        "saving": "Guardando…",
+        "saved": "Configuración guardada.",
+        "saveFailed": "No pudimos guardar la configuración. Probá de nuevo.",
+        "destinationRequired": "Tenés que cargar al menos un CBU o un alias."
+      }
     }
   },
   "account": {

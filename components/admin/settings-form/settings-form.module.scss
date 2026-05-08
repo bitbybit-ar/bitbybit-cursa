@@ -1,0 +1,104 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-20;
+  max-width: 560px;
+}
+
+.fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-12;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  padding: $spacing-16;
+  background: $color-bg-2;
+}
+
+.legend {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  padding: 0 $spacing-4;
+}
+
+.legendHint {
+  margin: 0 0 $spacing-4;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  line-height: $line-height-base;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.input {
+  width: 100%;
+  padding: $spacing-8 $spacing-12;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  font-family: $font-family-base;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  outline: none;
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: $color-text-secondary;
+  }
+
+  &:focus {
+    border-color: $color-primary;
+  }
+}
+
+.toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-12;
+  cursor: pointer;
+  font-size: $font-size-sm;
+
+  input[type="checkbox"] {
+    accent-color: $color-primary;
+    margin-top: $spacing-2;
+  }
+
+  > span {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+  }
+
+  strong {
+    color: $color-text-primary;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.toggleHint {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.actions {
+  display: flex;
+  gap: $spacing-12;
+  padding-top: $spacing-16;
+  border-top: 1px solid $color-border;
+}

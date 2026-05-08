@@ -12,6 +12,47 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Settings page at `/[locale]/panel/configuracion`: payout
+  details (CBU + alias) plus the `features_autorenewal` toggle
+  (ADR 0009). New `lib/admin/settings.ts` with
+  `getOrInitSettings` (idempotent — first edit ever inserts the
+  singleton row, subsequent edits update it) and
+  `updateSettingsForAdmin`. Audit-log diff records the changed-
+  key list and never the field values themselves, so a future
+  payment-destination secret-leak can't happen from the log.
+  `<SettingsForm>` client component handles the PATCH +
+  toast feedback. Six new integration tests in
+  `tests/integration/lib/admin/settings.test.ts` cover lazy
+  init, idempotency, full update, and changed-key-only diff.
+- `PATCH /api/admin/settings` route. ADR 0008 calls for a
+  NIP-07 re-sign on payment-destination changes (CBU/alias);
+  that gate is NOT enforced here yet — the v1 admin panel
+  landed without the `signWithPrompt` machinery, and the
+  audit log captures every change with the actor's pubkey in
+  the meantime. Tracked as a follow-up.
+- Read-only orders list at `/[locale]/panel/pedidos` and
+  detail at `/[locale]/panel/pedidos/[orderId]`. The list
+  shows the 50 most recent rows with status pills + pubkey
+  preview + anonymous flag. The detail surfaces every
+  order field including `payment_hash` and the Wapu invoice
+  / settlement references for support purposes; cross-links
+  to the offering edit page and the buyer detail page.
+- Read-only students list at `/[locale]/panel/estudiantes`
+  and detail at `/[locale]/panel/estudiantes/[pubkey]`. List
+  aggregates `orders` by pubkey via raw SQL (`COUNT`,
+  `SUM FILTER`, `MAX`) — anonymous orders excluded; detail
+  shows the buyer's full order history with status pills.
+  Sanity check on the URL-pubkey shape (64-char hex) before
+  hitting the DB.
+- `lib/admin/orders.ts` with three reads —
+  `listAdminOrders`, `getAdminOrderDetail`, `listAdminStudents`,
+  `getAdminStudentDetail` — all returning shapes the panel
+  pages consume directly. No mutations: orders/buyers stay
+  read-only in v1 per ADR 0008.
+- New i18n sub-namespaces under `panel`: `orders`,
+  `orders.detail`, `students`, `students.detail`, and
+  `settings` (with `form.*`) in both locale files. Plural
+  formatting for the "N orders" / "N paid" labels.
 - Offerings CRUD on the admin panel. The merchant can list,
   create, edit, and archive their catalog from the browser; this
   is the only mutable surface in v1 per ADR 0008. Three pages:

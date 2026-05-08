@@ -1,0 +1,45 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  margin-bottom: $spacing-32;
+}
+
+.title {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+}
+
+.subtitle {
+  margin: 0;
+  color: $color-text-secondary;
+}
+
+.warning {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  margin-bottom: $spacing-24;
+  padding: $spacing-16 $spacing-20;
+  border-color: color-mix(in srgb, $color-warning 35%, transparent);
+  background-color: color-mix(in srgb, $color-warning 10%, $color-bg-2);
+
+  strong {
+    color: $color-text-primary;
+  }
+
+  p {
+    margin: 0;
+    color: $color-text-secondary;
+    font-size: $font-size-sm;
+    line-height: $line-height-base;
+  }
+}

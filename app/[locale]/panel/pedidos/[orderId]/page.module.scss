@@ -1,0 +1,110 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-4;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  text-decoration: none;
+  margin-bottom: $spacing-16;
+
+  &:hover {
+    color: $color-text-primary;
+  }
+}
+
+.title {
+  margin: 0 0 $spacing-8;
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+}
+
+.subtitle {
+  margin: 0 0 $spacing-24;
+}
+
+.card {
+  padding: $spacing-24;
+  margin-bottom: $spacing-16;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: $spacing-12 $spacing-24;
+  margin: 0;
+  font-size: $font-size-sm;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $spacing-4 0;
+
+    dd {
+      margin-bottom: $spacing-12;
+    }
+  }
+
+  dt {
+    color: $color-text-secondary;
+    font-weight: $font-weight-semibold;
+  }
+
+  dd {
+    margin: 0;
+    color: $color-text-primary;
+    word-break: break-all;
+
+    a {
+      color: $color-primary;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+.mono {
+  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+  font-size: $font-size-xs;
+}
+
+.status {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: $letter-spacing-wide;
+  padding: $spacing-4 $spacing-8;
+  border-radius: $border-radius-sm;
+}
+
+.status-paid {
+  background: color-mix(in srgb, $color-success 15%, transparent);
+  color: $color-success;
+}
+
+.status-pending {
+  background: color-mix(in srgb, $color-warning 18%, transparent);
+  color: $color-warning;
+}
+
+.status-failed,
+.status-refunded {
+  background: color-mix(in srgb, $color-error 15%, transparent);
+  color: $color-error;
+}
+
+.readonlyHint {
+  margin: 0;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  font-style: italic;
+}

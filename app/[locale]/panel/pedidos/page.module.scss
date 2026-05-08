@@ -1,0 +1,127 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  margin-bottom: $spacing-32;
+}
+
+.title {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+}
+
+.subtitle {
+  margin: 0;
+  color: $color-text-secondary;
+}
+
+.empty {
+  padding: $spacing-32;
+  text-align: center;
+  color: $color-text-secondary;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+}
+
+.item {
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: $spacing-16;
+  padding: $spacing-12 $spacing-16;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  text-decoration: none;
+  color: $color-text-primary;
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: $color-primary;
+  }
+}
+
+.rowMain {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+  flex: 1;
+  min-width: 0;
+}
+
+.rowTitle {
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rowMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-4;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  flex-wrap: wrap;
+}
+
+.dot {
+  opacity: 0.5;
+}
+
+.pubkey {
+  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+  background: $color-bg-2;
+  padding: 0 $spacing-4;
+  border-radius: 4px;
+}
+
+.anon {
+  font-style: italic;
+}
+
+.status {
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: $letter-spacing-wide;
+  padding: $spacing-4 $spacing-8;
+  border-radius: $border-radius-sm;
+  background: $color-bg-2;
+  color: $color-text-secondary;
+}
+
+.status-paid {
+  background: color-mix(in srgb, $color-success 15%, transparent);
+  color: $color-success;
+}
+
+.status-pending {
+  background: color-mix(in srgb, $color-warning 18%, transparent);
+  color: $color-warning;
+}
+
+.status-failed,
+.status-refunded {
+  background: color-mix(in srgb, $color-error 15%, transparent);
+  color: $color-error;
+}

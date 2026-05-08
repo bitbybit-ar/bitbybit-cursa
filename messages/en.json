@@ -180,6 +180,75 @@
         "archiveFailed": "Couldn't archive the offering.",
         "archiveConfirm": "Are you sure you want to archive this offering? It will stop appearing in the storefront."
       }
+    },
+    "orders": {
+      "metadataTitle": "Panel · Orders",
+      "title": "Orders",
+      "subtitle": "Order history for your storefront. Read-only in v1.",
+      "empty": "No orders yet.",
+      "anonymous": "Anonymous",
+      "unknownOffering": "Unknown offering",
+      "detail": {
+        "metadataTitle": "Panel · Order detail",
+        "back": "Back to orders",
+        "title": "Order detail",
+        "orderId": "Order ID",
+        "offering": "Offering",
+        "createdAt": "Created",
+        "paidAt": "Paid",
+        "amountArs": "ARS amount",
+        "amountSats": "Sats amount",
+        "buyer": "Buyer",
+        "anonymous": "Anonymous",
+        "redemptionCode": "Redemption code",
+        "paymentHash": "Payment hash",
+        "wapuInvoiceId": "Wapu invoice ID",
+        "wapuSettlementRef": "Settlement reference",
+        "unknownOffering": "Unknown offering",
+        "readOnlyHint": "Orders are read-only in v1: no refunds, no resends, no manual delivery flagging."
+      }
+    },
+    "students": {
+      "metadataTitle": "Panel · Students",
+      "title": "Students",
+      "subtitle": "Buyers with an attached Nostr identity.",
+      "empty": "No identified buyers yet.",
+      "orderCount": "{n, plural, one {# order} other {# orders}}",
+      "paidCount": "{n, plural, one {# paid} other {# paid}}",
+      "lastSeen": "Last: {date}",
+      "detail": {
+        "metadataTitle": "Panel · Student detail",
+        "back": "Back to students",
+        "title": "Student",
+        "orderCount": "Orders",
+        "paidCount": "Paid",
+        "totalArs": "Total ARS",
+        "ordersHeading": "Orders",
+        "unknownOffering": "Unknown offering"
+      }
+    },
+    "settings": {
+      "metadataTitle": "Panel · Settings",
+      "title": "Settings",
+      "subtitle": "Payout details and storefront options.",
+      "warningTitle": "Visible to every buyer.",
+      "warningBody": "The CBU/alias here decides where your payouts land. Double-check the values before saving.",
+      "form": {
+        "payoutLegend": "Payout",
+        "payoutHint": "Wapu deposits the ARS into this CBU or alias. You need at least one.",
+        "cbu": "CBU",
+        "cbuPlaceholder": "0000003100000000000000",
+        "alias": "Alias",
+        "aliasPlaceholder": "MY.ALIAS.MP",
+        "featuresLegend": "Features",
+        "autorenewal": "NWC auto-renewal",
+        "autorenewalHint": "Show the auto-renewal option at checkout. When off, the code path is deployed but dormant.",
+        "save": "Save settings",
+        "saving": "Saving…",
+        "saved": "Settings saved.",
+        "saveFailed": "Couldn't save settings. Try again.",
+        "destinationRequired": "You need at least a CBU or an alias."
+      }
     }
   },
   "account": {
