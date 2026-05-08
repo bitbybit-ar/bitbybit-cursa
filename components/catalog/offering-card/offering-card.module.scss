@@ -1,0 +1,92 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.link {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  height: 100%;
+
+  &:focus-visible {
+    outline: 2px solid $focus-ring;
+    outline-offset: 4px;
+    border-radius: 18px;
+  }
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-16;
+  height: 100%;
+  padding: $spacing-20;
+}
+
+.imageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: $color-bg-3;
+}
+
+.image {
+  object-fit: cover;
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+  flex: 1;
+}
+
+.title {
+  font-family: $font-family-display;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  letter-spacing: $letter-spacing-heading;
+  color: $color-text-primary;
+  margin: 0;
+  line-height: $line-height-heading;
+}
+
+.description {
+  color: $color-text-secondary;
+  font-size: $font-size-body;
+  line-height: $line-height-base;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.typeLabel {
+  margin: 0;
+  color: $color-text-secondary;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-12;
+  padding-top: $spacing-12;
+  border-top: 1px solid $color-border;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-4;
+  color: $color-secondary;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-sm;
+}

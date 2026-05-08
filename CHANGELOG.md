@@ -12,6 +12,22 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Buyer critical-path UI: catalog at `/[locale]`, offering detail
+  at `/[locale]/c/[slug]`, Lightning checkout at
+  `/[locale]/checkout/[orderId]` (BOLT11 QR + copy + 3-second
+  status poll against `/api/orders/[orderId]`), and the permanent
+  receipt at `/[locale]/gracias/[orderId]` (redemption code or
+  download CTA, plus a Nostr-prompt card for anonymous orders).
+  Reuses `Button`, `Card`, `Section`, `Container`, `Toast`, and
+  the existing icon set; adds `qrcode.react` for the BOLT11 QR.
+  Anonymous-only checkout in this chunk; the optional
+  npub-paste-at-checkout (ADR 0007 tier 2), sign-in,
+  `/mis-compras`, and `/reclamar` are deferred to a later chunk.
+  i18n: new `catalog`, `offering`, `checkout`, `receipt`,
+  `pricing`, `errors` namespaces in both `messages/es.json` and
+  `messages/en.json`. Routing doc renamed `[invoiceId]` to
+  `[orderId]` (the polling API and the receipt URL already used
+  the order id; using one name across all three surfaces).
 - `lib/offerings.ts` data-layer reads — `listActiveOfferings`,
   `getOfferingBySlug`, `getOfferingById`. Used by the catalog,
   offering detail, checkout, and receipt pages to pull rows from

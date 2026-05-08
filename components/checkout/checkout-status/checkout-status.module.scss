@@ -1,0 +1,61 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.statusWaiting,
+.statusPaid,
+.statusFailed,
+.statusExpired {
+  display: flex;
+  align-items: center;
+  gap: $spacing-12;
+  padding: $spacing-16;
+  border-radius: 12px;
+  border: 1px solid $color-border;
+  background-color: $color-bg-2;
+}
+
+.statusPaid {
+  border-color: $color-success;
+  background-color: color-mix(in srgb, $color-success 8%, $color-bg-2);
+}
+
+.statusFailed,
+.statusExpired {
+  border-color: $color-error;
+  background-color: color-mix(in srgb, $color-error 8%, $color-bg-2);
+}
+
+.message {
+  margin: 0;
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+}
+
+.expires {
+  margin: 0;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+}
+
+.waitingText {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 3px solid color-mix(in srgb, $color-primary 25%, transparent);
+  border-top-color: $color-primary;
+  animation: spin 0.9s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,0 +1,58 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.priceTag {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.sats {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-4;
+  color: $color-text-primary;
+  font-family: $font-family-display;
+  font-weight: $font-weight-bold;
+
+  strong {
+    font-weight: $font-weight-extrabold;
+  }
+}
+
+.unit {
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+}
+
+.ars {
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+}
+
+.size-sm {
+  .sats {
+    font-size: $font-size-base;
+  }
+
+  .ars {
+    font-size: $font-size-xs;
+  }
+}
+
+.size-default {
+  .sats {
+    font-size: $font-size-md;
+  }
+}
+
+.size-lg {
+  .sats {
+    font-size: $font-size-xl;
+  }
+
+  .ars {
+    font-size: $font-size-base;
+  }
+}

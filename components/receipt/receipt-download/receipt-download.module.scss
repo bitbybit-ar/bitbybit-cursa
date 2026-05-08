@@ -1,0 +1,65 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/common-mixins" as *;
+
+.box {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: $spacing-12;
+  padding: $spacing-24;
+  border-radius: 16px;
+  border: 1px solid $color-border;
+  background-color: $color-bg-2;
+}
+
+.label {
+  margin: 0;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.missing {
+  margin: 0;
+  color: $color-text-secondary;
+  font-style: italic;
+  text-align: center;
+}
+
+// Same look as Button[variant="primary"][size="lg"] for visual
+// consistency with the rest of the storefront, scoped to this
+// component since it has to render as an external <a>.
+.cta {
+  @include ceramic-surface($color-primary, 28%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-8;
+  padding: $spacing-16 $spacing-40;
+  border-radius: $border-radius-md;
+  border: 2px solid transparent;
+  color: $static-white;
+  font-family: $font-family-base;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-md;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 8px 24px alpha($color-primary, 35%),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      inset 0 -2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $focus-ring;
+    outline-offset: 3px;
+  }
+}

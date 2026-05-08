@@ -1,7 +1,7 @@
 # Routing
 
 > **Status:** Active
-> **Last updated:** 2026-05-06
+> **Last updated:** 2026-05-07
 
 ---
 
@@ -9,6 +9,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-07 | Buyer flow | Renamed checkout segment from `[invoiceId]` to `[orderId]`. | Status polling lives at `/api/orders/[orderId]`; the order id is the opaque key the buyer carries from checkout to receipt; using the same name across all three surfaces removes a translation step for contributors. |
 | 2026-05-06 | — | Initial version. | Pin the full route map (buyer, account, subscriber, static, panel, API) before app code lands so contributors do not have to reconstruct it from this conversation or scattered ADRs. |
 
 ---
@@ -56,7 +57,7 @@ clicks, pays, and walks away with a redemption code or download.
 | `/` | 307 → `/es` | next-intl middleware |
 | `/[locale]` | Landing + catalog | Single-purpose deployment; the home page *is* the catalog. Renders offerings from Postgres. |
 | `/[locale]/c/[slug]` | Offering detail | Description, what the buyer gets, price (sats + ARS), CTA. `c` not `cursos` to avoid colliding with the brand word. |
-| `/[locale]/checkout/[invoiceId]` | Lightning invoice | QR + copy-to-clipboard, status polling against `/api/orders/[orderId]`. Survives reload. If `settings.features_autorenewal` is on, both pay-buttons (one-shot vs NWC) are visible — buyer self-selects. |
+| `/[locale]/checkout/[orderId]` | Lightning invoice | QR + copy-to-clipboard, status polling against `/api/orders/[orderId]`. Survives reload. If `settings.features_autorenewal` is on, both pay-buttons (one-shot vs NWC) are visible — buyer self-selects. |
 | `/[locale]/gracias/[orderId]` | Permanent receipt | Redemption code (`type=code`) or short-lived signed download URL (`type=download`). Inline "Conectá tu Nostr para guardar este pedido" prompt. Decision pinned in ADR [0006](decisions/0006-nostr-and-inapp-delivery.md). |
 
 ## Account

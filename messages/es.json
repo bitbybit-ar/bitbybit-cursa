@@ -12,5 +12,80 @@
     "tagline": "Cursá tu próxima clase con sats.",
     "body": "Estamos construyendo el checkout Lightning para escuelas, profesores particulares y academias. Pronto disponible.",
     "cta": "Seguinos en GitHub"
+  },
+  "catalog": {
+    "hero": {
+      "title": "Cursá tu próxima clase con sats.",
+      "subtitle": "Comprá clases, talleres y materiales con tu wallet Lightning. El profe cobra en pesos, en su CBU."
+    },
+    "list": {
+      "heading": "Disponibles ahora",
+      "empty": "Todavía no hay clases ni materiales publicados. Volvé en un rato."
+    },
+    "card": {
+      "view": "Ver detalle"
+    }
+  },
+  "offering": {
+    "back": "Volver al catálogo",
+    "details": "Qué incluye",
+    "type": {
+      "code": "Recibís un código de canje al pagar.",
+      "download": "Descarga inmediata después del pago."
+    },
+    "buy": "Comprar con sats",
+    "buying": "Generando invoice…"
+  },
+  "checkout": {
+    "title": "Pagá tu compra",
+    "instructions": "Escaneá el código con tu wallet Lightning, o copiá el invoice y pegalo en tu app de pago.",
+    "amount": "Total",
+    "copyInvoice": "Copiar invoice",
+    "copied": "¡Copiado!",
+    "expiresIn": "Vence en",
+    "expired": "Este invoice venció. Volvé al detalle de la oferta y generá uno nuevo.",
+    "expiredCta": "Volver al detalle",
+    "status": {
+      "waiting": "Esperando tu pago…",
+      "paid": "¡Pago recibido! Llevándote al recibo…",
+      "failed": "El pago no se pudo confirmar. Probá de nuevo."
+    },
+    "retry": "Reintentar"
+  },
+  "receipt": {
+    "title": "¡Listo! Tu compra está confirmada.",
+    "subtitle": "Guardá esta página: es tu comprobante permanente.",
+    "code": {
+      "label": "Código de canje",
+      "pending": "Tu código está siendo asignado. Recargá esta página en unos segundos.",
+      "copy": "Copiar código",
+      "copied": "Código copiado"
+    },
+    "download": {
+      "label": "Tu descarga",
+      "cta": "Descargar archivo",
+      "missing": "El archivo de descarga aún no está disponible. Probá recargar en unos minutos."
+    },
+    "pending": {
+      "title": "Tu pago está procesándose",
+      "body": "Estamos esperando la confirmación de Wapu. Esta página se va a actualizar sola.",
+      "back": "Volver al checkout"
+    },
+    "nostrPrompt": {
+      "title": "¿Querés guardar este pedido en tu Nostr?",
+      "body": "Conectando tu identidad Nostr vas a poder ver este recibo desde cualquier dispositivo y recibir el código por DM.",
+      "cta": "Conectar Nostr"
+    }
+  },
+  "pricing": {
+    "satsSuffix": "sats",
+    "arsPrefix": "ARS",
+    "approximate": "≈"
+  },
+  "errors": {
+    "offeringUnavailable": "Esta oferta ya no está disponible.",
+    "checkoutFailed": "No pudimos generar la invoice. Probá de nuevo en un momento.",
+    "network": "No pudimos conectarnos. Revisá tu conexión y reintentá.",
+    "notFound": "No encontramos lo que buscabas."
   }
 }

@@ -1,0 +1,45 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: $spacing-16;
+}
+
+.qrFrame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: $static-white;
+  padding: $spacing-16;
+  border-radius: 16px;
+  align-self: center;
+  // Always render the QR on a white background so phone cameras can
+  // resolve the corner finders. The frame is theme-agnostic on
+  // purpose — a dark-mode QR that inverts its modules confuses many
+  // wallets.
+}
+
+.qr {
+  display: block;
+}
+
+.invoiceBox {
+  background-color: $color-bg-2;
+  border: 1px solid $color-border;
+  border-radius: 8px;
+  padding: $spacing-12;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.invoiceText {
+  font-family: ui-monospace, "SF Mono", "Menlo", monospace;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  word-break: break-all;
+  line-height: 1.4;
+}

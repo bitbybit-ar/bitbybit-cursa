@@ -12,5 +12,80 @@
     "tagline": "Buy your next class with sats.",
     "body": "We're building the Lightning checkout for schools, tutors, and academies. Coming soon.",
     "cta": "Follow on GitHub"
+  },
+  "catalog": {
+    "hero": {
+      "title": "Buy your next class with sats.",
+      "subtitle": "Pay for classes, workshops, and study material with your Lightning wallet. The teacher gets paid in pesos, straight to their CBU."
+    },
+    "list": {
+      "heading": "Available now",
+      "empty": "No classes or materials published yet. Check back soon."
+    },
+    "card": {
+      "view": "View details"
+    }
+  },
+  "offering": {
+    "back": "Back to catalog",
+    "details": "What you get",
+    "type": {
+      "code": "You receive a redemption code as soon as you pay.",
+      "download": "Instant download right after payment."
+    },
+    "buy": "Pay with sats",
+    "buying": "Creating invoice…"
+  },
+  "checkout": {
+    "title": "Pay for your order",
+    "instructions": "Scan the QR with your Lightning wallet, or copy the invoice and paste it into your payment app.",
+    "amount": "Total",
+    "copyInvoice": "Copy invoice",
+    "copied": "Copied!",
+    "expiresIn": "Expires in",
+    "expired": "This invoice has expired. Go back to the offering and generate a new one.",
+    "expiredCta": "Back to offering",
+    "status": {
+      "waiting": "Waiting for your payment…",
+      "paid": "Payment received! Taking you to the receipt…",
+      "failed": "We could not confirm the payment. Try again."
+    },
+    "retry": "Try again"
+  },
+  "receipt": {
+    "title": "All set! Your purchase is confirmed.",
+    "subtitle": "Save this page: it's your permanent receipt.",
+    "code": {
+      "label": "Redemption code",
+      "pending": "Your code is being assigned. Reload this page in a few seconds.",
+      "copy": "Copy code",
+      "copied": "Code copied"
+    },
+    "download": {
+      "label": "Your download",
+      "cta": "Download file",
+      "missing": "Your download isn't ready yet. Try reloading in a few minutes."
+    },
+    "pending": {
+      "title": "Your payment is processing",
+      "body": "We're still waiting on Wapu's confirmation. This page will refresh automatically.",
+      "back": "Back to checkout"
+    },
+    "nostrPrompt": {
+      "title": "Want to save this order to your Nostr?",
+      "body": "Connecting your Nostr identity lets you see this receipt from any device and receive the code by DM.",
+      "cta": "Connect Nostr"
+    }
+  },
+  "pricing": {
+    "satsSuffix": "sats",
+    "arsPrefix": "ARS",
+    "approximate": "≈"
+  },
+  "errors": {
+    "offeringUnavailable": "This offering is no longer available.",
+    "checkoutFailed": "We could not create the invoice. Try again in a moment.",
+    "network": "Connection failed. Check your network and try again.",
+    "notFound": "We couldn't find what you were looking for."
   }
 }

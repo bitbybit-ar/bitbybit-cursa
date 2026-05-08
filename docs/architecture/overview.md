@@ -106,7 +106,7 @@ static, panel, API — lives in
 /                                → 307 redirect to /es
 /[locale]                        → landing + catalog
 /[locale]/c/[slug]               → offering detail + buy button
-/[locale]/checkout/[invoiceId]   → invoice + QR + status poll
+/[locale]/checkout/[orderId]     → invoice + QR + status poll
 /[locale]/gracias/[orderId]      → permanent receipt page
 
 /[locale]/iniciar-sesion         → Nostr sign-in (optional)
