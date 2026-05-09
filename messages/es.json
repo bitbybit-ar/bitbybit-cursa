@@ -533,13 +533,17 @@
     "unreadCount": "{count, plural, =0 {Ninguna sin leer} one {# sin leer} other {# sin leer}}",
     "markAllRead": "Marcar todo como leído",
     "types": {
-      "order.paid": {
-        "title": "Pago confirmado",
-        "body": "Tu compra de {offering} ya está lista."
+      "order": {
+        "paid": {
+          "title": "Pago confirmado",
+          "body": "Tu compra de {offering} ya está lista."
+        }
       },
-      "sale.received": {
-        "title": "Venta nueva",
-        "body": "Alguien compró {offering}."
+      "sale": {
+        "received": {
+          "title": "Venta nueva",
+          "body": "Alguien compró {offering}."
+        }
       }
     }
   },

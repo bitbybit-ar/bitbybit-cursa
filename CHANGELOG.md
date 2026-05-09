@@ -97,6 +97,24 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Fixed
 
+- **Notifications i18n keys no longer kill client hydration.** The
+  `notifications.types["order.paid"]` and `["sale.received"]` keys
+  in `messages/{es,en}.json` contained literal dots, which next-intl
+  reserves for namespace nesting and rejects with `INVALID_KEY` on
+  every render. Server HTML still went out (status 200) but client
+  hydration threw, so React event handlers never attached — the
+  mobile burger button was dead and the navbar's scroll-progress
+  bar never moved. Re-nested as `types.order.paid` /
+  `types.sale.received` so the existing
+  `t(\`types.${n.kind}.title\`)` lookup resolves through the
+  nesting; DB-stored `kind` values (`"order.paid"`, `"sale.received"`)
+  are unchanged.
+- **"Sign in" CTA hidden on the sign-in page itself.** The navbar
+  desktop button, the mobile icon CTA, and the mobile drawer's full-
+  width Sign-in button all now check `usePathname() === "/sign-in"`
+  and render nothing on that route, so the page no longer points at
+  itself.
+
 - **Navbar sign-in icon CTA no longer leaks onto desktop.**
   `.iconCta` was setting `display: flex` after the `.mobileOnly`
   utility had set `display: none`, so the icon button rendered next
