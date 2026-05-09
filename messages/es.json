@@ -13,6 +13,81 @@
     "body": "Estamos construyendo el checkout Lightning para escuelas, profesores particulares y academias. Pronto disponible.",
     "cta": "Seguinos en GitHub"
   },
+  "landing": {
+    "nav": {
+      "explore": "Explorar cursos",
+      "howItWorks": "Cómo funciona",
+      "features": "Features",
+      "signIn": "Iniciar sesión",
+      "signOut": "Cerrar sesión",
+      "myPurchases": "Mis compras",
+      "panel": "Mi panel",
+      "accountMenu": "Cuenta",
+      "openMenu": "Abrir menú",
+      "closeMenu": "Cerrar menú",
+      "switchToLightMode": "Cambiar a modo claro",
+      "switchToDarkMode": "Cambiar a modo oscuro",
+      "switchToEnglish": "Cambiar a inglés",
+      "switchToSpanish": "Cambiar a español"
+    },
+    "hero": {
+      "title": "Cursá tu próxima clase con <gradient>sats</gradient>.",
+      "subtitle": "Comprá clases, talleres y materiales con tu wallet Lightning. El profe cobra en pesos, en su CBU.",
+      "ctaExplore": "Explorar cursos",
+      "ctaPublish": "Publicá tu curso"
+    },
+    "highlighted": {
+      "title": "Cursos destacados",
+      "subtitle": "Una muestra de lo que la comunidad está enseñando hoy. Próximamente, los cursos van a destacarse según las reacciones que reciben en Nostr.",
+      "exploreMore": "Explorar más"
+    },
+    "motivation": {
+      "title": "¿Necesitás motivación?",
+      "subtitle": "Convertí tu curso en algo más que clases. Desafiá a otros o sumalo a tu rutina.",
+      "listLabel": "Herramientas BitByBit",
+      "arenaTitle": "Convertí tu curso en un desafío",
+      "arenaDescription": "Creá una arena, desafiá a otros estudiantes y compartí tu progreso. La constancia se mide y se festeja.",
+      "arenaCta": "Crear desafío en Arena",
+      "habitsTitle": "Convertí tu aprendizaje en un hábito",
+      "habitsDescription": "Estudiar tu curso un rato cada día. Habits te ayuda a sostener la rutina con recordatorios y rachas.",
+      "habitsCta": "Empezar un hábito"
+    },
+    "companions": {
+      "title": "Compañeros de viaje",
+      "subtitle": "Proyectos y comunidades que admiramos,\nconstructores de infraestructura abierta para un futuro más libre.",
+      "listLabel": "Aliados de Cursá",
+      "wapuDescription": "Liquidación Lightning a CBU/alias en Argentina.",
+      "laCryptaDescription": "Comunidad Bitcoin en Argentina, anfitriona del Hackathon #3.",
+      "nostrWotDescription": "Web of Trust para Nostr.",
+      "mappingBitcoinDescription": "Encontrá cada lugar del ecosistema Bitcoin.",
+      "obeliskDescription": "Alternativa a Discord con login Nostr.",
+      "laWalletDescription": "Billetera Bitcoin y Lightning sobre Nostr."
+    },
+    "support": {
+      "title": "Apoyá a Cursá",
+      "subtitle": "Código abierto y hecho por la comunidad. Ayudanos a seguir construyendo.",
+      "zapDevs": "Zapeá a los devs",
+      "zapAriaLabel": "Enviar un zap Lightning a los desarrolladores",
+      "starOnGithub": "Dar estrella en GitHub",
+      "orContribute": "O contribuí a un proyecto específico",
+      "cursaRepo": "Cursá en GitHub",
+      "arenaRepo": "Arena en GitHub",
+      "habitsRepo": "Habits en GitHub"
+    },
+    "footer": {
+      "ariaLabel": "Proyectos de BitByBit",
+      "habitsLink": "BitByBit Habits",
+      "arenaLink": "BitByBit Arena",
+      "faqLink": "Preguntas frecuentes",
+      "github": "GitHub",
+      "githubAriaLabel": "Cursá en GitHub"
+    },
+    "faq": {
+      "title": "Preguntas frecuentes",
+      "subtitle": "Estamos armando esta sección. Pronto vas a encontrar acá las respuestas más comunes sobre Cursá.",
+      "comingSoon": "Próximamente"
+    }
+  },
   "catalog": {
     "hero": {
       "title": "Cursá tu próxima clase con sats.",

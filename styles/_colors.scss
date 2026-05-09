@@ -3,6 +3,7 @@
 // — Semantic role tokens —
 $color-primary: var(--color-primary);
 $color-primary-hover: var(--color-primary-hover);
+$color-primary-soft: var(--color-primary-soft);
 $color-secondary: var(--color-secondary);
 $color-secondary-hover: var(--color-secondary-hover);
 $focus-ring: var(--focus-ring);
@@ -11,6 +12,8 @@ $focus-ring: var(--focus-ring);
 //   Button.variant-danger / Button.variant-success) —
 $color-accent: var(--color-accent);
 $color-accent-alt: var(--color-accent-alt);
+$color-cta-dark: var(--color-cta-dark);
+$color-polaroid-bg: var(--color-polaroid-bg);
 
 // — Decorative brand accents (no semantic role; pick by vibe) —
 $accent-pink: var(--accent-pink);

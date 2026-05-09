@@ -1,0 +1,46 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+// Joined toggle pill — both buttons share a single rounded outer
+// border with `overflow: hidden` so they read as one segmented
+// control. The group has no fixed height: the parent flex row in
+// `.navbar .right` runs `align-items: stretch`, so this pill grows
+// to whatever the navbar's primary CTA (Sign in button) computes.
+// That means a future redesign of Button size-sm propagates here
+// automatically — no hardcoded height to drift out of sync.
+.group {
+  display: inline-flex;
+  align-items: stretch;
+  gap: $spacing-4;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  overflow: hidden;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  // Vertical padding gives the pill a natural height (~40px) that
+  // looks substantial inside the mobile drawer footer. In the
+  // navbar the parent `align-items: stretch` still grows it to
+  // match the Sign in button, so this padding sets the floor, not
+  // the ceiling.
+  padding: $spacing-8 $spacing-12;
+  background: transparent;
+  border: none;
+  color: $color-text-secondary;
+  cursor: pointer;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  font-family: $font-body;
+  text-decoration: none;
+  transition: color 0.2s ease, background 0.2s ease;
+
+  &:hover {
+    color: $color-primary;
+    background: alpha($color-primary, 10%);
+  }
+}

@@ -2,7 +2,7 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { Card } from "@/components/ui/card";
-import { ArrowRightIcon } from "@/components/icons";
+import { ArrowRightIcon, UserIcon } from "@/components/icons";
 import { PriceTag } from "@/components/catalog/price-tag";
 import type { Offering } from "@/lib/offerings";
 import styles from "./offering-card.module.scss";
@@ -10,6 +10,7 @@ import styles from "./offering-card.module.scss";
 interface MerchantCard {
   slug: string;
   display_name: string;
+  avatar_url?: string | null;
 }
 
 interface OfferingCardProps {
@@ -36,13 +37,13 @@ export function OfferingCard({
   const t = useTranslations("catalog.card");
   const tType = useTranslations("offering.type");
 
+  const offeringHref = `/m/${merchant.slug}/c/${offering.slug}`;
+  const merchantHref = `/m/${merchant.slug}`;
+
   return (
-    <Link
-      href={`/m/${merchant.slug}/c/${offering.slug}`}
-      className={styles.link}
-    >
-      <Card variant="hover" className={styles.card}>
-        {offering.image_url ? (
+    <Card variant="hover" className={styles.card}>
+      {offering.image_url ? (
+        <Link href={offeringHref} className={styles.imageLink}>
           <div className={styles.imageWrap}>
             <Image
               src={offering.image_url}
@@ -52,29 +53,48 @@ export function OfferingCard({
               className={styles.image}
             />
           </div>
-        ) : null}
+        </Link>
+      ) : null}
 
-        <div className={styles.body}>
-          <h3 className={styles.title}>{offering.title}</h3>
-          {hideMerchant ? null : (
-            <p className={styles.byline}>{merchant.display_name}</p>
-          )}
-          <p className={styles.description}>{offering.description}</p>
-          <p className={styles.typeLabel}>{tType(offering.type)}</p>
-        </div>
+      <div className={styles.body}>
+        <h3 className={styles.title}>
+          <Link href={offeringHref} className={styles.titleLink}>
+            {offering.title}
+          </Link>
+        </h3>
+        {hideMerchant ? null : (
+          <Link href={merchantHref} className={styles.byline}>
+            <span className={styles.avatar} aria-hidden="true">
+              {merchant.avatar_url ? (
+                <Image
+                  src={merchant.avatar_url}
+                  alt=""
+                  width={24}
+                  height={24}
+                  className={styles.avatarImg}
+                />
+              ) : (
+                <UserIcon size={14} />
+              )}
+            </span>
+            <span className={styles.bylineName}>{merchant.display_name}</span>
+          </Link>
+        )}
+        <p className={styles.description}>{offering.description}</p>
+        <p className={styles.typeLabel}>{tType(offering.type)}</p>
+      </div>
 
-        <div className={styles.footer}>
-          <PriceTag
-            priceArs={offering.price_ars}
-            priceSats={offering.price_sats}
-            size="default"
-          />
-          <span className={styles.cta}>
-            {t("view")} <ArrowRightIcon size={16} />
-          </span>
-        </div>
-      </Card>
-    </Link>
+      <div className={styles.footer}>
+        <PriceTag
+          priceArs={offering.price_ars}
+          priceSats={offering.price_sats}
+          size="default"
+        />
+        <Link href={offeringHref} className={styles.cta}>
+          {t("view")} <ArrowRightIcon size={16} />
+        </Link>
+      </div>
+    </Card>
   );
 }
 

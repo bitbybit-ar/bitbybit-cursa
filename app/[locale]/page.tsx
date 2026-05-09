@@ -1,55 +1,27 @@
-import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Container } from "@/components/ui/container";
-import { Section } from "@/components/ui/section";
-import { OfferingCard } from "@/components/catalog/offering-card";
-import { listDiscoveryOfferings } from "@/lib/offerings";
-import styles from "./page.module.scss";
+import { setRequestLocale } from "next-intl/server";
+import { Hero } from "@/components/landing/hero";
+import { HighlightedCourses } from "@/components/landing/highlighted-courses";
+import { NeedMotivation } from "@/components/landing/need-motivation";
+import { TravelCompanions } from "@/components/landing/travel-companions";
+import { SupportBitByBit } from "@/components/landing/support-bitbybit";
 
 type Props = {
   params: Promise<{ locale: string }>;
 };
 
-// Marketplace discovery home (ADR 0012). Renders every active
-// merchant's offerings in newest-first order so the platform reads
-// as a feed, not a single store. Per-merchant landing pages live
-// at /[locale]/m/[slug].
-export const dynamic = "force-dynamic";
+export const dynamic = "force-static";
 
 export default async function HomePage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("catalog");
-  const rows = await listDiscoveryOfferings();
 
   return (
     <>
-      <Section>
-        <Container column>
-          <header className={styles.hero}>
-            <h1 className={styles.heroTitle}>{t("hero.title")}</h1>
-            <p className={styles.heroSubtitle}>{t("hero.subtitle")}</p>
-          </header>
-        </Container>
-      </Section>
-
-      <Section alternate>
-        <Container column>
-          <h2 className={styles.listHeading}>{t("list.heading")}</h2>
-          {rows.length === 0 ? (
-            <p className={styles.empty}>{t("list.empty")}</p>
-          ) : (
-            <div className={styles.grid}>
-              {rows.map(({ offering, merchant }) => (
-                <OfferingCard
-                  key={offering.id}
-                  offering={offering}
-                  merchant={merchant}
-                />
-              ))}
-            </div>
-          )}
-        </Container>
-      </Section>
+      <Hero />
+      <HighlightedCourses />
+      <NeedMotivation />
+      <TravelCompanions />
+      <SupportBitByBit />
     </>
   );
 }

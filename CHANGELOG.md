@@ -10,8 +10,55 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **Public landing page at `/[locale]`.** The locale root is now
+  a proper landing composition: `Hero` (animated gradient on
+  "sats", floating bubbles with course-themed icons, "Explore
+  courses" + "Publish your course" CTAs), `HighlightedCourses`
+  (mocked for v1, see `lib/mock/highlighted-courses.ts`),
+  `NeedMotivation` (Arena + Habits polaroid pair),
+  `TravelCompanions` (Wapu, La Crypta, LaWallet), and
+  `SupportBitByBit`. The marketplace grid moved to
+  `/[locale]/explorar`. New `/[locale]/faq` scaffold. Decision
+  recorded in ADR 0013.
+- **Global Navbar and Footer.** Mounted inside
+  `app/[locale]/layout.tsx`, replacing the floating
+  `LanguageToggle`. Navbar handles theme + locale toggles,
+  login, and (when signed in) an avatar dropdown with "Mis
+  compras", "Panel" (merchants/admins), "Cerrar sesión".
+  Footer carries Habits / Arena / FAQ / GitHub links.
+- **`Block`, `LogoBlocks`, `Bubble` common components.** Ported
+  from sister projects (home + arena), recolored to the Cursá
+  palette (blue / lime / pink) with new `pink`, `cyan`,
+  `orange`, and `gold` Bubble color variants reading from the
+  decorative accent tokens.
+- **Six course-themed icons:** `MusicNoteIcon`, `MathSymbolIcon`,
+  `CoinIcon`, `BookIcon`, `PaletteIcon`, `CodeBracketsIcon`.
+  Used by the hero bubbles to hint at course variety.
+- **Merchant avatar on `OfferingCard`.** Each card byline now
+  shows a 24px round avatar to the left of the merchant name,
+  and the avatar+name link to `/m/[slug]`. Card image and
+  title link to the offering as before.
+- **Idea notes.** `docs/ideas/nostr-reputation.md` captures the
+  plan to source the highlighted-courses ranking from Nostr
+  reactions; `docs/ideas/professor-profiles.md` captures the
+  Arena-style header + courses grid + customizable badges
+  vision for `/m/[slug]`.
+
 ### Changed
 
+- **`app/[locale]/page.tsx` is no longer the marketplace
+  feed.** The discovery feed moved to
+  `app/[locale]/explorar/page.tsx`; the home renders the
+  landing composition above. ADR 0013.
+- **`OfferingCard` restructured for nested links.** The outer
+  wrapper is no longer a `Link`; instead the title, image, and
+  CTA each link to the offering, while the avatar+name link to
+  the merchant. This keeps Next.js's "no nested links" rule
+  honored while letting the avatar navigate independently.
+- **Auth components removed:** `components/ui/language-toggle/`
+  is gone — the navbar's locale toggle replaces it.
 - **Marketplace pivot.** ADR 0012 turns Cursá from a single-
   tenant tool (one fork per merchant) into a multi-tenant
   marketplace where each professor signs in with their Nostr

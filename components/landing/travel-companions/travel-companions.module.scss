@@ -1,0 +1,204 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+
+// Anchor for the absolutely-positioned bubble decorations.
+// `overflow: hidden` keeps a stray bubble from triggering a horizontal
+// scrollbar at the page edge.
+.section {
+  position: relative;
+  overflow: hidden;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: $spacing-32;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-12;
+  max-width: 640px;
+  margin-inline: auto;
+  position: relative;
+  z-index: 1;
+}
+
+.title {
+  font-family: $font-display;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+  line-height: $line-height-heading;
+  margin: 0;
+}
+
+.subtitle {
+  color: $color-text-secondary;
+  font-size: $font-size-md;
+  line-height: $line-height-base;
+  margin: 0;
+  white-space: pre-line;
+}
+
+.board {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: $spacing-40;
+  list-style: none;
+  margin: 0 auto;
+  padding: $spacing-16 0 0;
+  max-width: calc(3 * 240px + 2 * #{$spacing-40});
+  position: relative;
+  z-index: 1;
+
+  @include tablet {
+    gap: $spacing-24;
+    max-width: calc(3 * 220px + 2 * #{$spacing-24});
+  }
+
+  @include mobile {
+    flex-wrap: nowrap;
+    max-width: none;
+    // `overflow-x: auto` implicitly forces `overflow-y` to auto (per
+    // CSS spec — visible isn't allowed when the other axis is
+    // scrolling), so the rotated polaroids spilling ~17px above/below
+    // would trigger a vertical scrollbar inside the carousel.
+    // Clipping vertically + padding the block axis enough to hold the
+    // rotation keeps the carousel a single horizontal track.
+    overflow-x: auto;
+    overflow-y: hidden;
+    justify-content: flex-start;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 12vw;
+    gap: $spacing-24;
+    margin-inline: calc(-1 * #{$container-padding-mobile});
+    padding: $spacing-24 12vw;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+}
+
+.boardItem {
+  flex: 0 0 auto;
+  display: block;
+
+  @include mobile {
+    scroll-snap-align: start;
+  }
+}
+
+// `$color-polaroid-bg` is white in light mode (original photo-
+// paper look) and warm off-white in dark mode (drops white-on-navy
+// contrast from ~21:1 to ~9:1). Captions stay dark via $static-navy
+// because the panel is light-colored in both themes.
+.polaroid {
+  display: block;
+  width: 240px;
+  background: $color-polaroid-bg;
+  padding: $spacing-12 $spacing-12 $spacing-24;
+  border-radius: 4px;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    0 16px 32px rgba(0, 0, 0, 0.12);
+  text-decoration: none;
+  color: $static-navy;
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease;
+  will-change: transform;
+
+  &:hover {
+    text-decoration: none;
+  }
+
+  @include tablet {
+    width: 220px;
+  }
+
+  @include mobile {
+    width: 70vw;
+    max-width: 280px;
+  }
+}
+
+.boardItem:nth-child(3n + 1) .polaroid {
+  transform: rotate(-3.5deg);
+}
+.boardItem:nth-child(3n + 2) .polaroid {
+  transform: rotate(1.8deg);
+}
+.boardItem:nth-child(3n + 3) .polaroid {
+  transform: rotate(-1deg);
+}
+
+.boardItem .polaroid:hover,
+.boardItem .polaroid:focus-visible {
+  transform: rotate(0deg) translateY(-6px) scale(1.03);
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.12),
+    0 28px 48px rgba(0, 0, 0, 0.18);
+}
+
+.boardItem .polaroid:focus-visible {
+  outline: 2px solid $focus-ring;
+  outline-offset: 4px;
+}
+
+.photoFrame {
+  position: relative;
+  aspect-ratio: 1;
+  width: 100%;
+  background: $gray-100;
+  overflow: hidden;
+  margin-bottom: $spacing-12;
+}
+
+.photo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: $spacing-12;
+}
+
+.caption {
+  text-align: center;
+  padding: 0 $spacing-4;
+}
+
+// Captions use static colors (not the gray-N scale that flips
+// with the theme) because the polaroid panel is the same cream
+// in both modes. A flipping color would read as nearly-invisible
+// light text on light cream in dark mode.
+.name {
+  font-family: $font-display;
+  font-size: $font-size-base;
+  font-weight: $font-weight-bold;
+  color: $static-navy;
+  margin: 0 0 $spacing-4;
+}
+
+.description {
+  color: rgba(15 15 26 / 0.7);
+  font-size: $font-size-sm;
+  line-height: 1.4;
+  margin: 0;
+  min-height: calc(1.4em * 2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .polaroid {
+    transition: none;
+  }
+
+  .boardItem .polaroid:hover,
+  .boardItem .polaroid:focus-visible {
+    transform: rotate(0deg);
+  }
+}

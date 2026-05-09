@@ -13,6 +13,81 @@
     "body": "We're building the Lightning checkout for schools, tutors, and academies. Coming soon.",
     "cta": "Follow on GitHub"
   },
+  "landing": {
+    "nav": {
+      "explore": "Explore courses",
+      "howItWorks": "How it works",
+      "features": "Features",
+      "signIn": "Sign in",
+      "signOut": "Sign out",
+      "myPurchases": "My purchases",
+      "panel": "My panel",
+      "accountMenu": "Account",
+      "openMenu": "Open menu",
+      "closeMenu": "Close menu",
+      "switchToLightMode": "Switch to light mode",
+      "switchToDarkMode": "Switch to dark mode",
+      "switchToEnglish": "Switch to English",
+      "switchToSpanish": "Switch to Spanish"
+    },
+    "hero": {
+      "title": "Buy your next class with <gradient>sats</gradient>.",
+      "subtitle": "Pay for classes, workshops, and study material with your Lightning wallet. The teacher gets paid in pesos, straight to their CBU.",
+      "ctaExplore": "Explore courses",
+      "ctaPublish": "Publish your course"
+    },
+    "highlighted": {
+      "title": "Highlighted courses",
+      "subtitle": "A taste of what the community is teaching today. Soon, courses will rise to the top based on reactions they earn on Nostr.",
+      "exploreMore": "Explore more"
+    },
+    "motivation": {
+      "title": "Need motivation?",
+      "subtitle": "Turn your course into more than just classes. Challenge others or weave it into your daily routine.",
+      "listLabel": "BitByBit tools",
+      "arenaTitle": "Turn your course into a challenge",
+      "arenaDescription": "Create an arena, challenge other students, and share your progress. Consistency, measured and celebrated.",
+      "arenaCta": "Create a challenge on Arena",
+      "habitsTitle": "Turn your learning into a habit",
+      "habitsDescription": "Study your course a little every day. Habits helps you keep the streak with reminders and stats.",
+      "habitsCta": "Start a habit"
+    },
+    "companions": {
+      "title": "Travel companions",
+      "subtitle": "Projects and communities we admire,\nbuilders of open infrastructure for a freer future.",
+      "listLabel": "Cursá allies",
+      "wapuDescription": "Lightning settlement to CBU/alias in Argentina.",
+      "laCryptaDescription": "Bitcoin community in Argentina, host of Hackathon #3.",
+      "nostrWotDescription": "Web of Trust for Nostr.",
+      "mappingBitcoinDescription": "Find every place in the Bitcoin ecosystem.",
+      "obeliskDescription": "Discord alternative with Nostr login.",
+      "laWalletDescription": "Bitcoin and Lightning wallet on Nostr."
+    },
+    "support": {
+      "title": "Support Cursá",
+      "subtitle": "Open source and community-driven. Help us keep building.",
+      "zapDevs": "Zap the devs",
+      "zapAriaLabel": "Send a Lightning zap to the developers",
+      "starOnGithub": "Star on GitHub",
+      "orContribute": "Or contribute to a specific project",
+      "cursaRepo": "Cursá on GitHub",
+      "arenaRepo": "Arena on GitHub",
+      "habitsRepo": "Habits on GitHub"
+    },
+    "footer": {
+      "ariaLabel": "BitByBit projects",
+      "habitsLink": "BitByBit Habits",
+      "arenaLink": "BitByBit Arena",
+      "faqLink": "FAQ",
+      "github": "GitHub",
+      "githubAriaLabel": "Cursá on GitHub"
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "subtitle": "We're putting this section together. The most common questions about Cursá will live here soon.",
+      "comingSoon": "Coming soon"
+    }
+  },
   "catalog": {
     "hero": {
       "title": "Buy your next class with sats.",

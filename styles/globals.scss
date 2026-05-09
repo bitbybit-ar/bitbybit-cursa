@@ -53,10 +53,6 @@ a {
   color: $color-primary;
   text-decoration: none;
   transition: color 0.2s ease;
-
-  &:hover {
-    text-decoration: underline;
-  }
 }
 
 // Focus — uses dedicated `--focus-ring` token (visible gray) so the ring

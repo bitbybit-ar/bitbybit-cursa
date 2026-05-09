@@ -1,0 +1,205 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/common-mixins" as *;
+@use "@/styles/media-mixins" as *;
+
+// Compress Section's default $spacing-100 vertical padding so the
+// support row reads as content + a little margin, not its own
+// chapter. Also anchor the floating blocks via position: relative.
+.section {
+  padding: $spacing-48 0;
+  position: relative;
+  overflow: hidden;
+
+  @include mobile {
+    padding: $spacing-32 0;
+  }
+}
+
+.content {
+  text-align: center;
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.title {
+  font-family: $font-display;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+  margin: 0 0 $spacing-8;
+}
+
+.subtitle {
+  color: $color-text-secondary;
+  font-size: $font-size-md;
+  margin: 0 0 $spacing-24;
+  max-width: 580px;
+}
+
+.primaryActions {
+  display: flex;
+  gap: $spacing-16;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: $spacing-24;
+
+  @include mobile {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.contributeLabel {
+  text-transform: uppercase;
+  letter-spacing: $letter-spacing-wide;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+  margin-bottom: $spacing-16;
+}
+
+.projectRepos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-12;
+  flex-wrap: wrap;
+}
+
+.repoLink {
+  @include ceramic-card;
+  @include ceramic-card-hover;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-8;
+  padding: $spacing-8 $spacing-16;
+  border-radius: $border-radius-md;
+  color: $color-text-primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+.zapButton {
+  @include ceramic-surface($color-secondary, 30%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-8;
+  padding: $spacing-12 $spacing-32;
+  min-width: 220px;
+  color: $static-white;
+  border-radius: $border-radius-md;
+  font-family: $font-body;
+  font-size: $font-size-base;
+  font-weight: $font-weight-bold;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    text-decoration: none;
+  }
+
+  @include mobile {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+// `$color-cta-dark` flips per theme (near-black in light, slate-700
+// in dark) so the button never merges into the page bg. See
+// _theme.scss for the rationale.
+.githubButton {
+  @include ceramic-surface($color-cta-dark, 25%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-8;
+  padding: $spacing-12 $spacing-32;
+  min-width: 220px;
+  color: $static-white;
+  border-radius: $border-radius-md;
+  font-family: $font-body;
+  font-size: $font-size-base;
+  font-weight: $font-weight-bold;
+  text-decoration: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    text-decoration: none;
+  }
+
+  @include mobile {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
+.floatBlock1,
+.floatBlock2 {
+  position: absolute;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.85;
+}
+
+.floatBlock1 {
+  top: 20%;
+  left: 8%;
+  animation: support-drift-a 5s ease-in-out infinite;
+
+  @include mobile {
+    display: none;
+  }
+}
+
+.floatBlock2 {
+  bottom: 20%;
+  right: 9%;
+  animation: support-drift-b 5.5s ease-in-out infinite;
+  animation-delay: -2s;
+
+  @include mobile {
+    display: none;
+  }
+}
+
+@keyframes support-drift-a {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(12px, -14px);
+  }
+}
+
+@keyframes support-drift-b {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-10px, 12px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floatBlock1,
+  .floatBlock2 {
+    animation: none;
+  }
+}
