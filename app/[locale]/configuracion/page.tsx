@@ -1,11 +1,10 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
+import { Section } from "@/components/ui/section";
 import { Card } from "@/components/ui/card";
 import { SettingsForm } from "@/components/admin/settings-form";
-import { getSession } from "@/lib/auth";
-import { getMerchantByPubkey } from "@/lib/admin/merchants";
+import { requireUserMerchant } from "@/lib/admin/panel-context";
 import styles from "./page.module.scss";
 
 export const dynamic = "force-dynamic";
@@ -16,14 +15,14 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "panel.settings" });
+  const t = await getTranslations({ locale, namespace: "accountSettings" });
   return {
     title: t("metadataTitle"),
     robots: { index: false, follow: false },
   };
 }
 
-export default async function PanelSettingsPage({
+export default async function SettingsPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -31,17 +30,13 @@ export default async function PanelSettingsPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const session = await getSession();
-  if (!session) notFound();
-  const merchant = await getMerchantByPubkey(session.pubkey);
-  // The panel layout already redirected if no merchant; this is a
-  // redundant guard so the type-narrowing reads cleanly.
-  if (!merchant) notFound();
+  const { merchant } = await requireUserMerchant();
 
-  const t = await getTranslations("panel.settings");
+  const t = await getTranslations("accountSettings");
 
   return (
-    <Container column>
+    <Section>
+      <Container column>
       <header className={styles.header}>
         <h1 className={styles.title}>{t("title")}</h1>
         <p className={styles.subtitle}>{t("subtitle")}</p>
@@ -57,6 +52,7 @@ export default async function PanelSettingsPage({
         initialAlias={merchant.alias ?? ""}
         initialAutorenewal={merchant.features_autorenewal}
       />
-    </Container>
+      </Container>
+    </Section>
   );
 }

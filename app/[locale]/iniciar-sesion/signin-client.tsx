@@ -65,9 +65,12 @@ type CreateState =
 
 const ALLOWED_NEXT_PREFIXES = [
   "/mis-compras",
+  "/mis-cursos",
+  "/mis-ventas",
+  "/mis-estudiantes",
+  "/configuracion",
   "/reclamar/",
   "/gracias/",
-  "/panel",
 ];
 
 function safeNext(raw: string | null): string {

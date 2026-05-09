@@ -29,7 +29,7 @@ export function SettingsForm({
   initialAlias,
   initialAutorenewal,
 }: SettingsFormProps) {
-  const t = useTranslations("panel.settings.form");
+  const t = useTranslations("accountSettings.form");
   const tErr = useTranslations("errors");
   const router = useRouter();
   const { showToast } = useToast();

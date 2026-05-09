@@ -5,7 +5,6 @@ import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { Card } from "@/components/ui/card";
 import { ArrowRightIcon } from "@/components/icons";
-import { SignOutButton } from "@/components/auth/sign-out-button";
 import { getSession } from "@/lib/auth";
 import { alternatesFor } from "@/lib/seo";
 import { listOrdersByPubkey } from "@/lib/orders";
@@ -68,7 +67,6 @@ export default async function MisComprasPage({
             <h1 className={styles.title}>{t("title")}</h1>
             <p className={styles.subtitle}>{t("subtitle")}</p>
           </div>
-          <SignOutButton label={t("signOut")} />
         </header>
 
         {orders.length === 0 ? (

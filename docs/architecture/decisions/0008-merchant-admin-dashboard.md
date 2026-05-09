@@ -1,9 +1,9 @@
 # 0008. Add a merchant admin dashboard at `/panel`
 
 - **Date**: 2026-05-06
-- **Status**: Accepted
+- **Status**: Superseded by [0014](0014-marketplace-open-to-all-logged-in-users.md)
 - **Deciders**: BitByBit team
-- **Last updated**: 2026-05-08
+- **Last updated**: 2026-05-09
 
 ---
 
@@ -11,6 +11,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-09 | Status | Marked Superseded by ADR 0014. | The `/panel/*` namespace is gone; creator surfaces moved to top-level routes accessible to every signed-in user. |
 | 2026-05-08 | Implementation status | NIP-07 re-sign for CBU/alias landed via `signWithPrompt` ported from arena; PATCH `/api/admin/settings` enforces a NIP-98 signature whose `payload` tag binds to the body sha256, with pubkey-match against the session. | Closes the deferred half of the original ADR; the panel's payment-destination edits now meet the signed-confirmation requirement. |
 | 2026-05-06 | — | Initial version. | Pin the panel surface, auth model, and read-vs-write boundaries before any admin code lands so the first-pass implementation does not accidentally expose mutation paths over orders or buyers. |
 

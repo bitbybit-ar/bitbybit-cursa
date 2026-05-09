@@ -1,0 +1,196 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+
+.wrapper {
+  position: relative;
+  align-self: center;
+}
+
+.bell {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: transparent;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-full;
+  color: $color-text-secondary;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+
+  &:hover {
+    color: $color-primary;
+    background: alpha($color-primary, 8%);
+    border-color: alpha($color-primary, 40%);
+  }
+}
+
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: $border-radius-full;
+  background: $color-error;
+  color: $static-white;
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  line-height: 18px;
+  text-align: center;
+  border: 2px solid $color-bg;
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + #{$spacing-8});
+  right: 0;
+  width: 340px;
+  max-width: calc(100vw - #{$spacing-16});
+  max-height: 70vh;
+  overflow-y: auto;
+  background-color: $color-bg;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  box-shadow: 0 12px 32px $card-shadow-hover;
+  padding: $spacing-4;
+  z-index: 1001;
+  animation: bellMenuFadeIn 0.15s ease-out;
+
+  @include mobile {
+    right: -$spacing-8;
+    width: calc(100vw - #{$spacing-24});
+  }
+}
+
+@keyframes bellMenuFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-8 $spacing-12;
+  border-bottom: 1px solid $color-border;
+}
+
+.count {
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  color: $color-text-secondary;
+}
+
+.markAll {
+  background: transparent;
+  border: none;
+  color: $color-primary;
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  padding: 0;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.empty {
+  padding: $spacing-16 $spacing-12;
+  text-align: center;
+  color: $color-text-secondary;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  margin: 0;
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  & + & {
+    border-top: 1px solid $color-border;
+  }
+}
+
+.itemButton {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: $spacing-4;
+  width: 100%;
+  padding: $spacing-8 $spacing-12;
+  background: transparent;
+  border: none;
+  border-radius: $border-radius-sm;
+  font-family: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+
+  &:hover {
+    background: alpha($color-primary, 8%);
+    text-decoration: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: -2px;
+  }
+}
+
+.unread {
+  background: alpha($color-primary, 6%);
+
+  .title {
+    color: $color-text-primary;
+  }
+}
+
+.read {
+  .title,
+  .body {
+    color: $color-text-secondary;
+  }
+}
+
+.title {
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.body {
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.time {
+  font-family: $font-body;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  opacity: 0.7;
+}

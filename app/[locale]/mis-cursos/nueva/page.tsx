@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Container } from "@/components/ui/container";
+import { Section } from "@/components/ui/section";
 import { ArrowLeftIcon } from "@/components/icons";
 import { OfferingForm } from "@/components/admin/offering-form";
 import styles from "./page.module.scss";
@@ -16,7 +17,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({
     locale,
-    namespace: "panel.offerings.create",
+    namespace: "myCourses.create",
   });
   return {
     title: t("metadataTitle"),
@@ -31,11 +32,12 @@ export default async function NewOfferingPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("panel.offerings.create");
+  const t = await getTranslations("myCourses.create");
 
   return (
-    <Container column>
-      <Link href="/panel/ofertas" className={styles.back}>
+    <Section>
+      <Container column>
+      <Link href="/mis-cursos" className={styles.back}>
         <ArrowLeftIcon size={16} />
         {t("back")}
       </Link>
@@ -43,6 +45,7 @@ export default async function NewOfferingPage({
       <p className={styles.subtitle}>{t("subtitle")}</p>
 
       <OfferingForm />
-    </Container>
+      </Container>
+    </Section>
   );
 }

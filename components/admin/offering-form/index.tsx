@@ -39,7 +39,7 @@ function parseCodePool(value: string): string[] {
 }
 
 export function OfferingForm({ offering }: OfferingFormProps) {
-  const t = useTranslations("panel.offerings.form");
+  const t = useTranslations("myCourses.form");
   const tErr = useTranslations("errors");
   const router = useRouter();
   const { showToast } = useToast();
@@ -128,7 +128,7 @@ export function OfferingForm({ offering }: OfferingFormProps) {
         return;
       }
       showToast(t("saved"), "success");
-      router.push("/panel/ofertas");
+      router.push("/mis-cursos");
       router.refresh();
     } catch {
       showToast(tErr("network"), "error");
@@ -152,7 +152,7 @@ export function OfferingForm({ offering }: OfferingFormProps) {
         return;
       }
       showToast(t("archived"), "success");
-      router.push("/panel/ofertas");
+      router.push("/mis-cursos");
       router.refresh();
     } catch {
       showToast(tErr("network"), "error");

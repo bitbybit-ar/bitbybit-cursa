@@ -1,24 +1,19 @@
 import { type NextResponse } from "next/server";
 import { getSession, type AuthSession } from "@/lib/auth";
 import {
-  getMerchantByPubkey,
+  ensureMerchantForPubkey,
   type Merchant,
 } from "@/lib/admin/merchants";
 
 /**
- * Read the current session and look up its merchant row.
+ * Read the current session and look up (or lazily create) its
+ * merchant row.
  *
- * Used by every `/api/admin/*` route as the first line of
- * defence (ADR 0012). Returns either a populated `{ session,
- * merchant }` pair or a `NextResponse` the caller should return
- * as-is. Three failure modes:
+ * Used by every `/api/admin/*` route. Per ADR 0014, the merchant
+ * row is no longer a gate — any signed-in user gets one. The two
+ * failure modes are:
  *
  *   - no session            → 401 `unauthorized`
- *   - session, no merchant  → 404 `merchant_required` — the
- *                              caller has not claimed a slug
- *                              yet; the panel layout redirects
- *                              them to /onboarding, but the API
- *                              just rejects.
  *   - session, deactivated  → 404 `merchant_inactive` — the
  *                              platform admin disabled this
  *                              merchant; the surface is not
@@ -39,17 +34,7 @@ export async function requireMerchant(): Promise<
       ),
     };
   }
-  const merchant = await getMerchantByPubkey(session.pubkey);
-  if (!merchant) {
-    const { NextResponse } = await import("next/server");
-    return {
-      ok: false,
-      response: NextResponse.json(
-        { error: "merchant_required" },
-        { status: 404 }
-      ),
-    };
-  }
+  const merchant = await ensureMerchantForPubkey(session.pubkey);
   if (!merchant.active) {
     const { NextResponse } = await import("next/server");
     return {

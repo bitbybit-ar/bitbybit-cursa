@@ -47,9 +47,12 @@ export default async function SignInPage({
 
 const ALLOWED_NEXT_PREFIXES = [
   "/mis-compras",
+  "/mis-cursos",
+  "/mis-ventas",
+  "/mis-estudiantes",
+  "/configuracion",
   "/reclamar/",
   "/gracias/",
-  "/panel",
 ];
 
 function safeNext(raw: string | undefined): string {

@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Container } from "@/components/ui/container";
+import { Section } from "@/components/ui/section";
 import { Card } from "@/components/ui/card";
 import { ArrowRightIcon } from "@/components/icons";
-import { listAdminOrders } from "@/lib/admin/orders";
+import { listAdminStudents } from "@/lib/admin/orders";
 import { requirePanelMerchant } from "@/lib/admin/panel-context";
 import styles from "./page.module.scss";
 
@@ -16,14 +17,17 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "panel.orders" });
+  const t = await getTranslations({
+    locale,
+    namespace: "myStudents",
+  });
   return {
     title: t("metadataTitle"),
     robots: { index: false, follow: false },
   };
 }
 
-export default async function PanelOrdersPage({
+export default async function PanelStudentsPage({
   params,
 }: {
   params: Promise<{ locale: string }>;
@@ -32,73 +36,57 @@ export default async function PanelOrdersPage({
   setRequestLocale(locale);
 
   const merchant = await requirePanelMerchant();
-  const orders = await listAdminOrders(merchant.id);
-  const t = await getTranslations("panel.orders");
-  const tStatus = await getTranslations("orderStatus");
+  const students = await listAdminStudents(merchant.id);
+  const t = await getTranslations("myStudents");
   const arsFormatter = new Intl.NumberFormat(
     locale === "es" ? "es-AR" : "en-US"
   );
   const dateFormatter = new Intl.DateTimeFormat(
     locale === "es" ? "es-AR" : "en-US",
-    { dateStyle: "short", timeStyle: "short" }
+    { dateStyle: "short" }
   );
 
   return (
-    <Container column>
+    <Section>
+      <Container column>
       <header className={styles.header}>
         <h1 className={styles.title}>{t("title")}</h1>
         <p className={styles.subtitle}>{t("subtitle")}</p>
       </header>
 
-      {orders.length === 0 ? (
+      {students.length === 0 ? (
         <Card variant="default" className={styles.empty}>
           <p>{t("empty")}</p>
         </Card>
       ) : (
         <ul className={styles.list}>
-          {orders.map((order) => (
-            <li key={order.id} className={styles.item}>
+          {students.map((s) => (
+            <li key={s.pubkey} className={styles.item}>
               <Link
-                href={`/panel/pedidos/${order.id}`}
+                href={`/mis-estudiantes/${s.pubkey}`}
                 className={styles.row}
               >
                 <div className={styles.rowMain}>
-                  <span className={styles.rowTitle}>
-                    {order.offering_title ?? t("unknownOffering")}
-                  </span>
+                  <code className={styles.pubkey}>{s.pubkey}</code>
                   <span className={styles.rowMeta}>
-                    {dateFormatter.format(order.created_at)} ·{" "}
-                    ARS {arsFormatter.format(order.amount_ars)}
-                    {order.pubkey ? (
-                      <>
-                        <span className={styles.dot}>·</span>
-                        <code className={styles.pubkey}>
-                          {order.pubkey.slice(0, 8)}…
-                        </code>
-                      </>
-                    ) : (
-                      <>
-                        <span className={styles.dot}>·</span>
-                        <span className={styles.anon}>
-                          {t("anonymous")}
-                        </span>
-                      </>
-                    )}
+                    {t("orderCount", { n: s.order_count })}
+                    <span className={styles.dot}>·</span>
+                    {t("paidCount", { n: s.paid_count })}
+                    <span className={styles.dot}>·</span>
+                    ARS {arsFormatter.format(s.total_ars)}
+                    <span className={styles.dot}>·</span>
+                    {t("lastSeen", {
+                      date: dateFormatter.format(s.most_recent),
+                    })}
                   </span>
                 </div>
-                <span
-                  className={`${styles.status} ${
-                    styles[`status-${order.status}`]
-                  }`}
-                >
-                  {tStatus(order.status)}
-                </span>
                 <ArrowRightIcon size={16} />
               </Link>
             </li>
           ))}
         </ul>
       )}
-    </Container>
+      </Container>
+    </Section>
   );
 }

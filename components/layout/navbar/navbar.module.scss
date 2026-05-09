@@ -103,22 +103,22 @@
   align-self: center;
 }
 
-.avatar {
+.avatarButton {
   width: 36px;
   height: 36px;
+  padding: 0;
+  border: none;
+  background: transparent;
   border-radius: 50%;
-  border: 1px solid $color-border;
-  background: $color-bg-2;
-  color: $color-text-secondary;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: border-color 0.2s ease, color 0.2s ease;
+  transition: filter 0.2s ease;
 
-  &:hover {
-    border-color: $color-primary;
-    color: $color-primary;
+  &:hover,
+  &:focus-visible {
+    filter: brightness(1.05);
   }
 }
 
@@ -156,6 +156,14 @@
 
   &:hover {
     background: $color-bg-2;
+  }
+}
+
+.menuItemDanger {
+  color: $color-error;
+
+  &:hover {
+    color: $color-error;
   }
 }
 

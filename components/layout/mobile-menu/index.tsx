@@ -3,16 +3,20 @@
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/routing";
+import { Avatar } from "@/components/common/avatar";
 import { Button } from "@/components/ui/button";
 import {
+  BookIcon,
   CloseIcon,
   LogoutIcon,
   SettingsIcon,
-  UserIcon,
+  ShoppingBagIcon,
 } from "@/components/icons";
 import { LocaleThemeToggle } from "@/components/layout/locale-theme-toggle";
+import { NotificationBell } from "@/components/layout/notification-bell";
 import { useSignerContext } from "@/lib/contexts/signer-context";
 import { useClickOutside } from "@/lib/hooks/useClickOutside";
+import { useNostrProfile } from "@/lib/hooks/useNostrProfile";
 import { cn } from "@/lib/utils";
 import styles from "./mobile-menu.module.scss";
 
@@ -34,6 +38,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
   const t = useTranslations("landing.nav");
   const { session, signOut } = useSignerContext();
   const router = useRouter();
+  const { profile } = useNostrProfile(session?.pubkey);
   const drawerRef = useRef<HTMLElement>(null);
 
   useClickOutside(drawerRef, onClose, open);
@@ -59,10 +64,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
     router.push("/");
   };
 
-  const isMerchant = !!session?.merchant;
-  const isAdmin = !!session?.platform_admin;
-  const showPanel = isMerchant || isAdmin;
-  const merchantName = session?.merchant?.display_name;
+  const profileName = profile?.display_name ?? profile?.name ?? null;
 
   return (
     <>
@@ -81,12 +83,16 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
         <header className={styles.header}>
           {session ? (
             <div className={styles.userBadge}>
-              <span className={styles.userAvatar} aria-hidden="true">
-                <UserIcon size={16} />
-              </span>
+              <Avatar
+                src={profile?.picture}
+                name={profileName}
+                alt=""
+                size="sm"
+              />
               <span className={styles.userName}>
-                {merchantName ?? t("accountMenu")}
+                {profileName ?? t("accountMenu")}
               </span>
+              <NotificationBell />
             </div>
           ) : null}
           <button
@@ -133,22 +139,28 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                 className={styles.action}
                 onClick={onClose}
               >
-                <UserIcon size={16} />
+                <ShoppingBagIcon size={16} />
                 {t("myPurchases")}
               </Link>
-              {showPanel ? (
-                <Link
-                  href="/panel"
-                  className={styles.action}
-                  onClick={onClose}
-                >
-                  <SettingsIcon size={16} />
-                  {t("panel")}
-                </Link>
-              ) : null}
+              <Link
+                href="/mis-cursos"
+                className={styles.action}
+                onClick={onClose}
+              >
+                <BookIcon size={16} />
+                {t("myCourses")}
+              </Link>
+              <Link
+                href="/configuracion"
+                className={styles.action}
+                onClick={onClose}
+              >
+                <SettingsIcon size={16} />
+                {t("settings")}
+              </Link>
               <button
                 type="button"
-                className={styles.action}
+                className={cn(styles.action, styles.actionDanger)}
                 onClick={handleSignOut}
               >
                 <LogoutIcon size={16} />
