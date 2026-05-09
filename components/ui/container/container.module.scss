@@ -7,8 +7,8 @@
   padding: $spacing-32 $container-padding;
   padding-top: calc($navbar-height + #{$spacing-32});
   padding-bottom: $spacing-40;
-  min-height: 100vh;
-  min-height: 100dvh;
+  min-height: calc(100vh - #{$navbar-height});
+  min-height: calc(100dvh - #{$navbar-height});
   position: relative;
 
   @include mobile {
@@ -18,18 +18,25 @@
   }
 }
 
-// `center` keeps content visually centered in the area below the
-// fixed navbar. The base container already adds the navbar offset
-// to padding-top so content doesn't tuck under the navbar; here we
-// match that with a smaller padding-bottom so the difference equals
-// the navbar height. Result: content's geometric mid sits at
-// `navbar/2 + 50vh`, which is the midpoint of the visible viewport
-// below the navbar.
+// `center` flexes a single element into the middle of the
+// container.
+//
+// - `padding-top: 0` drops the navbar offset the base container
+//   reserves. Pages that use `center` are short enough (auth card,
+//   simple status screens) that the flex centering on a 100vh box
+//   already keeps content clear of the fixed navbar.
+//
+// - `max-width: none` drops the 1200px content gutter the base
+//   container reserves for landing/catalog rows. The inner element
+//   supplies its own max-width, so the gutter just produces ugly
+//   side margins on wide screens.
 .center {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-bottom: $spacing-32;
+  padding-top: 0;
+  padding-bottom: 0;
+  max-width: none;
 }
 
 .column {
