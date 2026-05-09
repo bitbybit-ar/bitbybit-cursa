@@ -22,7 +22,7 @@ import {
   createNostrConnectURI,
 } from "nostr-tools/nip46";
 
-const NIP46_TIMEOUT_MS = 60_000;
+export const NIP46_TIMEOUT_MS = 60_000;
 
 export type BunkerLoginErrorCode = "bunker_invalid_url";
 

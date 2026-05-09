@@ -119,9 +119,13 @@
   --bubble-opacity: 0.08;
 
   // — Ceramic surface tints (theme-aware: light sheen on warm-gray) —
-  --ceramic-highlight:      rgba(255 255 255 / 0.6);
-  --ceramic-highlight-soft: rgba(255 255 255 / 0.25);
-  --ceramic-inner-shadow:   rgba(0 0 0 / 0.06);
+  // Inner shadow is deliberately stronger than a typical light-mode
+  // tint: at 0.06 the modal/card edge was invisible against
+  // near-white surfaces, so the surface read as a flat plane with no
+  // depth. 0.16 gives a clear bevel without darkening the body.
+  --ceramic-highlight:      rgba(255 255 255 / 0.85);
+  --ceramic-highlight-soft: rgba(255 255 255 / 0.35);
+  --ceramic-inner-shadow:   rgba(15 23 42 / 0.16);
 
   // — Ceramic-surface mixin tints (identical across themes; the gloss
   //   pattern painted over saturated colors does not flip) —

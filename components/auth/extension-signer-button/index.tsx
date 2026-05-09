@@ -88,23 +88,30 @@ export function ExtensionSignerButton({
 
   return (
     <div className={styles.wrapper}>
-      <Button
-        type="button"
-        variant="primary"
-        fullWidth
-        className={cn(styles.extensionButton, className)}
-        onClick={handleClick}
-        disabled={isBusy || !hasExtension}
-        title={!hasExtension && !isChecking ? t("no_extension") : undefined}
-      >
-        <BoltIcon size={20} />
-        <div className={styles.info}>
-          <span className={styles.name}>{t("extensionTitle")}</span>
-          <span className={styles.description}>
-            {t("extensionDescription")}
+      <div className={styles.buttonShell}>
+        <Button
+          type="button"
+          variant="primary"
+          fullWidth
+          className={cn(styles.extensionButton, className)}
+          onClick={handleClick}
+          disabled={isBusy || !hasExtension}
+          title={!hasExtension && !isChecking ? t("no_extension") : undefined}
+        >
+          <BoltIcon size={20} />
+          <div className={styles.info}>
+            <span className={styles.name}>{t("extensionTitle")}</span>
+            <span className={styles.description}>
+              {t("extensionDescription")}
+            </span>
+          </div>
+        </Button>
+        {hasExtension ? (
+          <span className={styles.detectedBadge} aria-hidden="true">
+            {t("extensionDetected")}
           </span>
-        </div>
-      </Button>
+        ) : null}
+      </div>
       {!isChecking && !hasExtension ? (
         <p className={styles.help}>{t("no_extension")}</p>
       ) : null}

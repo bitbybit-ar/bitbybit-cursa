@@ -8,6 +8,13 @@
   gap: $spacing-4;
 }
 
+// Wraps the Button so we can absolutely position the "Detected"
+// badge in the button's top-right corner without disturbing the
+// internal icon/label flex layout.
+.buttonShell {
+  position: relative;
+}
+
 // Extends the shared Button's fullWidth layout: the extension
 // sign-in shows an icon plus a two-line label (title + description),
 // so we override the default center alignment to keep the icon on
@@ -17,6 +24,9 @@
   text-align: left;
   gap: $spacing-12;
   padding: $spacing-12 $spacing-16;
+  // Reserve room on the right so the title/description never tuck
+  // behind the floating Detected badge.
+  padding-right: $spacing-80;
 }
 
 .info {
@@ -29,6 +39,29 @@
 .name {
   font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
+}
+
+// Pill rendered in the top-right corner of the button when
+// window.nostr is present. Solid green background + white text for
+// contrast against the primary button surface (the pale variant we
+// shipped previously was illegible on the blue button).
+.detectedBadge {
+  position: absolute;
+  top: $spacing-8;
+  right: $spacing-8;
+  display: inline-flex;
+  align-items: center;
+  pointer-events: none;
+  padding: 2px $spacing-8;
+  border-radius: 9999px;
+  background: $color-success;
+  color: $static-white;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
+  letter-spacing: 0.4px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  box-shadow: 0 1px 2px alpha($static-black, 25%);
 }
 
 .description {

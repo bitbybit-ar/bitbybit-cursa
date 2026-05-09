@@ -3,12 +3,12 @@
 @use "@/styles/typography" as *;
 @use "@/styles/media-mixins" as *;
 
-.scanTitle {
+.intro {
   font-size: $font-size-sm;
-  font-weight: $font-weight-semibold;
-  color: $color-text-primary;
-  margin-bottom: $spacing-12;
+  color: $color-text-secondary;
+  margin: 0 0 $spacing-16;
   text-align: center;
+  line-height: $line-height-base;
 }
 
 .qrWrapper {
@@ -18,7 +18,7 @@
   background: $color-surface;
   border: 1px solid $color-border;
   border-radius: $border-radius-md;
-  margin-bottom: $spacing-8;
+  margin-bottom: $spacing-12;
   color: $color-text-primary;
 
   @include mobile {
@@ -26,18 +26,101 @@
   }
 }
 
-.copyURIBtn {
-  display: inline-flex;
+// "● Waiting for signer…    expires in 4:59" row beneath the QR.
+.statusRow {
+  display: flex;
   align-items: center;
-  gap: $spacing-4;
-  margin-bottom: $spacing-4;
-}
-
-.waiting {
+  gap: $spacing-8;
+  margin-bottom: $spacing-12;
   font-size: $font-size-xs;
   color: $color-text-secondary;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: $color-primary;
+  flex-shrink: 0;
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .statusDot {
+    animation: none;
+    opacity: 0.85;
+  }
+}
+
+.statusLabel {
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.statusTimer {
+  margin-left: auto;
+  font-variant-numeric: tabular-nums;
+}
+
+// Always-visible read-only URI field with a copy icon button on the
+// right. Replaces the previous link-style button so users with a
+// signer on the same device can grab the URI without hunting.
+.uriField {
+  display: flex;
+  align-items: stretch;
+  gap: $spacing-8;
   margin-bottom: $spacing-12;
-  text-align: center;
+  min-width: 0;
+}
+
+.uriInput {
+  flex: 1;
+  min-width: 0;
+  padding: $spacing-8 $spacing-12;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  font-family: monospace;
+  font-size: $font-size-xs;
+  color: $color-text-primary;
+  outline: none;
+  box-sizing: border-box;
+  text-overflow: ellipsis;
+
+  &:focus {
+    border-color: $color-primary;
+  }
+}
+
+.uriCopyBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 36px;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  color: $color-text-secondary;
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    color: $color-primary;
+    border-color: $color-primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $focus-ring;
+    outline-offset: 2px;
+  }
 }
 
 .connectingState {
@@ -46,6 +129,13 @@
   align-items: center;
   gap: $spacing-16;
   padding: $spacing-16 0;
+}
+
+.waiting {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin: 0;
+  text-align: center;
 }
 
 .spinner {
@@ -60,27 +150,6 @@
 @keyframes spin {
   to {
     transform: rotate(360deg);
-  }
-}
-
-.divider {
-  display: flex;
-  align-items: center;
-  gap: $spacing-12;
-  margin: $spacing-12 0;
-
-  &::before,
-  &::after {
-    content: "";
-    flex: 1;
-    height: 1px;
-    background: $color-border;
-  }
-
-  span {
-    font-size: $font-size-xs;
-    color: $color-text-secondary;
-    white-space: nowrap;
   }
 }
 
@@ -99,9 +168,6 @@
   margin-bottom: $spacing-12;
   min-width: 0;
 
-  // On narrow screens the input + Connect button get squeezed,
-  // leaving the bunker URI cropped to a few characters before the
-  // ellipsis. Stack them vertically so the input keeps full width.
   @include mobile {
     flex-direction: column;
     align-items: stretch;
@@ -120,10 +186,6 @@
   color: $color-text-primary;
   outline: none;
   min-width: 0;
-  // Long bunker:// URIs were forcing the modal wider than the
-  // viewport on narrow phone widths. Box-sizing keeps padding inside
-  // the flex basis; text-overflow ellipses anything that still
-  // does not fit.
   box-sizing: border-box;
   text-overflow: ellipsis;
   transition: border-color 0.15s ease;
@@ -192,4 +254,7 @@
   margin-top: $spacing-4;
   margin-bottom: $spacing-12;
   text-align: center;
+  padding: $spacing-8 $spacing-12;
+  background: alpha($color-primary, 8%);
+  border-radius: $border-radius-md;
 }

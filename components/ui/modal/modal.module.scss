@@ -55,11 +55,16 @@
   overflow-y: auto;
   animation: slideIn 0.25s ease;
   border-radius: $border-radius-xl;
+  // Hairline ring sits on top of the ceramic-card border. In dark
+  // mode the existing inset highlight does the work; in light mode
+  // this is what gives the modal a visible edge against near-white
+  // page backgrounds.
+  border: 1px solid $color-border;
   box-shadow:
-    0 24px 64px alpha($static-black, 30%),
-    0 4px 16px alpha($static-black, 12%),
+    0 24px 64px alpha($static-black, 22%),
+    0 6px 18px alpha($static-black, 14%),
     inset 0 2px 0 $ceramic-highlight,
-    inset 0 -3px 6px $ceramic-inner-shadow;
+    inset 0 -3px 8px $ceramic-inner-shadow;
 
   @include mobile {
     max-width: 100%;

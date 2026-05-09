@@ -52,7 +52,14 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               "font-src 'self' data: https://fonts.gstatic.com",
               "img-src 'self' data: blob: https:",
-              "connect-src 'self'",
+              // wss: allows the NIP-46 Nostr Connect flow to open
+              // relay channels (relay.nsec.app, relay.damus.io, …)
+              // *and* any relay a user-pasted bunker:// URL points
+              // at — listing fixed origins would break the moment a
+              // signer app advertises a new relay. https: covers
+              // outbound requests to external APIs (e.g. nostr.band
+              // metadata lookups). 'self' stays for our own /api/*.
+              "connect-src 'self' wss: https:",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",

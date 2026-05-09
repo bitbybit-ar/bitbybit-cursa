@@ -18,10 +18,18 @@
   }
 }
 
+// `center` keeps content visually centered in the area below the
+// fixed navbar. The base container already adds the navbar offset
+// to padding-top so content doesn't tuck under the navbar; here we
+// match that with a smaller padding-bottom so the difference equals
+// the navbar height. Result: content's geometric mid sits at
+// `navbar/2 + 50vh`, which is the midpoint of the visible viewport
+// below the navbar.
 .center {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-bottom: $spacing-32;
 }
 
 .column {
