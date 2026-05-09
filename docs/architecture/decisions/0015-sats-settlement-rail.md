@@ -1,4 +1,4 @@
-# 0014. Add a sats settlement rail via Lightning Address
+# 0015. Add a sats settlement rail via Lightning Address
 
 - **Date**: 2026-05-09
 - **Status**: Accepted

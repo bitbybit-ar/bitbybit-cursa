@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
-import { Container } from "@/components/ui/container";
-import { Section } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRightIcon, BadgeIcon } from "@/components/icons";
@@ -49,14 +47,13 @@ export default async function PanelOfferingsPage({
   );
 
   return (
-    <Section>
-      <Container column>
+      <>
       <header className={styles.header}>
         <div>
           <h1 className={styles.title}>{t("title")}</h1>
           <p className={styles.subtitle}>{t("subtitle")}</p>
         </div>
-        <Button href="/mis-cursos/nueva" variant="primary">
+        <Button href="/create-course" variant="primary">
           <BadgeIcon size={16} />
           {t("createCta")}
         </Button>
@@ -68,7 +65,7 @@ export default async function PanelOfferingsPage({
           <Card variant="default" className={styles.empty}>
             <p>{t("emptyActive")}</p>
             <Link
-              href="/mis-cursos/nueva"
+              href="/create-course"
               className={styles.emptyLink}
             >
               {t("createCta")} <ArrowRightIcon size={16} />
@@ -79,7 +76,7 @@ export default async function PanelOfferingsPage({
             {active.map((row) => (
               <li key={row.id} className={styles.item}>
                 <Link
-                  href={`/mis-cursos/${row.slug}/editar`}
+                  href={`/my-courses/${row.slug}/edit`}
                   className={styles.row}
                 >
                   <div className={styles.rowMain}>
@@ -126,7 +123,6 @@ export default async function PanelOfferingsPage({
           </ul>
         </section>
       ) : null}
-      </Container>
-    </Section>
-  );
+      </>
+    );
 }

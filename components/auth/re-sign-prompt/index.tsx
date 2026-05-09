@@ -3,7 +3,7 @@
 /**
  * Re-attach modal for post-login signing actions.
  *
- * Re-attach mode only — Cursá's login flow lives at /iniciar-sesion,
+ * Re-attach mode only — Cursá's login flow lives at /sign-in,
  * not in a modal. By the time we open this prompt, the user has a
  * valid session cookie but no in-memory signer (typical: nsec/NIP-46
  * user reloaded the tab). Methods are narrowed to those at least as
@@ -51,7 +51,7 @@ function methodsForSigner(
 export function ReSignPrompt({ open, onSigner, onCancel }: ReSignPromptProps) {
   const t = useTranslations("reSignIn");
   const tLogin = useTranslations("login");
-  const tForm = useTranslations("accountSettings.form");
+  const tForm = useTranslations("settings.form");
   const lookupAuthError = useAuthErrorLookup();
   const { session, setSigner } = useSignerContext();
   const [method, setMethod] = useState<Method>("pick");

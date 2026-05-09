@@ -2,7 +2,7 @@ import { sha256 } from "@noble/hashes/sha2.js";
 import { bech32 } from "@scure/base";
 
 /**
- * Direct-Lightning settlement-rail seam (ADR 0014).
+ * Direct-Lightning settlement-rail seam (ADR 0015).
  *
  * The buyer flow talks to the merchant's Lightning Address through
  * the LightningClient interface defined below. Two implementations
@@ -97,6 +97,101 @@ export function parseLightningAddress(
   const m = LN_ADDRESS_RE.exec(address.trim());
   if (!m) return null;
   return { localPart: m[1], domain: m[2].toLowerCase() };
+}
+
+// --- SSRF guard --------------------------------------------------
+
+/**
+ * Asserts a URL is safe to fetch from a server route on behalf of
+ * an outside-controlled value (LNURL-pay metadata callback URL,
+ * LUD-21 verify URL). Two concerns:
+ *
+ *   1. The merchant pastes their LN address; everything fetched
+ *      downstream of that string is partially attacker-controlled
+ *      (the merchant's chosen LN provider can return arbitrary
+ *      callback / verify URLs in its responses).
+ *   2. A merchant could deliberately or accidentally point at an
+ *      internal service (loopback, RFC1918, link-local, cloud
+ *      metadata). The body shape mismatch would make the response
+ *      unusable, but the GET still happens, leaking timing or
+ *      triggering side effects on the internal target.
+ *
+ * Defense:
+ *   - Only `https:` is accepted. No `http:`, no `file:`, no `data:`.
+ *   - Hostname must not be loopback (`localhost`, `127.x`, `::1`,
+ *     `0.0.0.0`), link-local (`169.254.x` — also AWS metadata),
+ *     RFC1918 private (`10.x`, `172.16-31.x`, `192.168.x`), or any
+ *     IPv6 ULA (`fc00::/7`).
+ *   - Hostname must contain a dot (rules out single-label names).
+ *
+ * NOT defended: DNS rebinding (a public domain that resolves to a
+ * private IP at fetch time). For Cursá's threat model this is
+ * acceptable — the merchant controls their own LN provider; if
+ * they point Cursá at a malicious provider that DNS-rebinds, they
+ * can extract data from their own deployment but cannot reach
+ * other merchants or shared platform services. Hardening to fully
+ * defeat rebinding requires resolving the hostname ourselves and
+ * fetching by IP, which we defer.
+ */
+export function assertSafePublicHttpsUrl(url: string): URL {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new LightningMintError("lnurl_invalid_response", `bad_url: ${url}`);
+  }
+  if (parsed.protocol !== "https:") {
+    throw new LightningMintError(
+      "lnurl_invalid_response",
+      `non_https: ${parsed.protocol}`
+    );
+  }
+  const hostname = parsed.hostname.toLowerCase();
+  if (!hostname || !hostname.includes(".")) {
+    throw new LightningMintError(
+      "lnurl_invalid_response",
+      `bare_hostname: ${hostname}`
+    );
+  }
+  if (isPrivateOrLocalHost(hostname)) {
+    throw new LightningMintError(
+      "lnurl_invalid_response",
+      `private_host: ${hostname}`
+    );
+  }
+  return parsed;
+}
+
+function isPrivateOrLocalHost(hostname: string): boolean {
+  // Hostname literals
+  if (hostname === "localhost" || hostname.endsWith(".localhost")) return true;
+  if (hostname === "metadata" || hostname === "metadata.google.internal") {
+    return true;
+  }
+  // IPv4 literal (best-effort; bracketed IPv6 is handled separately by URL parser).
+  const v4 = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(hostname);
+  if (v4) {
+    const [, a, b] = v4;
+    const o1 = Number(a);
+    const o2 = Number(b);
+    if (o1 === 127) return true; // loopback
+    if (o1 === 0) return true; // 0.0.0.0/8
+    if (o1 === 10) return true; // RFC1918
+    if (o1 === 169 && o2 === 254) return true; // link-local + AWS metadata
+    if (o1 === 172 && o2 >= 16 && o2 <= 31) return true; // RFC1918
+    if (o1 === 192 && o2 === 168) return true; // RFC1918
+    return false;
+  }
+  // IPv6 literal — URL.hostname strips brackets.
+  if (hostname.includes(":")) {
+    if (hostname === "::1") return true;
+    if (hostname === "::") return true;
+    // ULA (fc00::/7) and link-local (fe80::/10).
+    if (/^fc[0-9a-f]{2}:/i.test(hostname)) return true;
+    if (/^fd[0-9a-f]{2}:/i.test(hostname)) return true;
+    if (/^fe[89ab][0-9a-f]:/i.test(hostname)) return true;
+  }
+  return false;
 }
 
 // --- BOLT11 helpers ----------------------------------------------
@@ -283,6 +378,11 @@ class RealLightningClient implements LightningClient {
       throw new LightningMintError("invalid_address", address);
     }
     const url = `https://${parsed.domain}/.well-known/lnurlp/${parsed.localPart}`;
+    // SSRF guard before the first hop. The domain came from user
+    // input (the merchant's pasted LN address), so it could resolve
+    // a literal private host like `127.0.0.1.nip.io` even though
+    // parseLightningAddress accepted the shape.
+    assertSafePublicHttpsUrl(url);
     let meta: unknown;
     try {
       meta = await fetchJsonWithTimeout(url, LNURL_FETCH_TIMEOUT_MS);
@@ -315,7 +415,18 @@ class RealLightningClient implements LightningClient {
   ): Promise<MintedInvoice> {
     const meta = await this.resolveAddress(address);
     const amount_msat = amount_sats * 1000;
-    const url = new URL(meta.callback);
+    // Validate amount against the provider's advertised range
+    // before we burn a network round-trip on a guaranteed reject.
+    if (
+      amount_msat < meta.minSendable ||
+      amount_msat > meta.maxSendable
+    ) {
+      throw new LightningMintError("lnurl_invalid_response", address);
+    }
+    // SSRF guard on the callback URL (provider-controlled). A
+    // malicious LN address could point its callback at
+    // `https://10.0.0.5/internal-service` and we'd otherwise GET it.
+    const url = assertSafePublicHttpsUrl(meta.callback);
     url.searchParams.set("amount", amount_msat.toString());
     if (comment) {
       // Most providers clamp comments at ~144–200 chars and reject
@@ -346,6 +457,11 @@ class RealLightningClient implements LightningClient {
     if (typeof r.verify !== "string" || r.verify.length === 0) {
       throw new LightningMintError("lnurl_no_lud21", address);
     }
+    // SSRF guard on the verify URL (provider-controlled, third
+    // hop). pollVerify will re-validate at request time, but
+    // catching it here means we never persist a bad URL to the
+    // order row.
+    assertSafePublicHttpsUrl(r.verify);
     const payment_hash = extractPaymentHash(r.pr);
     if (!payment_hash) {
       throw new LightningMintError("bolt11_no_payment_hash", address);
@@ -363,6 +479,15 @@ class RealLightningClient implements LightningClient {
   }
 
   async pollVerify(verify_url: string): Promise<VerifyState> {
+    // SSRF guard before each verify request. Same URL was guarded
+    // at mint time, but defense-in-depth: if a stored row was
+    // populated before this guard existed (or by a buggy code
+    // path), we still refuse to fetch internal targets.
+    try {
+      assertSafePublicHttpsUrl(verify_url);
+    } catch {
+      return { settled: false, preimage: null };
+    }
     let body: unknown;
     try {
       body = await fetchJsonWithTimeout(

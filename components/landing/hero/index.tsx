@@ -21,7 +21,7 @@ export function Hero() {
           <p className={styles.subtitle}>{t("subtitle")}</p>
           <div className={styles.ctas}>
             <Button
-              href="/explorar"
+              href="/explore"
               variant="primary"
               size="lg"
               className={styles.cta}
@@ -29,7 +29,7 @@ export function Hero() {
               {t("ctaExplore")}
             </Button>
             <Button
-              href="/iniciar-sesion?next=/mis-cursos/nueva"
+              href="/sign-in?next=/create-course"
               variant="primary"
               size="lg"
               className={`${styles.cta} ${styles.ctaSoft}`}

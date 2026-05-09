@@ -27,7 +27,7 @@ export async function generateMetadata({
   return {
     title: t("metadataTitle"),
     robots: { index: false, follow: false },
-    alternates: alternatesFor(locale, `/reclamar/${orderId}`),
+    alternates: alternatesFor(locale, `/claim/${orderId}`),
   };
 }
 
@@ -45,7 +45,7 @@ export default async function ClaimPage({
   const session = await getSession();
   if (!session) {
     redirect({
-      href: `/iniciar-sesion?next=/reclamar/${orderId}`,
+      href: `/sign-in?next=/claim/${orderId}`,
       locale,
     });
     // next-intl's `redirect` throws but is not typed `never`, so the
@@ -60,7 +60,7 @@ export default async function ClaimPage({
   // rather than showing a confusing "claim" form for an order that
   // is already attached.
   if (order.pubkey === session.pubkey) {
-    redirect({ href: `/gracias/${orderId}`, locale });
+    redirect({ href: `/receipt/${orderId}`, locale });
   }
 
   const offering = await getOfferingById(order.offering_id);

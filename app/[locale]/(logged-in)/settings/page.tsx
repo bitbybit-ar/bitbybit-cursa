@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Container } from "@/components/ui/container";
-import { Section } from "@/components/ui/section";
 import { Card } from "@/components/ui/card";
 import { SettingsForm } from "@/components/admin/settings-form";
 import { requireUserMerchant } from "@/lib/admin/panel-context";
@@ -15,7 +13,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "accountSettings" });
+  const t = await getTranslations({ locale, namespace: "settings" });
   return {
     title: t("metadataTitle"),
     robots: { index: false, follow: false },
@@ -32,11 +30,10 @@ export default async function SettingsPage({
 
   const { merchant } = await requireUserMerchant();
 
-  const t = await getTranslations("accountSettings");
+  const t = await getTranslations("settings");
 
   return (
-    <Section>
-      <Container column>
+    <>
       <header className={styles.header}>
         <h1 className={styles.title}>{t("title")}</h1>
         <p className={styles.subtitle}>{t("subtitle")}</p>
@@ -50,9 +47,10 @@ export default async function SettingsPage({
       <SettingsForm
         initialCbu={merchant.cbu ?? ""}
         initialAlias={merchant.alias ?? ""}
+        initialLightningAddress={merchant.lightning_address ?? ""}
+        initialPayoutMethod={merchant.payout_method}
         initialAutorenewal={merchant.features_autorenewal}
       />
-      </Container>
-    </Section>
+    </>
   );
 }

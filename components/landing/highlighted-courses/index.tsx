@@ -27,7 +27,7 @@ export function HighlightedCourses() {
 
       <div className={styles.actions}>
         <Button
-          href="/explorar"
+          href="/explore"
           variant="ghost"
           size="default"
           className={styles.exploreButton}

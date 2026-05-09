@@ -69,6 +69,14 @@ export default async function ReceiptPage({ params }: Props) {
             <p className={styles.offeringName}>{offering.title}</p>
           ) : null}
 
+          <p className={styles.settlement}>
+            {t(
+              order.rail === "direct_lightning"
+                ? "settlement.sats"
+                : "settlement.ars"
+            )}
+          </p>
+
           {offering?.type === "code" ? (
             <ReceiptCode code={order.redemption_code} />
           ) : null}

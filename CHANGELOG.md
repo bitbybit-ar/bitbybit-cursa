@@ -10,17 +10,52 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **Sats settlement rail.** Merchants can now choose between getting
+  paid in pesos (Wapu → CBU/alias, the existing rail) and getting
+  paid in sats directly (Lightning Address with LUD-21). The choice
+  is per-merchant, set in `/settings`; checkout dispatches on it
+  transparently and the buyer UI is unchanged. The order row records
+  its rail (`wapu_ars` | `direct_lightning`) at creation, so flipping
+  the merchant rail later does not retroactively change the receipt
+  of an in-flight order. New `lib/lightning.ts` resolves LN addresses,
+  mints invoices via LNURL-pay, and polls the LUD-21 `verify` URL
+  for settlement (no NWC required, no webhook). The Wapu webhook
+  now refuses non-`wapu_ars` orders with 404 as a safety net. The
+  receipt page shows which rail settled the order. Hero copy:
+  "El profe cobra **sats o** en pesos, en su CBU." Decision pinned
+  in ADR 0015, superseding the rail-count clause of ADR 0002.
+
 ### Changed
+
+- **All logged-in routes are now English.** Following the marketplace
+  open-up in ADR 0014, the route names settled to language-agnostic
+  English: `/configuracion` → `/settings`, `/mis-cursos` →
+  `/my-courses`, `/mis-cursos/nueva` → `/create-course`,
+  `/mis-cursos/[slug]/editar` → `/my-courses/[slug]/edit`,
+  `/mis-ventas` → `/orders`, `/mis-compras` → `/purchases`. Public
+  routes also moved: `/explorar` → `/explore`, `/iniciar-sesion` →
+  `/sign-in`, `/gracias/[orderId]` → `/receipt/[orderId]`,
+  `/reclamar/[orderId]` → `/claim/[orderId]`. `/onboarding` is gone
+  — the merchant row is now seeded from kind:0 metadata at sign-in
+  (display_name, picture, about) so no separate slug-pick step is
+  needed. `/mis-estudiantes` is removed; the buyer-history surface
+  it provided overlapped too much with `/orders`. All legacy paths
+  (including the pre-ADR-0014 `/panel/*` namespace) 308-redirect to
+  the current canonical form via `proxy.ts`. Logged-in pages live
+  under a shared `(logged-in)` route group with a common layout so
+  each page only renders its own content.
 
 - **Marketplace opened to every signed-in user.** The merchant-only
   `/panel/*` namespace is gone; creator surfaces moved to top-level
-  routes (`/mis-cursos`, `/configuracion`, `/mis-ventas`,
-  `/mis-estudiantes`). Any Nostr-authenticated session can reach
-  them — the merchant row is auto-created with placeholder values
-  (`user-<first-8-of-pubkey>`) on first server-side need and can
-  be renamed later from `/configuracion`. Legacy `/panel/*` URLs
-  308-redirect to the new paths via `proxy.ts`. Decision pinned in
-  ADR 0014 (supersedes 0008 and 0012).
+  routes (now `/my-courses`, `/settings`, `/orders` per ADR 0015).
+  Any Nostr-authenticated session can reach them — the merchant row
+  is auto-created at sign-in seeded from the user's Nostr kind:0
+  metadata (display_name → slug + display name, picture → avatar,
+  about → bio), with a pubkey-derived placeholder fallback when
+  kind:0 is unavailable. Decision pinned in ADR 0014 (supersedes
+  0008 and 0012).
 
 ### Added
 

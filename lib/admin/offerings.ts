@@ -158,7 +158,7 @@ export async function createOfferingForAdmin(
   await writeAuditLog({
     merchant_id: merchantId,
     actor_pubkey: actorPubkey,
-    route: "/api/admin/offerings",
+    route: "/api/my-courses",
     action: "create",
     payload_diff: {
       offering_id: row.id,
@@ -246,7 +246,7 @@ export async function updateOfferingForAdmin(
   await writeAuditLog({
     merchant_id: merchantId,
     actor_pubkey: actorPubkey,
-    route: "/api/admin/offerings/[id]",
+    route: "/api/my-courses/[id]",
     action: "update",
     payload_diff: {
       offering_id: id,
@@ -286,7 +286,7 @@ export async function archiveOfferingForAdmin(
   await writeAuditLog({
     merchant_id: merchantId,
     actor_pubkey: actorPubkey,
-    route: "/api/admin/offerings/[id]",
+    route: "/api/my-courses/[id]",
     action: "archive",
     payload_diff: {
       offering_id: id,

@@ -64,22 +64,22 @@ type CreateState =
   | { kind: "ready"; nsec: string };
 
 const ALLOWED_NEXT_PREFIXES = [
-  "/mis-compras",
-  "/mis-cursos",
-  "/mis-ventas",
-  "/mis-estudiantes",
-  "/configuracion",
-  "/reclamar/",
-  "/gracias/",
+  "/purchases",
+  "/my-courses",
+  "/create-course",
+  "/orders",
+  "/settings",
+  "/claim/",
+  "/receipt/",
 ];
 
 function safeNext(raw: string | null): string {
-  if (!raw) return "/mis-compras";
+  if (!raw) return "/purchases";
   if (!raw.startsWith("/") || raw.startsWith("//") || raw.includes("..")) {
-    return "/mis-compras";
+    return "/purchases";
   }
   if (ALLOWED_NEXT_PREFIXES.some((p) => raw.startsWith(p))) return raw;
-  return "/mis-compras";
+  return "/purchases";
 }
 
 interface SignInClientProps {

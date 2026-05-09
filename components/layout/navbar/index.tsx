@@ -134,7 +134,7 @@ export function Navbar() {
                   {accountMenuOpen ? (
                     <div className={styles.avatarMenu} role="menu">
                       <Link
-                        href="/mis-compras"
+                        href="/purchases"
                         className={styles.menuItem}
                         onClick={closeAccountMenu}
                       >
@@ -142,7 +142,7 @@ export function Navbar() {
                         {t("myPurchases")}
                       </Link>
                       <Link
-                        href="/mis-cursos"
+                        href="/my-courses"
                         className={styles.menuItem}
                         onClick={closeAccountMenu}
                       >
@@ -150,7 +150,7 @@ export function Navbar() {
                         {t("myCourses")}
                       </Link>
                       <Link
-                        href="/configuracion"
+                        href="/settings"
                         className={styles.menuItem}
                         onClick={closeAccountMenu}
                       >
@@ -175,14 +175,14 @@ export function Navbar() {
                     desktop button below, but compressed to an icon
                     so it sits comfortably next to the burger. */}
                 <Link
-                  href="/iniciar-sesion"
+                  href="/sign-in"
                   className={styles.iconCta}
                   aria-label={t("signIn")}
                 >
                   <UserIcon size={18} />
                 </Link>
                 <Button
-                  href="/iniciar-sesion"
+                  href="/sign-in"
                   variant="primary"
                   size="sm"
                   className={styles.desktopOnly}

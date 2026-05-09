@@ -1,4 +1,4 @@
--- Sats settlement rail per ADR 0014.
+-- Sats settlement rail per ADR 0015.
 --
 -- Adds the second settlement rail: merchants can pick between
 -- 'cbu_alias' (Wapu→ARS) and 'lightning_address' (sats direct to

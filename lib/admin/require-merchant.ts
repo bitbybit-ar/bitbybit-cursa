@@ -9,7 +9,7 @@ import {
  * Read the current session and look up (or lazily create) its
  * merchant row.
  *
- * Used by every `/api/admin/*` route. Per ADR 0014, the merchant
+ * Used by every `/api/settings/*` route. Per ADR 0014, the merchant
  * row is no longer a gate — any signed-in user gets one. The two
  * failure modes are:
  *

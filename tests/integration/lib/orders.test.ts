@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { sql, eq } from "drizzle-orm";
 import { testDb, cleanDb, seedMerchant } from "../setup";
-import { offerings } from "@/lib/db/schema";
+import { offerings, orders } from "@/lib/db/schema";
 import {
   createOrder,
   markOrderPaid,
@@ -11,6 +11,10 @@ import {
   claimOrderForBuyer,
   drawAndAssignCode,
 } from "@/lib/orders";
+import {
+  MockLightningClient,
+  _setLightningClientForTests,
+} from "@/lib/lightning";
 
 beforeAll(async () => {
   const { rows } = await testDb.execute<{ exists: boolean }>(sql`
@@ -108,6 +112,89 @@ describe("orders/createOrder", () => {
     await expect(
       createOrder({ offering_id: offering.id, pubkey: null })
     ).rejects.toMatchObject({ code: "offering_archived" });
+  });
+});
+
+// Sats settlement rail (ADR 0015). When the merchant's
+// payout_method is 'lightning_address', createOrder mints via the
+// LightningClient instead of Wapu, stamps rail=direct_lightning,
+// and persists the LUD-21 verify URL.
+describe("orders/createOrder — direct_lightning rail", () => {
+  it("dispatches to lib/lightning when merchant.payout_method is lightning_address", async () => {
+    _setLightningClientForTests(new MockLightningClient());
+
+    // Seed an LN-rail merchant (separate slug + pubkey from the
+    // default seedMerchant so we don't collide with prior tests in
+    // this describe block).
+    const merchant = await seedMerchant({
+      pubkey: "a".repeat(64),
+      slug: "ln-merchant",
+      payout_method: "lightning_address",
+      lightning_address: "alice@strike.me",
+      alias: null,
+      cbu: null,
+    });
+    testMerchantId = merchant.id;
+    const offering = await seedOffering("ln-only");
+
+    const result = await createOrder({
+      offering_id: offering.id,
+      pubkey: null,
+    });
+
+    const row = await getOrder(result.order_id);
+    expect(row?.rail).toBe("direct_lightning");
+    expect(row?.bolt11).toMatch(/^lnbc/);
+    expect(row?.payment_hash).toMatch(/^[0-9a-f]{64}$/);
+    expect(row?.lnurl_verify_url).toMatch(/^https:\/\/mock\.lnurl\/verify\//);
+    // Wapu fields stay null on this rail.
+    expect(row?.wapu_tentative_uuid).toBeNull();
+    expect(row?.wapu_settlement_ref).toBeNull();
+  });
+
+  it("rejects with merchant_lightning_address_missing when sats rail is set but the address is null", async () => {
+    _setLightningClientForTests(new MockLightningClient());
+    const merchant = await seedMerchant({
+      pubkey: "b".repeat(64),
+      slug: "ln-no-address",
+      payout_method: "lightning_address",
+      lightning_address: null,
+      alias: null,
+      cbu: null,
+    });
+    testMerchantId = merchant.id;
+    const offering = await seedOffering("orphan");
+
+    await expect(
+      createOrder({ offering_id: offering.id, pubkey: null })
+    ).rejects.toMatchObject({ code: "merchant_lightning_address_missing" });
+  });
+
+  it("surfaces a LightningMintError as lightning_mint_failed (e.g. provider with no LUD-21)", async () => {
+    _setLightningClientForTests(new MockLightningClient());
+    const merchant = await seedMerchant({
+      pubkey: "c".repeat(64),
+      slug: "ln-bad-provider",
+      payout_method: "lightning_address",
+      // The mock rejects this exact address with lnurl_no_lud21.
+      lightning_address: "nolud21@example.invalid",
+      alias: null,
+      cbu: null,
+    });
+    testMerchantId = merchant.id;
+    const offering = await seedOffering("nolud21");
+
+    await expect(
+      createOrder({ offering_id: offering.id, pubkey: null })
+    ).rejects.toMatchObject({ code: "lightning_mint_failed" });
+
+    // The pending row should have been deleted on failure (createOrder
+    // catches the throw, deletes, then rethrows).
+    const remaining = await testDb
+      .select()
+      .from(orders)
+      .where(eq(orders.merchant_id, merchant.id));
+    expect(remaining).toHaveLength(0);
   });
 });
 

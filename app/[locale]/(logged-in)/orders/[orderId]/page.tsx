@@ -3,8 +3,6 @@ import { notFound } from "next/navigation";
 import { z } from "zod";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
-import { Container } from "@/components/ui/container";
-import { Section } from "@/components/ui/section";
 import { Card } from "@/components/ui/card";
 import { ArrowLeftIcon } from "@/components/icons";
 import { getAdminOrderDetail } from "@/lib/admin/orders";
@@ -23,7 +21,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({
     locale,
-    namespace: "mySales.detail",
+    namespace: "orders.detail",
   });
   return {
     title: t("metadataTitle"),
@@ -46,7 +44,7 @@ export default async function PanelOrderDetailPage({
   const order = await getAdminOrderDetail(merchant.id, orderId);
   if (!order) notFound();
 
-  const t = await getTranslations("mySales.detail");
+  const t = await getTranslations("orders.detail");
   const tStatus = await getTranslations("orderStatus");
   const arsFormatter = new Intl.NumberFormat(
     locale === "es" ? "es-AR" : "en-US"
@@ -57,9 +55,8 @@ export default async function PanelOrderDetailPage({
   );
 
   return (
-    <Section>
-      <Container column>
-      <Link href="/mis-ventas" className={styles.back}>
+      <>
+      <Link href="/orders" className={styles.back}>
         <ArrowLeftIcon size={16} />
         {t("back")}
       </Link>
@@ -82,7 +79,7 @@ export default async function PanelOrderDetailPage({
           <dd>
             {order.offering_slug ? (
               <Link
-                href={`/mis-cursos/${order.offering_slug}/editar`}
+                href={`/my-courses/${order.offering_slug}/edit`}
               >
                 {order.offering_title ?? order.offering_slug}
               </Link>
@@ -109,13 +106,7 @@ export default async function PanelOrderDetailPage({
 
           <dt>{t("buyer")}</dt>
           <dd className={styles.mono}>
-            {order.pubkey ? (
-              <Link href={`/mis-estudiantes/${order.pubkey}`}>
-                {order.pubkey}
-              </Link>
-            ) : (
-              t("anonymous")
-            )}
+            {order.pubkey ? order.pubkey : t("anonymous")}
           </dd>
 
           {order.redemption_code ? (
@@ -151,7 +142,6 @@ export default async function PanelOrderDetailPage({
       </Card>
 
       <p className={styles.readonlyHint}>{t("readOnlyHint")}</p>
-      </Container>
-    </Section>
-  );
+      </>
+    );
 }

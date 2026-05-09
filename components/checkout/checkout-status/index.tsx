@@ -36,7 +36,7 @@ export function CheckoutStatus({
 
   useEffect(() => {
     if (status === "paid") {
-      router.replace(`/gracias/${orderId}`);
+      router.replace(`/receipt/${orderId}`);
       return;
     }
     if (status === "failed" || status === "refunded") return;

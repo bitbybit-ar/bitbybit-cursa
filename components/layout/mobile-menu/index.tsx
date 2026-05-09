@@ -135,7 +135,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
           {session ? (
             <>
               <Link
-                href="/mis-compras"
+                href="/purchases"
                 className={styles.action}
                 onClick={onClose}
               >
@@ -143,7 +143,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                 {t("myPurchases")}
               </Link>
               <Link
-                href="/mis-cursos"
+                href="/my-courses"
                 className={styles.action}
                 onClick={onClose}
               >
@@ -151,7 +151,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                 {t("myCourses")}
               </Link>
               <Link
-                href="/configuracion"
+                href="/settings"
                 className={styles.action}
                 onClick={onClose}
               >
@@ -169,7 +169,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
             </>
           ) : (
             <Button
-              href="/iniciar-sesion"
+              href="/sign-in"
               variant="primary"
               fullWidth
               onClick={onClose}

@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
-import { Container } from "@/components/ui/container";
-import { Section } from "@/components/ui/section";
 import { ArrowLeftIcon } from "@/components/icons";
 import { OfferingForm } from "@/components/admin/offering-form";
 import { getOfferingForAdmin } from "@/lib/admin/offerings";
@@ -43,9 +41,8 @@ export default async function EditOfferingPage({
   const t = await getTranslations("myCourses.edit");
 
   return (
-    <Section>
-      <Container column>
-      <Link href="/mis-cursos" className={styles.back}>
+      <>
+      <Link href="/my-courses" className={styles.back}>
         <ArrowLeftIcon size={16} />
         {t("back")}
       </Link>
@@ -60,7 +57,6 @@ export default async function EditOfferingPage({
       </p>
 
       <OfferingForm offering={offering} />
-      </Container>
-    </Section>
-  );
+      </>
+    );
 }

@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import {
   MockLightningClient,
   LightningMintError,
+  assertSafePublicHttpsUrl,
   parseLightningAddress,
   extractPaymentHash,
   verifyPreimage,
@@ -159,6 +160,106 @@ describe("MockLightningClient/pollVerify + markPaid", () => {
     expect(() =>
       client.markPaid("https://mock.lnurl/verify/never-minted")
     ).toThrow(/mock_unknown_verify_url/);
+  });
+});
+
+describe("assertSafePublicHttpsUrl (SSRF guard)", () => {
+  it("accepts a public https URL with a multi-label hostname", () => {
+    expect(() =>
+      assertSafePublicHttpsUrl("https://walletofsatoshi.com/api/verify/abc")
+    ).not.toThrow();
+    expect(() =>
+      assertSafePublicHttpsUrl("https://strike.me/lnurlp/foo/callback")
+    ).not.toThrow();
+  });
+
+  it("rejects http (non-TLS)", () => {
+    expect(() =>
+      assertSafePublicHttpsUrl("http://walletofsatoshi.com/api")
+    ).toThrow(LightningMintError);
+  });
+
+  it("rejects non-http schemes", () => {
+    expect(() => assertSafePublicHttpsUrl("file:///etc/passwd")).toThrow();
+    expect(() => assertSafePublicHttpsUrl("data:text/plain,hi")).toThrow();
+    expect(() => assertSafePublicHttpsUrl("ftp://example.com")).toThrow();
+  });
+
+  it("rejects malformed URLs", () => {
+    expect(() => assertSafePublicHttpsUrl("not-a-url")).toThrow();
+    expect(() => assertSafePublicHttpsUrl("")).toThrow();
+  });
+
+  it("rejects single-label hostnames", () => {
+    expect(() => assertSafePublicHttpsUrl("https://localhost/x")).toThrow();
+    expect(() => assertSafePublicHttpsUrl("https://intranet/x")).toThrow();
+  });
+
+  it("rejects loopback IPv4 addresses", () => {
+    expect(() => assertSafePublicHttpsUrl("https://127.0.0.1/x")).toThrow();
+    expect(() => assertSafePublicHttpsUrl("https://127.42.42.42/x")).toThrow();
+  });
+
+  it("rejects 0.0.0.0 / unspecified", () => {
+    expect(() => assertSafePublicHttpsUrl("https://0.0.0.0/x")).toThrow();
+  });
+
+  it("rejects RFC1918 private ranges", () => {
+    expect(() => assertSafePublicHttpsUrl("https://10.0.0.5/x")).toThrow();
+    expect(() => assertSafePublicHttpsUrl("https://10.255.255.255/x")).toThrow();
+    expect(() => assertSafePublicHttpsUrl("https://192.168.1.1/x")).toThrow();
+    expect(() => assertSafePublicHttpsUrl("https://172.16.0.1/x")).toThrow();
+    expect(() => assertSafePublicHttpsUrl("https://172.31.255.254/x")).toThrow();
+  });
+
+  it("accepts non-private 172/x ranges (172.32+ is public)", () => {
+    expect(() =>
+      assertSafePublicHttpsUrl("https://172.32.0.1.example.com/x")
+    ).not.toThrow();
+  });
+
+  it("rejects link-local + AWS metadata 169.254.x.x", () => {
+    expect(() =>
+      assertSafePublicHttpsUrl("https://169.254.169.254/latest/meta-data")
+    ).toThrow();
+    expect(() => assertSafePublicHttpsUrl("https://169.254.1.1/x")).toThrow();
+  });
+
+  it("rejects .localhost hostname suffix", () => {
+    expect(() =>
+      assertSafePublicHttpsUrl("https://my.localhost/api")
+    ).toThrow();
+  });
+
+  it("rejects GCP metadata.google.internal", () => {
+    expect(() =>
+      assertSafePublicHttpsUrl("https://metadata.google.internal/x")
+    ).toThrow();
+  });
+
+  it("rejects IPv6 loopback / ULA / link-local", () => {
+    expect(() => assertSafePublicHttpsUrl("https://[::1]/x")).toThrow();
+    expect(() => assertSafePublicHttpsUrl("https://[fc00::1]/x")).toThrow();
+    expect(() => assertSafePublicHttpsUrl("https://[fd12:3456:789a::1]/x")).toThrow();
+    expect(() => assertSafePublicHttpsUrl("https://[fe80::1]/x")).toThrow();
+  });
+
+  it("returned URL is the parsed instance", () => {
+    const u = assertSafePublicHttpsUrl(
+      "https://strike.me/lnurlp/foo/callback?amount=1000"
+    );
+    expect(u.hostname).toBe("strike.me");
+    expect(u.searchParams.get("amount")).toBe("1000");
+  });
+});
+
+describe("MockLightningClient minSendable / maxSendable", () => {
+  it("MockLightningClient currently accepts any positive amount (mock metadata is wide)", async () => {
+    const client = new MockLightningClient();
+    // Mock advertises minSendable=1000 msat / maxSendable=100B msat,
+    // so an amount of 1 sat = 1000 msat is the boundary and accepts.
+    const invoice = await client.mintInvoice("alice@strike.me", 1);
+    expect(invoice.amount_sats).toBe(1);
   });
 });
 

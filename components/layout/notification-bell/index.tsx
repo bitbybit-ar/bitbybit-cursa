@@ -49,7 +49,7 @@ function notificationHref(n: NotificationDTO): string | null {
   const payload = (n.payload ?? {}) as Record<string, unknown>;
   const orderId = typeof payload.order_id === "string" ? payload.order_id : null;
   if (!orderId) return null;
-  return n.kind === "order.paid" ? `/gracias/${orderId}` : null;
+  return n.kind === "order.paid" ? `/receipt/${orderId}` : null;
 }
 
 export function NotificationBell({ className }: NotificationBellProps) {

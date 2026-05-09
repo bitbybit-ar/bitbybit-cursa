@@ -30,7 +30,7 @@ describe("admin/sign-settings-payload", () => {
   });
 
   it("buildSettingsAuthEvent pins kind 27235 and the canonical tags", () => {
-    const url = "https://cursa.test/api/admin/settings";
+    const url = "https://cursa.test/api/settings";
     const payloadHash = "abcd".repeat(16);
     const event = buildSettingsAuthEvent(url, payloadHash);
 

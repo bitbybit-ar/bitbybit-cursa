@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
-import { Container } from "@/components/ui/container";
-import { Section } from "@/components/ui/section";
 import { Card } from "@/components/ui/card";
 import { ArrowRightIcon } from "@/components/icons";
 import { listAdminOrders } from "@/lib/admin/orders";
@@ -17,7 +15,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "mySales" });
+  const t = await getTranslations({ locale, namespace: "orders" });
   return {
     title: t("metadataTitle"),
     robots: { index: false, follow: false },
@@ -34,7 +32,7 @@ export default async function PanelOrdersPage({
 
   const merchant = await requirePanelMerchant();
   const orders = await listAdminOrders(merchant.id);
-  const t = await getTranslations("mySales");
+  const t = await getTranslations("orders");
   const tStatus = await getTranslations("orderStatus");
   const arsFormatter = new Intl.NumberFormat(
     locale === "es" ? "es-AR" : "en-US"
@@ -45,8 +43,7 @@ export default async function PanelOrdersPage({
   );
 
   return (
-    <Section>
-      <Container column>
+      <>
       <header className={styles.header}>
         <h1 className={styles.title}>{t("title")}</h1>
         <p className={styles.subtitle}>{t("subtitle")}</p>
@@ -61,7 +58,7 @@ export default async function PanelOrdersPage({
           {orders.map((order) => (
             <li key={order.id} className={styles.item}>
               <Link
-                href={`/mis-ventas/${order.id}`}
+                href={`/orders/${order.id}`}
                 className={styles.row}
               >
                 <div className={styles.rowMain}>
@@ -101,7 +98,6 @@ export default async function PanelOrdersPage({
           ))}
         </ul>
       )}
-      </Container>
-    </Section>
-  );
+      </>
+    );
 }

@@ -25,14 +25,14 @@ export function ClaimForm({ orderId }: ClaimFormProps) {
         method: "POST",
       });
       if (res.ok) {
-        router.push(`/gracias/${orderId}`);
+        router.push(`/receipt/${orderId}`);
         router.refresh();
         return;
       }
       if (res.status === 401) {
         // Session expired between the server render and the click —
         // bounce back through sign-in keeping the same target.
-        router.push(`/iniciar-sesion?next=/reclamar/${orderId}`);
+        router.push(`/sign-in?next=/claim/${orderId}`);
         return;
       }
       if (res.status === 404) {

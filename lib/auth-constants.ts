@@ -1,6 +1,6 @@
 /**
  * Shared constants for auth. Kept in its own file so the edge proxy
- * (`proxy.ts`) and `/panel` middleware can import without pulling in
+ * (`proxy.ts`) can import without pulling in
  * `next/headers`, which the edge runtime rejects. `lib/auth.ts`
  * re-exports these so server callers can keep the single import path.
  */

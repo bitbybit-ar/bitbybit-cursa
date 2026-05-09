@@ -23,8 +23,8 @@ export function NostrPromptCard({ orderId }: NostrPromptCardProps) {
       </div>
       <Link
         href={{
-          pathname: "/iniciar-sesion",
-          query: { next: `/reclamar/${orderId}` },
+          pathname: "/sign-in",
+          query: { next: `/claim/${orderId}` },
         }}
         className={styles.cta}
       >

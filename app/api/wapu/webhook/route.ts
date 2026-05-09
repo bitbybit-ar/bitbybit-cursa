@@ -80,6 +80,20 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ ok: true, ignored: parsed.event_type });
   }
 
+  // Rail guard (ADR 0015). A Wapu webhook may only flip a wapu_ars
+  // order. If it lands on a direct_lightning order — bug, replay,
+  // or misconfiguration — refuse to mutate and 404 with no body so
+  // we do not leak that the order exists. An unknown order id falls
+  // through to the markOrderPaid path below (which returns a 200
+  // ignored so Wapu stops retrying).
+  const existingOrder = await getOrder(parsed.external_id);
+  if (existingOrder && existingOrder.rail !== "wapu_ars") {
+    console.warn(
+      `[wapu/webhook] refused: order ${parsed.external_id} has rail=${existingOrder.rail}`
+    );
+    return new NextResponse(null, { status: 404 });
+  }
+
   try {
     const result = await markOrderPaid({
       order_id: parsed.external_id,
@@ -117,8 +131,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       try {
         const order = await getOrder(parsed.external_id);
         if (order) {
-          const offering = await getOfferingById(order.offering_id);
-          const merchant = await getMerchantById(order.merchant_id);
+          const [offering, merchant] = await Promise.all([
+            getOfferingById(order.offering_id),
+            getMerchantById(order.merchant_id),
+          ]);
           const offeringTitle = offering?.title ?? "";
           const payload = {
             order_id: order.id,

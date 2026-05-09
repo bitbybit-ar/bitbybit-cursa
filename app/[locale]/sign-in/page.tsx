@@ -19,7 +19,7 @@ export async function generateMetadata({
     // Keep the sign-in page out of search results; it has no
     // standalone informational value and no canonical content.
     robots: { index: false, follow: true },
-    alternates: alternatesFor(locale, "/iniciar-sesion"),
+    alternates: alternatesFor(locale, "/sign-in"),
   };
 }
 
@@ -46,20 +46,20 @@ export default async function SignInPage({
 }
 
 const ALLOWED_NEXT_PREFIXES = [
-  "/mis-compras",
-  "/mis-cursos",
-  "/mis-ventas",
-  "/mis-estudiantes",
-  "/configuracion",
-  "/reclamar/",
-  "/gracias/",
+  "/purchases",
+  "/my-courses",
+  "/create-course",
+  "/orders",
+  "/settings",
+  "/claim/",
+  "/receipt/",
 ];
 
 function safeNext(raw: string | undefined): string {
-  if (!raw) return "/mis-compras";
+  if (!raw) return "/purchases";
   if (!raw.startsWith("/") || raw.startsWith("//") || raw.includes("..")) {
-    return "/mis-compras";
+    return "/purchases";
   }
   if (ALLOWED_NEXT_PREFIXES.some((p) => raw.startsWith(p))) return raw;
-  return "/mis-compras";
+  return "/purchases";
 }

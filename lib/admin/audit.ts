@@ -3,7 +3,7 @@ import { adminAuditLog } from "@/lib/db/schema";
 
 /**
  * Append-only audit log for every admin mutation. ADR 0008
- * mandates that *every* mutation through `/api/admin/*` writes a
+ * mandates that *every* mutation through `/api/settings/*` writes a
  * row before returning success — the log is the only durable
  * trail for "who changed what when" and is consulted both during
  * incident response and routine merchant-support questions.

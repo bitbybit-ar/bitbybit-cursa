@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { parseLightningAddress } from "@/lib/lightning";
 
 const HEX_64_RE = /^[0-9a-f]{64}$/i;
 const HEX_128_RE = /^[0-9a-f]{128}$/i;
@@ -28,3 +29,17 @@ export const Hex128Schema = z
   .transform((s) => s.trim())
   .pipe(z.string().regex(HEX_128_RE, "must be a 128-character hex string"))
   .transform((s) => s.toLowerCase());
+
+/**
+ * Lightning Address. Format: local-part@domain.tld, max 128 chars.
+ * Refines on `parseLightningAddress` from lib/lightning so the one
+ * place this regex lives is the same place the resolver uses. The
+ * settings PATCH route does an additional LUD-21 sanity check by
+ * minting a probe invoice; the schema only enforces surface shape.
+ */
+export const LightningAddressSchema = z
+  .string()
+  .transform((s) => s.trim())
+  .refine((s) => parseLightningAddress(s) !== null, {
+    message: "lightning_address_invalid",
+  });

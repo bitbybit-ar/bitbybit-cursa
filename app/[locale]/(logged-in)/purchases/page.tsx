@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { redirect, Link } from "@/i18n/routing";
-import { Container } from "@/components/ui/container";
-import { Section } from "@/components/ui/section";
 import { Card } from "@/components/ui/card";
 import { ArrowRightIcon } from "@/components/icons";
 import { getSession } from "@/lib/auth";
@@ -23,7 +21,7 @@ export async function generateMetadata({
   return {
     title: t("metadataTitle"),
     robots: { index: false, follow: true },
-    alternates: alternatesFor(locale, "/mis-compras"),
+    alternates: alternatesFor(locale, "/purchases"),
   };
 }
 
@@ -37,7 +35,7 @@ export default async function MisComprasPage({
 
   const session = await getSession();
   if (!session) {
-    redirect({ href: "/iniciar-sesion?next=/mis-compras", locale });
+    redirect({ href: "/sign-in?next=/purchases", locale });
     // next-intl's `redirect` throws but is not typed `never`, so the
     // unreachable return narrows `session` for the rest of the body.
     return null;
@@ -60,8 +58,7 @@ export default async function MisComprasPage({
   );
 
   return (
-    <Section>
-      <Container column>
+      <>
         <header className={styles.header}>
           <div>
             <h1 className={styles.title}>{t("title")}</h1>
@@ -83,7 +80,7 @@ export default async function MisComprasPage({
               return (
                 <li key={order.id} className={styles.item}>
                   <Link
-                    href={`/gracias/${order.id}`}
+                    href={`/receipt/${order.id}`}
                     className={styles.row}
                   >
                     <div className={styles.rowMain}>
@@ -112,7 +109,6 @@ export default async function MisComprasPage({
             })}
           </ul>
         )}
-      </Container>
-    </Section>
-  );
+      </>
+    );
 }
