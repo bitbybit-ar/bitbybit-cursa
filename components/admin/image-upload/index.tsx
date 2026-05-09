@@ -56,7 +56,7 @@ export function ImageUpload({
   label,
   optionalLabel,
 }: ImageUploadProps) {
-  const t = useTranslations("panel.offerings.form.imageUpload");
+  const t = useTranslations("myCourses.form.imageUpload");
   const { signWithPrompt } = useSignerContext();
   const [phase, setPhase] = useState<Phase>({ kind: "idle" });
 

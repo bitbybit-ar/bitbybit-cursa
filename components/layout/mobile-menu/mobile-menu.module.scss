@@ -78,19 +78,6 @@
   margin-inline-end: auto;
 }
 
-.userAvatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: $color-bg-2;
-  border: 1px solid $color-border;
-  color: $color-text-secondary;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
 .userName {
   font-family: $font-body;
   font-weight: $font-weight-semibold;
@@ -178,6 +165,18 @@
   svg {
     color: $color-text-secondary;
     flex-shrink: 0;
+  }
+}
+
+.actionDanger {
+  color: $color-error;
+
+  &:hover {
+    color: $color-error;
+  }
+
+  svg {
+    color: $color-error;
   }
 }
 

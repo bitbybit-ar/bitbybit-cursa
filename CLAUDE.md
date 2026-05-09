@@ -105,8 +105,9 @@ repo's copy is intentionally identical and should stay in sync.
   `docs/architecture/decisions/0002-settlement-via-wapu.md`.
 - **Catalog and runtime settings live in Postgres.** Offerings,
   CBU/alias, and the autorenewal toggle are rows in Postgres
-  (drizzle), edited by the merchant from `/[locale]/panel/...`.
-  No stock counts, no variants, no inventory. Decision in ADR
+  (drizzle), edited from `/[locale]/mis-cursos` and
+  `/[locale]/configuracion`. No stock counts, no variants, no
+  inventory. Decision in ADR
   `docs/architecture/decisions/0009-offerings-and-settings-in-database.md`,
   superseding the catalog half of ADR
   `docs/architecture/decisions/0004-static-config-deployment.md`.
@@ -120,20 +121,35 @@ repo's copy is intentionally identical and should stay in sync.
   Postgres. Decision in ADR
   `docs/architecture/decisions/0010-no-yaml-config.md`.
 - **Auto-renewal is opt-in per merchant.** The flag lives in
-  `settings.features_autorenewal` (Postgres), toggled from the
-  panel. When off, the NWC client, cron handler, and
-  encrypted-secrets storage are *deployed but dormant* — gated
-  by a runtime check on the flag. Decision in ADR
+  `merchants.features_autorenewal` (Postgres), toggled from
+  `/[locale]/configuracion`. When off, the NWC client, cron
+  handler, and encrypted-secrets storage are *deployed but
+  dormant* — gated by a runtime check on the flag. Decision in
+  ADR
   `docs/architecture/decisions/0005-prepaid-default-autorenewal-optin.md`
   (amended by ADR 0009).
-- **The panel is admin-only.** `/[locale]/panel/*` requires a
-  Nostr session whose pubkey is in the `ADMIN_PUBKEYS` env var.
-  Non-admins get 404, not 403. Mutations to orders/payments/
-  buyers are out of v1 scope (read-only); offerings get full
-  CRUD; settings updates that touch payment-destination fields
-  (CBU, alias) require a NIP-07 re-sign at save time. Decision
-  in ADR
-  `docs/architecture/decisions/0008-merchant-admin-dashboard.md`.
+- **Creator surfaces are open to every signed-in user.** Any
+  Nostr-authenticated session can reach `/[locale]/mis-cursos`,
+  `/[locale]/configuracion`, `/[locale]/mis-ventas`, and
+  `/[locale]/mis-estudiantes`. The merchant row is auto-created
+  with placeholder values on first server-side need
+  (`ensureMerchantForPubkey`); there is no slug-claim gate.
+  Mutations to orders/payments/buyers are out of v1 scope
+  (read-only); offerings get full CRUD; settings updates that
+  touch payment-destination fields (CBU, alias) require a
+  NIP-07 re-sign at save time. Decision in ADR
+  `docs/architecture/decisions/0014-marketplace-open-to-all-logged-in-users.md`,
+  superseding ADRs 0008 and 0012.
+- **Notifications are a Postgres table polled by the navbar
+  bell.** Wapu's `paid` webhook emits `order.paid` to the buyer
+  (when signed in) and `sale.received` to the merchant. Helpers
+  live in `lib/notifications.ts`; the API surface is
+  `/api/notifications` (GET/PATCH/POST).
+- **Buyer-side avatar uses kind:0 metadata.** The
+  `useNostrProfile` hook (`lib/hooks/useNostrProfile.ts`) fetches
+  kind:0 from public relays via `nostr-tools/pool`, caches in
+  localStorage with a 24h freshness window, and falls through
+  picture → letter → `UserIcon` for the navbar avatar.
 - **No email integration.** Delivery is the in-app receipt page
   (`/[locale]/gracias/[orderId]`) plus optional Nostr DMs. Decision
   in ADR
@@ -171,7 +187,7 @@ repo's copy is intentionally identical and should stay in sync.
 ## Pointers
 
 - Stack and high-level architecture: `docs/architecture/overview.md`.
-- Full route map (buyer, account, panel, API): `docs/architecture/routing.md`.
+- Full route map (buyer, account, creator, API): `docs/architecture/routing.md`.
 - Mission and product positioning: `docs/about/mission.md`.
 - Architecture decisions: `docs/architecture/decisions/`.
 - Doc template: `docs/_template.md`.

@@ -30,15 +30,16 @@ export default async function OnboardingPage({ params }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
 
-  // The middleware bounces anonymous visitors to /iniciar-sesion;
-  // this page should only render for an authenticated session that
-  // does not yet have a merchant row. If a merchant row already
-  // exists, send them on to the panel.
+  // The middleware bounces anonymous visitors to /iniciar-sesion.
+  // Per ADR 0014 the merchant row is auto-created on first creator
+  // surface visit, so this page is now only useful for the explicit
+  // "claim a custom slug" flow. If the user already has a merchant
+  // row (placeholder or otherwise), send them on to /mis-cursos.
   const session = await getSession();
   if (!session) notFound();
   const existing = await getMerchantByPubkey(session.pubkey);
   if (existing) {
-    redirect({ href: "/panel", locale });
+    redirect({ href: "/mis-cursos", locale });
     return null;
   }
 

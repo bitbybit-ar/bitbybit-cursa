@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Container } from "@/components/ui/container";
+import { Section } from "@/components/ui/section";
 import { ArrowLeftIcon } from "@/components/icons";
 import { OfferingForm } from "@/components/admin/offering-form";
 import { getOfferingForAdmin } from "@/lib/admin/offerings";
@@ -19,7 +20,7 @@ export async function generateMetadata({
   const { locale, slug } = await params;
   const t = await getTranslations({
     locale,
-    namespace: "panel.offerings.edit",
+    namespace: "myCourses.edit",
   });
   return {
     title: t("metadataTitle", { slug }),
@@ -39,11 +40,12 @@ export default async function EditOfferingPage({
   const offering = await getOfferingForAdmin(merchant.id, slug);
   if (!offering) notFound();
 
-  const t = await getTranslations("panel.offerings.edit");
+  const t = await getTranslations("myCourses.edit");
 
   return (
-    <Container column>
-      <Link href="/panel/ofertas" className={styles.back}>
+    <Section>
+      <Container column>
+      <Link href="/mis-cursos" className={styles.back}>
         <ArrowLeftIcon size={16} />
         {t("back")}
       </Link>
@@ -58,6 +60,7 @@ export default async function EditOfferingPage({
       </p>
 
       <OfferingForm offering={offering} />
-    </Container>
+      </Container>
+    </Section>
   );
 }

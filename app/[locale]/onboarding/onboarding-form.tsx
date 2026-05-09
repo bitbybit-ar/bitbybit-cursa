@@ -82,14 +82,14 @@ export function OnboardingForm() {
         }
         if (json?.error === "already_claimed") {
           showToast(t("alreadyClaimed"), "error");
-          router.push("/panel");
+          router.push("/mis-cursos");
           return;
         }
         showToast(t("saveFailed"), "error");
         return;
       }
       showToast(t("saved"), "success");
-      router.push("/panel");
+      router.push("/mis-cursos");
     } catch {
       showToast(tErr("network"), "error");
     } finally {

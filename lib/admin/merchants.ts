@@ -99,6 +99,58 @@ export async function listActiveMerchants(): Promise<Merchant[]> {
 }
 
 /**
+ * Return the merchant row keyed to `pubkey`, creating it lazily
+ * with placeholder values if it does not exist (ADR 0014).
+ *
+ * Cursá pivoted from a merchant-only marketplace to "any signed-in
+ * Nostr user can sell". The merchant row is no longer a gate — it
+ * is just data — so any surface that needs it (the user's courses,
+ * settings, sales) can call this and trust that a row will be
+ * there. The placeholder slug and display_name are derived from
+ * the pubkey so they're unique without user input; the user can
+ * rename either from `/configuracion`.
+ */
+export async function ensureMerchantForPubkey(
+  pubkey: string
+): Promise<Merchant> {
+  const existing = await getMerchantByPubkey(pubkey);
+  if (existing) return existing;
+
+  const db = getDb();
+  const baseSlug = `user-${pubkey.slice(0, 8).toLowerCase()}`;
+  // Retry with a 4-char suffix on slug collision. The collision is
+  // astronomically rare (matching first 8 hex chars across two
+  // pubkeys) but we still handle it deterministically rather than
+  // surfacing a 500.
+  for (let attempt = 0; attempt < 5; attempt++) {
+    const slug =
+      attempt === 0
+        ? baseSlug
+        : `${baseSlug}-${Math.random().toString(36).slice(2, 6)}`;
+    try {
+      const [row] = await db
+        .insert(merchants)
+        .values({
+          pubkey,
+          slug,
+          display_name: slug,
+        })
+        .returning();
+      return row;
+    } catch (err) {
+      // A concurrent request claimed the pubkey first; re-read.
+      const winner = await getMerchantByPubkey(pubkey);
+      if (winner) return winner;
+      // Slug collision — try again with a fresh suffix unless we've
+      // exhausted attempts. Anything else, bubble up.
+      const message = err instanceof Error ? err.message : String(err);
+      if (!/slug/i.test(message)) throw err;
+    }
+  }
+  throw new Error("ensure_merchant_failed: slug retries exhausted");
+}
+
+/**
  * Insert a new merchant row keyed by `pubkey`. Throws on slug
  * collision so the API route can map the error code to a
  * user-facing toast.

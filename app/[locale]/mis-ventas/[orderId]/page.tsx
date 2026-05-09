@@ -4,6 +4,7 @@ import { z } from "zod";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Container } from "@/components/ui/container";
+import { Section } from "@/components/ui/section";
 import { Card } from "@/components/ui/card";
 import { ArrowLeftIcon } from "@/components/icons";
 import { getAdminOrderDetail } from "@/lib/admin/orders";
@@ -22,7 +23,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({
     locale,
-    namespace: "panel.orders.detail",
+    namespace: "mySales.detail",
   });
   return {
     title: t("metadataTitle"),
@@ -45,7 +46,7 @@ export default async function PanelOrderDetailPage({
   const order = await getAdminOrderDetail(merchant.id, orderId);
   if (!order) notFound();
 
-  const t = await getTranslations("panel.orders.detail");
+  const t = await getTranslations("mySales.detail");
   const tStatus = await getTranslations("orderStatus");
   const arsFormatter = new Intl.NumberFormat(
     locale === "es" ? "es-AR" : "en-US"
@@ -56,8 +57,9 @@ export default async function PanelOrderDetailPage({
   );
 
   return (
-    <Container column>
-      <Link href="/panel/pedidos" className={styles.back}>
+    <Section>
+      <Container column>
+      <Link href="/mis-ventas" className={styles.back}>
         <ArrowLeftIcon size={16} />
         {t("back")}
       </Link>
@@ -80,7 +82,7 @@ export default async function PanelOrderDetailPage({
           <dd>
             {order.offering_slug ? (
               <Link
-                href={`/panel/ofertas/${order.offering_slug}/editar`}
+                href={`/mis-cursos/${order.offering_slug}/editar`}
               >
                 {order.offering_title ?? order.offering_slug}
               </Link>
@@ -108,7 +110,7 @@ export default async function PanelOrderDetailPage({
           <dt>{t("buyer")}</dt>
           <dd className={styles.mono}>
             {order.pubkey ? (
-              <Link href={`/panel/estudiantes/${order.pubkey}`}>
+              <Link href={`/mis-estudiantes/${order.pubkey}`}>
                 {order.pubkey}
               </Link>
             ) : (
@@ -149,6 +151,7 @@ export default async function PanelOrderDetailPage({
       </Card>
 
       <p className={styles.readonlyHint}>{t("readOnlyHint")}</p>
-    </Container>
+      </Container>
+    </Section>
   );
 }

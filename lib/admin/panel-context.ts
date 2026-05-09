@@ -1,22 +1,36 @@
 import "server-only";
 import { notFound } from "next/navigation";
-import { getSession } from "@/lib/auth";
-import { getMerchantByPubkey, type Merchant } from "@/lib/admin/merchants";
+import { getSession, type AuthSession } from "@/lib/auth";
+import {
+  ensureMerchantForPubkey,
+  type Merchant,
+} from "@/lib/admin/merchants";
 
 /**
- * Page-side counterpart of `requireMerchant` (which is for API
- * routes). Use inside any `/[locale]/panel/**` page that needs to
- * scope queries to the active merchant.
+ * Page-side counterpart of `requireMerchant` (the API helper). Used
+ * by every creator-facing page (My courses, Settings, My sales, My
+ * students) to scope queries to the user's merchant row.
  *
- * The panel layout already does the same lookup + redirect dance,
- * so by the time a page calls this we know the merchant exists
- * and is active. The redundant `notFound()` is defence-in-depth
- * for any future page rendered outside the panel layout.
+ * Per ADR 0014, "merchant" is no longer a gate — it's just the
+ * server-side row that owns offerings/orders for this pubkey. Any
+ * signed-in user gets one lazily; deactivated merchants 404.
+ *
+ * Anonymous visitors are bounced upstream by the edge proxy; the
+ * `notFound()` here is defence-in-depth.
  */
-export async function requirePanelMerchant(): Promise<Merchant> {
+export async function requireUserMerchant(): Promise<{
+  session: AuthSession;
+  merchant: Merchant;
+}> {
   const session = await getSession();
   if (!session) notFound();
-  const merchant = await getMerchantByPubkey(session.pubkey);
-  if (!merchant || !merchant.active) notFound();
+  const merchant = await ensureMerchantForPubkey(session.pubkey);
+  if (!merchant.active) notFound();
+  return { session, merchant };
+}
+
+/** @deprecated Use `requireUserMerchant`. */
+export async function requirePanelMerchant(): Promise<Merchant> {
+  const { merchant } = await requireUserMerchant();
   return merchant;
 }

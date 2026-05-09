@@ -4,18 +4,23 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/routing";
 import { LogoBlocks } from "@/components/common/logo-blocks";
+import { Avatar } from "@/components/common/avatar";
 import { LocaleThemeToggle } from "@/components/layout/locale-theme-toggle";
 import { MobileMenu } from "@/components/layout/mobile-menu";
+import { NotificationBell } from "@/components/layout/notification-bell";
 import { Button } from "@/components/ui/button";
 import {
+  BookIcon,
   CloseIcon,
   LogoutIcon,
   MenuIcon,
   SettingsIcon,
+  ShoppingBagIcon,
   UserIcon,
 } from "@/components/icons";
 import { useSignerContext } from "@/lib/contexts/signer-context";
 import { useClickOutside } from "@/lib/hooks/useClickOutside";
+import { useNostrProfile } from "@/lib/hooks/useNostrProfile";
 import { cn } from "@/lib/utils";
 import styles from "./navbar.module.scss";
 
@@ -34,6 +39,7 @@ export function Navbar() {
   const t = useTranslations("landing.nav");
   const { session, signOut } = useSignerContext();
   const router = useRouter();
+  const { profile } = useNostrProfile(session?.pubkey);
   const [scrolled, setScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
@@ -63,9 +69,8 @@ export function Navbar() {
     router.push("/");
   };
 
-  const isMerchant = !!session?.merchant;
-  const isAdmin = !!session?.platform_admin;
-  const showPanel = isMerchant || isAdmin;
+  const profileName = profile?.display_name ?? profile?.name ?? null;
+  const avatarLabel = profileName ?? t("accountMenu");
 
   return (
     <>
@@ -104,55 +109,66 @@ export function Navbar() {
                 on small viewports. */}
             <LocaleThemeToggle className={styles.desktopOnly} />
 
-            {/* Desktop CTA — hidden on mobile, where the burger menu owns the auth surface. */}
             {session ? (
-              <div
-                className={cn(styles.avatarWrapper, styles.desktopOnly)}
-                ref={accountMenuRef}
-              >
-                <button
-                  type="button"
-                  className={styles.avatar}
-                  onClick={() => setAccountMenuOpen((prev) => !prev)}
-                  aria-expanded={accountMenuOpen}
-                  aria-haspopup="true"
-                  aria-label={
-                    session.merchant?.display_name ?? t("accountMenu")
-                  }
+              <>
+                <NotificationBell className={styles.desktopOnly} />
+                <div
+                  className={cn(styles.avatarWrapper, styles.desktopOnly)}
+                  ref={accountMenuRef}
                 >
-                  <UserIcon size={18} />
-                </button>
-                {accountMenuOpen ? (
-                  <div className={styles.avatarMenu} role="menu">
-                    <Link
-                      href="/mis-compras"
-                      className={styles.menuItem}
-                      onClick={closeAccountMenu}
-                    >
-                      <UserIcon size={14} />
-                      {t("myPurchases")}
-                    </Link>
-                    {showPanel ? (
+                  <button
+                    type="button"
+                    className={styles.avatarButton}
+                    onClick={() => setAccountMenuOpen((prev) => !prev)}
+                    aria-expanded={accountMenuOpen}
+                    aria-haspopup="true"
+                    aria-label={avatarLabel}
+                  >
+                    <Avatar
+                      src={profile?.picture}
+                      name={profileName}
+                      alt=""
+                      size="sm"
+                    />
+                  </button>
+                  {accountMenuOpen ? (
+                    <div className={styles.avatarMenu} role="menu">
                       <Link
-                        href="/panel"
+                        href="/mis-compras"
                         className={styles.menuItem}
                         onClick={closeAccountMenu}
                       >
-                        <SettingsIcon size={14} />
-                        {t("panel")}
+                        <ShoppingBagIcon size={16} />
+                        {t("myPurchases")}
                       </Link>
-                    ) : null}
-                    <button
-                      type="button"
-                      className={styles.menuItem}
-                      onClick={handleSignOut}
-                    >
-                      <LogoutIcon size={14} />
-                      {t("signOut")}
-                    </button>
-                  </div>
-                ) : null}
-              </div>
+                      <Link
+                        href="/mis-cursos"
+                        className={styles.menuItem}
+                        onClick={closeAccountMenu}
+                      >
+                        <BookIcon size={16} />
+                        {t("myCourses")}
+                      </Link>
+                      <Link
+                        href="/configuracion"
+                        className={styles.menuItem}
+                        onClick={closeAccountMenu}
+                      >
+                        <SettingsIcon size={16} />
+                        {t("settings")}
+                      </Link>
+                      <button
+                        type="button"
+                        className={cn(styles.menuItem, styles.menuItemDanger)}
+                        onClick={handleSignOut}
+                      >
+                        <LogoutIcon size={16} />
+                        {t("signOut")}
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              </>
             ) : (
               <>
                 {/* Mobile-only icon CTA — same destination as the

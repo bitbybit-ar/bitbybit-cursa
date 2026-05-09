@@ -51,7 +51,7 @@ function methodsForSigner(
 export function ReSignPrompt({ open, onSigner, onCancel }: ReSignPromptProps) {
   const t = useTranslations("reSignIn");
   const tLogin = useTranslations("login");
-  const tForm = useTranslations("panel.settings.form");
+  const tForm = useTranslations("accountSettings.form");
   const lookupAuthError = useAuthErrorLookup();
   const { session, setSigner } = useSignerContext();
   const [method, setMethod] = useState<Method>("pick");

@@ -10,8 +10,38 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- **Marketplace opened to every signed-in user.** The merchant-only
+  `/panel/*` namespace is gone; creator surfaces moved to top-level
+  routes (`/mis-cursos`, `/configuracion`, `/mis-ventas`,
+  `/mis-estudiantes`). Any Nostr-authenticated session can reach
+  them — the merchant row is auto-created with placeholder values
+  (`user-<first-8-of-pubkey>`) on first server-side need and can
+  be renamed later from `/configuracion`. Legacy `/panel/*` URLs
+  308-redirect to the new paths via `proxy.ts`. Decision pinned in
+  ADR 0014 (supersedes 0008 and 0012).
+
 ### Added
 
+- **Unified account menu in the navbar.** The avatar dropdown shows
+  My purchases (shopping bag), My courses (book), Settings (gear),
+  and Sign out (red), with a notifications bell to the left. The
+  avatar pulls the user's Nostr kind:0 metadata via the new
+  `useNostrProfile` hook (`lib/hooks/useNostrProfile.ts`),
+  fetched once from public relays and cached in localStorage with
+  a 24h freshness window. Falls through profile picture → first
+  letter of name → `UserIcon`. The standalone Sign out button on
+  `/mis-compras` was removed; the heading on that page now reads
+  "My purchases" / "Mis compras" to match the menu link.
+- **In-app notifications.** New `notifications` Postgres table
+  (drizzle migration `0003_notifications.sql`); `lib/notifications.ts`
+  exposes `emitNotification` / `listForPubkey` / `markRead` /
+  `markAllRead`. The Wapu webhook emits `order.paid` to the buyer
+  (when signed in) and `sale.received` to the merchant when an
+  order flips to `paid`. The navbar `NotificationBell` polls
+  `/api/notifications` every 30 s with a tab-visibility pause and
+  optimistic mark-read.
 - **Public content pages: How it works, Features, FAQ.** Three new
   standalone routes (`/[locale]/como-funciona`,
   `/[locale]/caracteristicas`, `/[locale]/faq`) replace the

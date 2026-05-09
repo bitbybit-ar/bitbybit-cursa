@@ -68,9 +68,10 @@ export const merchants = pgTable(
 );
 
 // --- Offerings ---
-// Catalog rows. Edited from /[locale]/panel/ofertas. Decisions in
-// ADRs 0009 (storage) and 0012 (per-merchant ownership). Soft delete
-// via archived_at; hard delete is not exposed in v1 because orders
+// Catalog rows. Edited from /[locale]/mis-cursos. Decisions in
+// ADRs 0009 (storage), 0012 (per-merchant ownership), and 0014
+// (any signed-in user is implicitly a merchant). Soft delete via
+// archived_at; hard delete is not exposed in v1 because orders
 // reference offerings and we do not want orphaned references.
 export const offerings = pgTable(
   "offerings",
@@ -188,5 +189,29 @@ export const adminAuditLog = pgTable(
     index("admin_audit_log_actor_pubkey_idx").on(table.actor_pubkey),
     index("admin_audit_log_merchant_id_idx").on(table.merchant_id),
     index("admin_audit_log_created_at_idx").on(table.created_at),
+  ]
+);
+
+// --- Notifications ---
+// One row per in-app notification. Recipient is the Nostr pubkey
+// (no FK to merchants — buyers without a merchant row also receive
+// `order.paid` notifications). Polled by the bell component every
+// 30s. read_at null = unread; setting it stamps the time without
+// deleting history. Decision in ADR 0014.
+export const notifications = pgTable(
+  "notifications",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    recipient_pubkey: varchar("recipient_pubkey", { length: 64 }).notNull(),
+    kind: varchar("kind", { length: 40 }).notNull(),
+    payload: jsonb("payload").$type<Record<string, unknown>>(),
+    read_at: timestamp("read_at"),
+    created_at: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [
+    index("notifications_recipient_idx").on(
+      table.recipient_pubkey,
+      table.created_at
+    ),
   ]
 );

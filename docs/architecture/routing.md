@@ -9,7 +9,8 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
-| 2026-05-09 | Conventions, Buyer flow | Switched next-intl to `localePrefix: "as-needed"`. Spanish (default) is now served unprefixed (`/`, `/panel`, …) and English keeps the `/en` prefix. | Spanish is the primary audience; the `/es` prefix added a redirect hop and made every share/canonical URL a level deeper than necessary. As-needed gives Spanish the natural URL while preserving an unambiguous English surface. |
+| 2026-05-09 | Conventions, Account, Panel, API, Not routed | Removed the `/panel/*` namespace; creator surfaces moved to top-level routes (`/mis-cursos`, `/configuracion`, `/mis-ventas`, `/mis-estudiantes`). Documented the legacy 308 redirects in `proxy.ts`. Recorded `/api/notifications`. | ADR 0014: every signed-in user is implicitly a creator; the merchant row is data, not a gate. |
+| 2026-05-09 | Conventions, Buyer flow | Switched next-intl to `localePrefix: "as-needed"`. Spanish (default) is now served unprefixed (`/`, `/mis-cursos`, …) and English keeps the `/en` prefix. | Spanish is the primary audience; the `/es` prefix added a redirect hop and made every share/canonical URL a level deeper than necessary. As-needed gives Spanish the natural URL while preserving an unambiguous English surface. |
 | 2026-05-09 | Static | Added `/como-funciona` and `/caracteristicas` rows. Corrected the FAQ row from `/preguntas` to `/faq` to match the implemented folder. | Three new public content pages shipped (How it works, Features, FAQ); the FAQ slug recorded here had drifted from the actual route, which would mislead contributors. |
 | 2026-05-08 | Panel API | Removed `/api/admin/upload`; image uploads now go browser-direct to Blossom servers. | ADR 0011 pins Blossom for image storage. There is no server-side proxy, so the route does not exist; documenting it would mislead contributors into building one. |
 | 2026-05-07 | Buyer flow | Renamed checkout segment from `[invoiceId]` to `[orderId]`. | Status polling lives at `/api/orders/[orderId]`; the order id is the opaque key the buyer carries from checkout to receipt; using the same name across all three surfaces removes a translation step for contributors. |
@@ -37,8 +38,8 @@
   filesystem, but the wire shape is **as-needed**: Spanish
   (`es`, the default locale) is served **without** a locale
   prefix, and English (`en`, secondary) is served with `/en`.
-  So `/[locale]/panel` resolves to `/panel` in Spanish and
-  `/en/panel` in English. next-intl middleware redirects
+  So `/[locale]/mis-cursos` resolves to `/mis-cursos` in Spanish
+  and `/en/mis-cursos` in English. next-intl middleware redirects
   `/es/...` → `/...` and handles `Accept-Language`.
 - Slugs are Spanish-default, lowercase, kebab-case, and without
   diacritics (`/configuracion`, not `/configuración`). The
@@ -49,10 +50,13 @@
   for buyers (`[pubkey]`).
 - API routes live under `/api/...`, never under `/[locale]/api`.
   They are language-agnostic.
-- Panel routes are gated by middleware that checks the Nostr
-  session against `ADMIN_PUBKEYS` (env). Non-admins see 404, not
-  403 — the surface is not advertised. Decision pinned in ADR
-  [0008](decisions/0008-merchant-admin-dashboard.md).
+- Creator routes (`/mis-cursos`, `/mis-ventas`,
+  `/mis-estudiantes`, `/configuracion`, `/onboarding`) are
+  gated at the edge by `proxy.ts`: anonymous visitors bounce to
+  `/iniciar-sesion?next=...`. There is no merchant-row gate —
+  any signed-in user gets a placeholder merchant row lazily on
+  first server-side need. Decision pinned in ADR
+  [0014](decisions/0014-marketplace-open-to-all-logged-in-users.md).
 
 ## Buyer flow
 
@@ -70,15 +74,46 @@ clicks, pays, and walks away with a redemption code or download.
 
 ## Account
 
-Optional. A buyer can complete the entire purchase flow without
-ever hitting any of these. Decision pinned in ADR
-[0007](decisions/0007-optional-nostr-buyer-login.md).
+The account surface is unified per ADR
+[0014](decisions/0014-marketplace-open-to-all-logged-in-users.md):
+every signed-in user is implicitly a creator, so My purchases /
+My courses / Settings / Sign out all share one navbar dropdown.
+Anonymous purchases stay supported (ADR
+[0007](decisions/0007-optional-nostr-buyer-login.md)).
+
+### Sign-in
 
 | Route | Purpose | Notes |
 |---|---|---|
 | `/[locale]/iniciar-sesion` | Nostr sign-in | NIP-07 / nsec / NIP-46. Module ported from bitbybit-arena. |
-| `/[locale]/mis-compras` | Order history | Logged-in only. Each row links back to `/gracias/[orderId]`; do not duplicate the receipt page under `/mis-compras/[orderId]`. |
+| `/[locale]/onboarding` | Optional slug claim | Reachable from explicit prompts; users who land on a creator surface first get an auto-generated placeholder slug they can rename later. |
 | `/[locale]/reclamar/[orderId]` | Claim a past anonymous order | Logged-in buyer pastes the `orderId` from a prior anonymous purchase to attach it to their pubkey. |
+
+### Buyer-side
+
+| Route | Purpose | Notes |
+|---|---|---|
+| `/[locale]/mis-compras` | My purchases | Logged-in only. Each row links back to `/gracias/[orderId]`; do not duplicate the receipt page under `/mis-compras/[orderId]`. |
+
+### Creator-side (any signed-in user, gated at the edge)
+
+| Route | Purpose | Notes |
+|---|---|---|
+| `/[locale]/mis-cursos` | My courses | Lists active and archived offerings owned by the user's merchant row. |
+| `/[locale]/mis-cursos/nueva` | New course form | Creates an offering. Triggers placeholder-merchant lazy creation on first hit. |
+| `/[locale]/mis-cursos/[slug]/editar` | Edit course | Same form as `nueva`, prefilled. Archive button lives on this page. |
+| `/[locale]/mis-ventas` | My sales | Sales history, read-only in v1. Filters and detail pages mirror the old `/panel/pedidos` shape. |
+| `/[locale]/mis-ventas/[orderId]` | Sale detail | Buyer pubkey if any, payment hash, Wapu settlement reference, redemption state. |
+| `/[locale]/mis-estudiantes` | My students | Identified buyers who purchased from this user. Anonymous orders aggregate but do not enumerate. |
+| `/[locale]/mis-estudiantes/[pubkey]` | Student detail | Per-buyer history. |
+| `/[locale]/configuracion` | Settings | CBU, alias, autorenewal toggle, slug + display name. CBU/alias updates require a NIP-07 re-sign at save time. |
+
+### Legacy redirects
+
+`/panel`, `/panel/ofertas*`, `/panel/configuracion`,
+`/panel/pedidos*`, `/panel/estudiantes*` 308 to the matching new
+route via `proxy.ts`. The `/panel` namespace itself is no longer
+served.
 
 ## Subscriber (auto-renewal)
 
@@ -99,44 +134,6 @@ code paths are deployed but dormant otherwise (amended ADR
 | `/[locale]/faq` | FAQ | Ten Q&A entries covering Lightning, wallets, Wapu, Argentina-only, anonymity, delivery, lost receipts, merchant payouts, Nostr panel login, and fees. |
 | `/[locale]/terminos` | Terms of service | |
 | `/[locale]/privacidad` | Privacy policy | |
-
-## Panel (admin)
-
-All routes gated by the `/panel` middleware (Nostr session +
-`ADMIN_PUBKEYS` membership). Decision pinned in ADR
-[0008](decisions/0008-merchant-admin-dashboard.md). Read-only
-surface over orders/buyers; CRUD on offerings; settings with
-NIP-07 re-sign for payment-destination changes.
-
-### Overview & analytics (read-only)
-
-| Route | Purpose |
-|---|---|
-| `/[locale]/panel` | Overview cards: revenue MTD, pending orders, recent sales feed |
-| `/[locale]/panel/ventas` | Aggregates over time, filters, CSV export |
-
-### Orders & buyers (read-only)
-
-| Route | Purpose |
-|---|---|
-| `/[locale]/panel/pedidos` | Order list with filters (status, offering, date, identified-vs-anonymous) and search (orderId, payment hash, pubkey) |
-| `/[locale]/panel/pedidos/[orderId]` | Order detail: buyer pubkey if any, payment hash, Wapu settlement reference, redemption state |
-| `/[locale]/panel/estudiantes` | Identified buyers list. Anonymous orders are countable (aggregate badge) but not enumerable here. Search by pubkey or NIP-05. |
-| `/[locale]/panel/estudiantes/[pubkey]` | Per-buyer detail: their orders, total spent, first/last purchase, contact via Nostr DM (read-only display in v1; the action button is v1.1) |
-
-### Offerings (full CRUD)
-
-| Route | Purpose |
-|---|---|
-| `/[locale]/panel/ofertas` | Offerings list |
-| `/[locale]/panel/ofertas/nueva` | Create offering form |
-| `/[locale]/panel/ofertas/[slug]/editar` | Edit form. Delete is a confirm button on this page; not a separate route. |
-
-### Settings
-
-| Route | Purpose |
-|---|---|
-| `/[locale]/panel/configuracion` | CBU, alias, autorenewal toggle. Changes to CBU or alias require a NIP-07 re-sign at save time. |
 
 ## API routes
 
@@ -165,14 +162,20 @@ admin session for `/api/admin/*`).
 |---|---|---|
 | `/api/orders/[orderId]/claim` | POST | Logged-in buyer attaches a past anonymous order to their pubkey |
 | `/api/nip05/resolve` | GET | Server-side NIP-05 → pubkey lookup (used by the npub/NIP-05 paste flow at checkout) |
+| `/api/notifications` | GET, PATCH, POST | List, mark-read, mark-all-read for the navbar bell. Returns 401 for anonymous callers; 30s polling from the bell with a tab-visibility pause. |
 
-### Admin-scoped (under `/api/admin`, gated by `ADMIN_PUBKEYS`)
+### Creator-scoped (under `/api/admin`, gated by signed-in session)
+
+The `admin` prefix is historical (carried over from the merchant
+panel); these routes are now reachable by any signed-in user.
+Each route resolves the user's merchant row via `requireMerchant`
+which lazily creates a placeholder row on first call.
 
 | Route | Method | Purpose |
 |---|---|---|
-| `/api/admin/orders` | GET | List + filter + search for `/panel/pedidos` |
-| `/api/admin/stats` | GET | Aggregates for `/panel` and `/panel/ventas` |
-| `/api/admin/offerings` | GET, POST, PATCH, DELETE | Offering CRUD for `/panel/ofertas/*` |
+| `/api/admin/orders` | GET | List + filter + search for `/mis-ventas` |
+| `/api/admin/stats` | GET | Aggregates for the dashboard cards (revenue, pending, paid-30d) |
+| `/api/admin/offerings` | GET, POST, PATCH, DELETE | Offering CRUD for `/mis-cursos/*` |
 | `/api/admin/settings` | GET, PATCH | Read + update settings; CBU/alias updates require a NIP-07 re-sign payload |
 
 Image uploads do **not** ride a server route. Per ADR 0011 the
@@ -201,19 +204,16 @@ returned hash-addressed URL lands in `offerings.image_url`.
 
 ## What is intentionally not routed
 
-- **No merchant signup or onboarding flow on the deployed site.**
-  Each merchant forks the repo (single-tenant per ADR
-  [0004](decisions/0004-static-config-deployment.md)). Onboarding
-  happens in the README and the deployer's terminal.
 - **No password-reset, email-verification, or account-deletion
   flows.** Identity is Nostr; recovery is whoever holds the nsec.
 - **No buyer-side wallet detection page.** Decision pinned in
   ADR [0005](decisions/0005-prepaid-default-autorenewal-optin.md).
-- **No `/admin/*` (English).** The admin surface lives at
-  `/[locale]/panel/...`; `/admin` 404s.
+- **No `/panel/*` namespace.** Creator surfaces moved to
+  top-level routes per ADR
+  [0014](decisions/0014-marketplace-open-to-all-logged-in-users.md);
+  legacy paths 308-redirect via `proxy.ts`.
 - **No `/api` versioning prefix in v1.** If we break a public
   contract (only `/api/wapu/webhook` and `/api/orders/[orderId]`
   qualify) we will add `/api/v2/...` at that time.
 - **No refund, resend, or DM-from-the-UI routes in v1.** Those
-  are write actions over orders/buyers, deferred to v1.1 per ADR
-  [0008](decisions/0008-merchant-admin-dashboard.md).
+  are write actions over orders/buyers, deferred to v1.1.

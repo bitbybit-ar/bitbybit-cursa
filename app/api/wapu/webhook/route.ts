@@ -1,7 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { getWapuClient } from "@/lib/wapu";
-import { markOrderPaid, drawAndAssignCode } from "@/lib/orders";
+import {
+  drawAndAssignCode,
+  getOrder,
+  markOrderPaid,
+} from "@/lib/orders";
+import { getOfferingById } from "@/lib/offerings";
+import { getMerchantById } from "@/lib/admin/merchants";
+import { emitNotification } from "@/lib/notifications";
 
 const SIGNATURE_HEADER = "x-wapu-signature";
 
@@ -101,6 +108,39 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         console.warn(
           `[wapu/webhook] code pool empty for order ${parsed.external_id} — manual intervention required`
         );
+      }
+
+      // Fan out in-app notifications. Buyer gets `order.paid` only
+      // when they signed in at checkout (anonymous orders carry no
+      // recipient). Merchant always gets `sale.received`. Failures
+      // here are non-fatal — the order is already paid.
+      try {
+        const order = await getOrder(parsed.external_id);
+        if (order) {
+          const offering = await getOfferingById(order.offering_id);
+          const merchant = await getMerchantById(order.merchant_id);
+          const offeringTitle = offering?.title ?? "";
+          const payload = {
+            order_id: order.id,
+            offering_title: offeringTitle,
+          };
+          if (order.pubkey) {
+            await emitNotification({
+              recipient_pubkey: order.pubkey,
+              kind: "order.paid",
+              payload,
+            });
+          }
+          if (merchant?.pubkey) {
+            await emitNotification({
+              recipient_pubkey: merchant.pubkey,
+              kind: "sale.received",
+              payload,
+            });
+          }
+        }
+      } catch (err) {
+        console.warn("[wapu/webhook] notification emit failed:", err);
       }
     }
 

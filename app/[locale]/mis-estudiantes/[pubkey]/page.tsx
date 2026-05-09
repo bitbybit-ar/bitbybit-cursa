@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Container } from "@/components/ui/container";
+import { Section } from "@/components/ui/section";
 import { Card } from "@/components/ui/card";
 import { ArrowLeftIcon, ArrowRightIcon } from "@/components/icons";
 import { getAdminStudentDetail } from "@/lib/admin/orders";
@@ -19,7 +20,7 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({
     locale,
-    namespace: "panel.students.detail",
+    namespace: "myStudents.detail",
   });
   return {
     title: t("metadataTitle"),
@@ -42,7 +43,7 @@ export default async function PanelStudentDetailPage({
   const student = await getAdminStudentDetail(merchant.id, pubkey);
   if (!student) notFound();
 
-  const t = await getTranslations("panel.students.detail");
+  const t = await getTranslations("myStudents.detail");
   const tStatus = await getTranslations("orderStatus");
   const arsFormatter = new Intl.NumberFormat(
     locale === "es" ? "es-AR" : "en-US"
@@ -53,8 +54,9 @@ export default async function PanelStudentDetailPage({
   );
 
   return (
-    <Container column>
-      <Link href="/panel/estudiantes" className={styles.back}>
+    <Section>
+      <Container column>
+      <Link href="/mis-estudiantes" className={styles.back}>
         <ArrowLeftIcon size={16} />
         {t("back")}
       </Link>
@@ -84,7 +86,7 @@ export default async function PanelStudentDetailPage({
         {student.orders.map((order) => (
           <li key={order.id} className={styles.item}>
             <Link
-              href={`/panel/pedidos/${order.id}`}
+              href={`/mis-ventas/${order.id}`}
               className={styles.row}
             >
               <div className={styles.rowMain}>
@@ -108,6 +110,7 @@ export default async function PanelStudentDetailPage({
           </li>
         ))}
       </ul>
-    </Container>
+      </Container>
+    </Section>
   );
 }

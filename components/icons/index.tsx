@@ -27,6 +27,7 @@ export { MusicNoteIcon } from "./MusicNoteIcon";
 export { PaletteIcon } from "./PaletteIcon";
 export { QrIcon } from "./QrIcon";
 export { SettingsIcon } from "./SettingsIcon";
+export { ShoppingBagIcon } from "./ShoppingBagIcon";
 export { SunIcon } from "./SunIcon";
 export { TrophyIcon } from "./TrophyIcon";
 export { UserIcon } from "./UserIcon";

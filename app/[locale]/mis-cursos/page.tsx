@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Container } from "@/components/ui/container";
+import { Section } from "@/components/ui/section";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowRightIcon, BadgeIcon } from "@/components/icons";
@@ -20,7 +21,7 @@ export async function generateMetadata({
   params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "panel.offerings" });
+  const t = await getTranslations({ locale, namespace: "myCourses" });
   return {
     title: t("metadataTitle"),
     robots: { index: false, follow: false },
@@ -41,20 +42,21 @@ export default async function PanelOfferingsPage({
     listArchivedOfferings(merchant.id),
   ]);
 
-  const t = await getTranslations("panel.offerings");
+  const t = await getTranslations("myCourses");
   const arsFormatter = new Intl.NumberFormat(
     locale === "es" ? "es-AR" : "en-US",
     { maximumFractionDigits: 0 }
   );
 
   return (
-    <Container column>
+    <Section>
+      <Container column>
       <header className={styles.header}>
         <div>
           <h1 className={styles.title}>{t("title")}</h1>
           <p className={styles.subtitle}>{t("subtitle")}</p>
         </div>
-        <Button href="/panel/ofertas/nueva" variant="primary">
+        <Button href="/mis-cursos/nueva" variant="primary">
           <BadgeIcon size={16} />
           {t("createCta")}
         </Button>
@@ -66,7 +68,7 @@ export default async function PanelOfferingsPage({
           <Card variant="default" className={styles.empty}>
             <p>{t("emptyActive")}</p>
             <Link
-              href="/panel/ofertas/nueva"
+              href="/mis-cursos/nueva"
               className={styles.emptyLink}
             >
               {t("createCta")} <ArrowRightIcon size={16} />
@@ -77,7 +79,7 @@ export default async function PanelOfferingsPage({
             {active.map((row) => (
               <li key={row.id} className={styles.item}>
                 <Link
-                  href={`/panel/ofertas/${row.slug}/editar`}
+                  href={`/mis-cursos/${row.slug}/editar`}
                   className={styles.row}
                 >
                   <div className={styles.rowMain}>
@@ -124,6 +126,7 @@ export default async function PanelOfferingsPage({
           </ul>
         </section>
       ) : null}
-    </Container>
+      </Container>
+    </Section>
   );
 }
