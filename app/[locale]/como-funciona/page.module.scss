@@ -1,0 +1,301 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/common-mixins" as *;
+@use "@/styles/media-mixins" as *;
+
+// Hero is its own `<section>` (not the shared `<Section>` primitive)
+// because it needs a position:relative full-bleed surface for the
+// decorative bubble layer to anchor against.
+.heroSection {
+  position: relative;
+  overflow: hidden;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-100 0;
+
+  @include mobile {
+    min-height: 50vh;
+    padding: $spacing-64 0;
+  }
+}
+
+.bubbles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.heroInner {
+  @include container;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-20;
+  text-align: center;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.heroTitle {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+  line-height: $line-height-tight;
+}
+
+// Animated brand gradient — same recipe as landing hero so the two
+// surfaces feel like one family. Wrap target words in `<gradient>`
+// inside the i18n string and `t.rich` paints them.
+.gradientWord {
+  display: inline-block;
+  background-image: linear-gradient(
+    135deg,
+    $color-primary 0%,
+    $color-secondary 45%,
+    $accent-pink 100%
+  );
+  background-size: 200% 200%;
+  animation: comoFuncionaGradient 6s ease infinite;
+  @include gradient-text;
+}
+
+@keyframes comoFuncionaGradient {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.heroSubtitle {
+  margin: 0;
+  font-size: $font-size-subtitle;
+  color: $color-text-secondary;
+  line-height: $line-height-base;
+}
+
+.sectionTitle {
+  margin: 0 0 $spacing-32;
+  text-align: center;
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  letter-spacing: $letter-spacing-heading;
+  color: $color-text-primary;
+}
+
+// Numbered step cards. The list now defers the surface treatment to
+// the shared <Card> primitive — this rule is just the grid layout
+// and the inner stack the Card's children form.
+.steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: $spacing-24;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $spacing-16;
+  }
+}
+
+.stepCard {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-12;
+  height: 100%;
+}
+
+.stepNumber {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: $color-primary-soft;
+  color: $color-primary-hover;
+  font-family: $font-family-display;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-md;
+}
+
+.stepTitle {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+}
+
+.stepBody {
+  margin: 0;
+  font-size: $font-size-body;
+  line-height: $line-height-base;
+  color: $color-text-secondary;
+}
+
+// Glossary now uses the shared <Polaroid> primitive — this rule is
+// just the wrapping board (centered, wraps to a column on mobile)
+// and the icon tint applied to each polaroid's frame.
+.glossary {
+  list-style: none;
+  margin: 0;
+  padding: $spacing-16 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: $spacing-48;
+
+  @include mobile {
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-32;
+  }
+}
+
+.glossaryItem {
+  flex: 0 0 auto;
+}
+
+// Icon centered inside the polaroid frame. Each tone class swaps the
+// frame background and icon color so the three concepts read as
+// distinct stamped tiles. Static colors so the polaroid paper-feel
+// holds in both themes (matching the polaroid module's caption).
+.glossaryIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.glossaryToneLightning {
+  background: alpha($accent-gold, 18%);
+  color: $accent-gold;
+}
+
+.glossaryToneWapu {
+  background: alpha($color-secondary, 22%);
+  color: $secondary-700;
+}
+
+.glossaryToneNostr {
+  background: alpha($color-nostr, 18%);
+  color: $color-nostr;
+}
+
+// Custody section uses Card variant="highlight" for the primary-
+// tinted border — the visual cue that this is the "key promise"
+// callout, not just another paragraph block.
+.custodyCard {
+  max-width: 720px;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-16;
+}
+
+.custodyTitle {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  letter-spacing: $letter-spacing-heading;
+  color: $color-text-primary;
+}
+
+.custodyBody {
+  margin: 0;
+  font-size: $font-size-md;
+  line-height: $line-height-base;
+  color: $color-text-secondary;
+}
+
+.ctaBlock {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-24;
+  align-items: center;
+}
+
+.ctaButtons {
+  display: flex;
+  gap: $spacing-16;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  @include mobile {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.cta {
+  min-width: 220px;
+
+  @include mobile {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+// Soft-tinted secondary CTA — mirrors the landing hero's
+// `ctaSoft` recipe so the "Publicá tu curso" button reads the same
+// across both surfaces. Uses `$color-primary-soft` (the role token,
+// NOT `$primary-300`) so it stays "lighter than primary" in both
+// themes — see the note in `_theme.scss` for the dark-mode reason.
+.ctaSoft {
+  background-color: $color-primary-soft;
+  background-image: linear-gradient(
+    135deg,
+    $ceramic-gloss-strong 0%,
+    $ceramic-gloss-soft 35%,
+    transparent 55%
+  );
+  box-shadow:
+    0 4px 12px alpha($color-primary-soft, 22%),
+    inset 0 1px 0 $ceramic-gloss-edge,
+    inset 0 -2px 4px $ceramic-shadow-edge;
+
+  &:hover:not(:disabled) {
+    box-shadow:
+      0 8px 24px alpha($color-primary-soft, 30%),
+      inset 0 1px 0 alpha($static-white, 50%),
+      inset 0 -2px 4px alpha($static-black, 20%);
+  }
+
+  &:active:not(:disabled) {
+    box-shadow:
+      0 2px 6px alpha($color-primary-soft, 18%),
+      inset 0 -1px 0 alpha($static-white, 30%),
+      inset 0 2px 4px alpha($static-black, 22%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gradientWord {
+    animation: none;
+    background-position: 0% 50%;
+  }
+}

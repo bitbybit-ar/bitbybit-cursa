@@ -21,12 +21,14 @@ interface MobileMenuProps {
   onClose: () => void;
 }
 
-const SECTIONS = ["explore", "howItWorks", "features"] as const;
-const SECTION_ANCHORS: Record<(typeof SECTIONS)[number], string> = {
-  explore: "#cursos-destacados",
-  howItWorks: "#como-funciona",
-  features: "#features",
-};
+// Mirror of the same list in Navbar — keep them in sync. `anchor`
+// jumps to a section on the landing page; `link` is a locale-aware
+// route that works from anywhere.
+const SECTIONS = [
+  { id: "explore", kind: "anchor", target: "#cursos-destacados" },
+  { id: "howItWorks", kind: "link", target: "/como-funciona" },
+  { id: "features", kind: "link", target: "/caracteristicas" },
+] as const;
 
 export function MobileMenu({ open, onClose }: MobileMenuProps) {
   const t = useTranslations("landing.nav");
@@ -98,16 +100,27 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
         </header>
 
         <nav className={styles.nav} aria-label={t("accountMenu")}>
-          {SECTIONS.map((id) => (
-            <a
-              key={id}
-              href={SECTION_ANCHORS[id]}
-              className={styles.link}
-              onClick={onClose}
-            >
-              {t(id)}
-            </a>
-          ))}
+          {SECTIONS.map((section) =>
+            section.kind === "link" ? (
+              <Link
+                key={section.id}
+                href={section.target}
+                className={styles.link}
+                onClick={onClose}
+              >
+                {t(section.id)}
+              </Link>
+            ) : (
+              <a
+                key={section.id}
+                href={section.target}
+                className={styles.link}
+                onClick={onClose}
+              >
+                {t(section.id)}
+              </a>
+            ),
+          )}
         </nav>
 
         <div className={styles.divider} role="presentation" />

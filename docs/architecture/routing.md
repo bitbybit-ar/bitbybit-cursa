@@ -1,7 +1,7 @@
 # Routing
 
 > **Status:** Active
-> **Last updated:** 2026-05-08
+> **Last updated:** 2026-05-09
 
 ---
 
@@ -9,6 +9,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-09 | Static | Added `/como-funciona` and `/caracteristicas` rows. Corrected the FAQ row from `/preguntas` to `/faq` to match the implemented folder. | Three new public content pages shipped (How it works, Features, FAQ); the FAQ slug recorded here had drifted from the actual route, which would mislead contributors. |
 | 2026-05-08 | Panel API | Removed `/api/admin/upload`; image uploads now go browser-direct to Blossom servers. | ADR 0011 pins Blossom for image storage. There is no server-side proxy, so the route does not exist; documenting it would mislead contributors into building one. |
 | 2026-05-07 | Buyer flow | Renamed checkout segment from `[invoiceId]` to `[orderId]`. | Status polling lives at `/api/orders/[orderId]`; the order id is the opaque key the buyer carries from checkout to receipt; using the same name across all three surfaces removes a translation step for contributors. |
 | 2026-05-06 | — | Initial version. | Pin the full route map (buyer, account, subscriber, static, panel, API) before app code lands so contributors do not have to reconstruct it from this conversation or scattered ADRs. |
@@ -87,7 +88,9 @@ code paths are deployed but dormant otherwise (amended ADR
 
 | Route | Purpose | Notes |
 |---|---|---|
-| `/[locale]/preguntas` | FAQ | What is Lightning, do I need a wallet, what is Wapu, why is this Argentina-only. |
+| `/[locale]/como-funciona` | How it works | Buyer flow, merchant flow, glossary (Lightning / Wapu / Nostr), no-custody pitch, dual CTA. Drafts copy from `docs/about/mission.md` and ADRs 0002/0006/0012. |
+| `/[locale]/caracteristicas` | Features | 9-card grid: sats-in/pesos-out, no custody, anonymous purchase, optional Nostr login, in-app + DM delivery, opt-in autorenewal, merchant panel, codes-or-downloads, marketplace-or-self-host. |
+| `/[locale]/faq` | FAQ | Ten Q&A entries covering Lightning, wallets, Wapu, Argentina-only, anonymity, delivery, lost receipts, merchant payouts, Nostr panel login, and fees. |
 | `/[locale]/terminos` | Terms of service | |
 | `/[locale]/privacidad` | Privacy policy | |
 

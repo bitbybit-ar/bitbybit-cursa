@@ -10,6 +10,26 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **Public content pages: How it works, Features, FAQ.** Three new
+  standalone routes (`/[locale]/como-funciona`,
+  `/[locale]/caracteristicas`, `/[locale]/faq`) replace the
+  placeholder FAQ and the previously-anchor-only nav entries. How
+  it works covers the buyer flow, merchant flow, a Lightning /
+  Wapu / Nostr glossary, and the no-custody pitch. Features is a
+  nine-card grid (sats-in/pesos-out, no custody, anonymous
+  purchase, optional Nostr login, in-app + DM delivery, opt-in
+  autorenewal, merchant panel, codes-or-downloads, marketplace-or-
+  self-host). FAQ is ten `<details>` Q&amp;A entries — no JS, fully
+  indexable. Navbar and mobile menu rewired so "Cómo funciona"
+  and "Features" navigate to the new routes from any page;
+  "Explorar cursos" stays as a landing-page anchor. New top-level
+  i18n namespaces `howItWorks`, `features`, and `faq` in both
+  `messages/es.json` and `messages/en.json` (the placeholder
+  `landing.faq` block was removed). Sitemap now enumerates the
+  three new routes per locale with hreflang alternates.
+
 ### Fixed
 
 - **Navbar sign-in icon CTA no longer leaks onto desktop.**

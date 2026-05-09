@@ -99,11 +99,108 @@
       "faqLink": "Preguntas frecuentes",
       "github": "GitHub",
       "githubAriaLabel": "Cursá en GitHub"
+    }
+  },
+  "howItWorks": {
+    "metadataTitle": "Cómo funciona",
+    "metadataDescription": "Cursá usa Lightning para que el comprador pague en sats y Wapu para liquidar pesos al CBU del profe. Te contamos cómo funciona, paso a paso.",
+    "hero": {
+      "title": "<gradient>Sats</gradient> que entran, <gradient>pesos</gradient> que salen.",
+      "subtitle": "Cursá conecta a quien quiere aprender con quien quiere enseñar. Lightning para pagar, Wapu para cobrar al CBU. La plataforma se sale del medio."
     },
-    "faq": {
+    "buyers": {
+      "title": "Si comprás un curso",
+      "step1Title": "Elegís",
+      "step1Body": "Entrás al catálogo, abrís la oferta y mirás el precio en sats y en pesos. No hace falta crear cuenta.",
+      "step2Title": "Pagás con Lightning",
+      "step2Body": "Escaneás el QR con tu wallet Lightning o copiás la invoice. Detectamos el pago automáticamente y te llevamos al recibo.",
+      "step3Title": "Recibís tu compra",
+      "step3Body": "Un código de canje o una descarga directa, según la oferta. El recibo es una URL permanente — guardala. Si conectás tu Nostr, también te llega por DM."
+    },
+    "merchants": {
+      "title": "Si enseñás algo",
+      "step1Title": "Iniciás sesión con Nostr",
+      "step1Body": "Tu llave Nostr es tu cuenta. Sin emails, sin formularios largos.",
+      "step2Title": "Armás tu tienda",
+      "step2Body": "Reclamás un slug (cursa.bitbybit.com.ar/m/tu-slug), pegás tu CBU o alias bancario, y cargás tus primeras ofertas.",
+      "step3Title": "Vendés y cobrás en pesos",
+      "step3Body": "Cuando alguien te paga, Wapu liquida los pesos directo a tu CBU. La plataforma no toca el dinero."
+    },
+    "glossary": {
+      "title": "Quién es quién",
+      "lightningTitle": "Lightning",
+      "lightningBody": "La capa de pagos sobre Bitcoin. Instantánea, barata, ideal para los montos chicos del día a día.",
+      "wapuTitle": "Wapu",
+      "wapuBody": "El sponsor del Hackathon y el rail que convierte sats a pesos y los manda al CBU del profe.",
+      "nostrTitle": "Nostr",
+      "nostrBody": "Protocolo abierto de identidad y mensajería. Tu llave es tu cuenta — para los profes es obligatorio (es el login del panel), para los compradores es opcional."
+    },
+    "custody": {
+      "title": "Tu plata, tus llaves",
+      "body": "Cursá nunca custodia los fondos. Wapu rutea cada pago directo al CBU o alias del profe en cada compra. Si Cursá desaparece mañana, los pagos siguen llegando — el rail es Wapu, no nosotros."
+    },
+    "cta": {
+      "title": "¿Listo para arrancar?",
+      "explore": "Explorar cursos",
+      "publish": "Publicá tu curso"
+    }
+  },
+  "features": {
+    "metadataTitle": "Features",
+    "metadataDescription": "Lo que ofrece Cursá: sats in, pesos out, sin custodia, login Nostr opcional, panel del profe y más.",
+    "hero": {
+      "title": "Lo que ofrece Cursá",
+      "subtitle": "Lo mínimo necesario para vender clases con sats sin renunciar a tu rutina con el banco."
+    },
+    "items": {
+      "satsInPesosOutTitle": "Sats in, pesos out",
+      "satsInPesosOutBody": "El comprador paga en Lightning, el profe recibe pesos en su CBU vía Wapu. Cada parte usa la moneda que conoce.",
+      "noCustodyTitle": "Sin custodia",
+      "noCustodyBody": "Wapu liquida cada pago directo al CBU o alias del profe. La plataforma nunca tiene los fondos en sus manos.",
+      "anonymousByDefaultTitle": "Compra anónima por defecto",
+      "anonymousByDefaultBody": "El comprador llega, paga y se va con un código o descarga. Sin formularios, sin emails, sin cuentas obligatorias.",
+      "optionalNostrLoginTitle": "Login Nostr opcional",
+      "optionalNostrLoginBody": "Si el comprador conecta su identidad Nostr, ve su historial de compras y recibe el código por DM en cualquier dispositivo.",
+      "deliveryInAppTitle": "Entrega in-app y por DM",
+      "deliveryInAppBody": "Recibo permanente en una URL. Si hay identidad Nostr, también llega por DM cifrado. No hay integración con email.",
+      "autorenewalOptInTitle": "Auto-renovación opt-in",
+      "autorenewalOptInBody": "Para suscripciones, el profe puede prender el flujo NWC desde su panel. Apagado por default, prendido cuando lo necesite.",
+      "merchantPanelTitle": "Panel del profe",
+      "merchantPanelBody": "ABM de ofertas, configuración de cobro, vista de pedidos y estudiantes. Login con tu llave Nostr.",
+      "codesOrDownloadsTitle": "Códigos o descargas",
+      "codesOrDownloadsBody": "Cada oferta entrega un código de canje (de un pool que vos cargás) o una descarga directa. Vos elegís por oferta.",
+      "multiTenantSelfHostTitle": "Marketplace o self-host",
+      "multiTenantSelfHostBody": "Vendé desde el marketplace en cursa.bitbybit.com.ar/m/tu-slug, o forkeá el repo y armá tu propio deployment."
+    }
+  },
+  "faq": {
+    "metadataTitle": "Preguntas frecuentes",
+    "metadataDescription": "Respuestas rápidas a lo que más preguntan compradores y profes en Cursá.",
+    "hero": {
       "title": "Preguntas frecuentes",
-      "subtitle": "Estamos armando esta sección. Pronto vas a encontrar acá las respuestas más comunes sobre Cursá.",
-      "comingSoon": "Próximamente"
+      "subtitle": "Lo que más preguntan compradores y profes. ¿Falta algo? Abrí una discusión en GitHub."
+    },
+    "questions": {
+      "lightningQ": "¿Qué es Lightning?",
+      "lightningA": "Es la red de pagos sobre Bitcoin. Pensada para transferencias instantáneas y baratas, perfectas para los montos chicos del día a día.",
+      "walletQ": "¿Necesito una wallet para comprar?",
+      "walletA": "Sí, cualquier wallet Lightning sirve. Si recién arrancás, te recomendamos LaWallet — es argentina, abierta, y tiene login con Nostr.",
+      "wapuQ": "¿Qué es Wapu?",
+      "wapuA": "Es el sponsor del Hackathon #3 de La Crypta y el rail que convierte tus sats a pesos y los manda al CBU o alias del profe.",
+      "argentinaQ": "¿Por qué solo Argentina?",
+      "argentinaA": "Porque Wapu liquida en pesos a CBU o alias bancarios argentinos. Cuando expandan a otros países, podemos seguir.",
+      "anonymousQ": "¿Tengo que crear una cuenta para comprar?",
+      "anonymousA": "No. La compra es anónima por defecto: pagás, recibís el recibo, y eso es todo. La URL del recibo es tu comprobante permanente.",
+      "deliveryQ": "¿Cómo recibo lo que compré?",
+      "deliveryA": "Si la oferta es un código de canje, lo ves en el recibo. Si es una descarga, hacés click y se descarga. Si conectaste Nostr al pagar, también te llega por DM cifrado.",
+      "lostReceiptQ": "¿Y si pierdo el link del recibo?",
+      "lostReceiptA": "Si tu Nostr estaba conectado, lo encontrás en \"Mis compras\". Si compraste como anónimo, podés iniciar sesión con Nostr y reclamar el pedido pegando el ID en la página de reclamo.",
+      "merchantPayoutQ": "¿Cómo cobro como profe?",
+      "merchantPayoutA": "Wapu liquida pesos directo al CBU o alias que cargaste en el panel. Cada pago se acredita por separado — Cursá nunca toca el dinero.",
+      "nostrPanelQ": "¿Qué es Nostr y por qué lo uso para entrar al panel?",
+      "nostrPanelA": "Nostr es un protocolo abierto de identidad y mensajería. Tu llave privada es tu cuenta — sin servidores centrales, sin emails. Para los profes es la única forma de entrar al panel.",
+      "feesQ": "¿Cobran comisión?",
+      "feesA": "Wapu cobra su fee por cada liquidación a CBU. La plataforma Cursá no toma un cut adicional en v1."
     }
   },
   "catalog": {

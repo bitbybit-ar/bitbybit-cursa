@@ -1,0 +1,104 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-16;
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: $spacing-32 0;
+}
+
+.heroTitle {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+  line-height: $line-height-tight;
+}
+
+.heroSubtitle {
+  margin: 0;
+  font-size: $font-size-subtitle;
+  color: $color-text-secondary;
+  line-height: $line-height-base;
+}
+
+// Pinboard layout for the polaroids. Wrap+gap with extra horizontal
+// breathing room so the rotation overhang doesn't visually clip into
+// neighbours. Mobile collapses to a centered column.
+.board {
+  list-style: none;
+  margin: 0;
+  padding: $spacing-24 0 $spacing-16;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: $spacing-48 $spacing-32;
+
+  @include mobile {
+    flex-direction: column;
+    align-items: center;
+    gap: $spacing-32;
+  }
+}
+
+.boardItem {
+  flex: 0 0 auto;
+}
+
+// Icon centered in the polaroid frame. Each tone class swaps the
+// frame background tint and the icon color so the nine polaroids
+// read as a varied palette, not a wall of identical tiles. Static
+// tones — the polaroid paper itself stays cream in both themes
+// (see polaroid.module.scss), so flipping theme tokens here would
+// invert contrast in dark mode.
+.featureIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.tone-blue {
+  background: alpha($color-primary, 18%);
+  color: $color-primary;
+}
+
+.tone-lime {
+  background: alpha($color-secondary, 22%);
+  color: $secondary-700;
+}
+
+.tone-pink {
+  background: alpha($accent-pink, 18%);
+  color: $accent-pink;
+}
+
+.tone-cyan {
+  background: alpha($accent-cyan, 22%);
+  color: $accent-cyan;
+}
+
+.tone-orange {
+  background: alpha($accent-orange, 18%);
+  color: $accent-orange;
+}
+
+.tone-gold {
+  background: alpha($accent-gold, 18%);
+  color: $accent-gold;
+}
+
+.tone-nostr {
+  background: alpha($color-nostr, 18%);
+  color: $color-nostr;
+}
