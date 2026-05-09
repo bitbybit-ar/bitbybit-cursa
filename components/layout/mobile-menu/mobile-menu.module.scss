@@ -1,0 +1,200 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/z-index" as *;
+@use "@/styles/media-mixins" as *;
+
+// The drawer + backdrop only matter on mobile; on tablet+ they
+// render with `display: none` so the desktop nav owns the layout.
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: alpha($static-black, 40%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: $z-index-dropdown;
+
+  @include tabletAndUp {
+    display: none;
+  }
+}
+
+.backdropOpen {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(82vw, 320px);
+  background: $color-bg;
+  border-inline-start: 1px solid $color-border;
+  box-shadow: -4px 0 24px alpha($static-black, 18%);
+  // Slid out by default; the `.drawerOpen` modifier brings it in.
+  // `transform` (rather than `right: -100%`) gets free GPU
+  // acceleration and avoids layout thrash mid-animation.
+  transform: translateX(100%);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: $z-index-dropdown;
+  display: flex;
+  flex-direction: column;
+  padding: $spacing-16 $spacing-20 $spacing-32;
+  overflow-y: auto;
+
+  @include tabletAndUp {
+    display: none;
+  }
+}
+
+.drawerOpen {
+  transform: translateX(0);
+}
+
+// Top row of the drawer: optional signed-in user badge on the left,
+// close-X always on the right. No divider — the breathing room
+// above the first nav link is provided by `padding-block-end` on
+// this row plus `margin-block-end` so "Explore courses" lands at
+// the same vertical position as before the header simplification.
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: $spacing-12;
+  padding-block-end: $spacing-16;
+  margin-block-end: $spacing-8;
+}
+
+.userBadge {
+  display: flex;
+  align-items: center;
+  gap: $spacing-8;
+  min-width: 0;
+  // Pushes the close button to the trailing edge while keeping the
+  // badge anchored at the leading edge.
+  margin-inline-end: auto;
+}
+
+.userAvatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: $color-bg-2;
+  border: 1px solid $color-border;
+  color: $color-text-secondary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.userName {
+  font-family: $font-body;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: $border-radius-sm;
+  background: transparent;
+  color: $color-text-primary;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease;
+  flex-shrink: 0;
+
+  &:hover {
+    color: $color-primary;
+    background: alpha($color-primary, 10%);
+  }
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.link {
+  display: block;
+  padding: $spacing-12 $spacing-16;
+  border-radius: $border-radius-sm;
+  color: $color-text-primary;
+  font-family: $font-body;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  text-decoration: none;
+
+  &:hover {
+    background: $color-bg-2;
+  }
+}
+
+.divider {
+  height: 1px;
+  background: $color-border;
+  margin: $spacing-16 0;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+}
+
+.action {
+  display: flex;
+  align-items: center;
+  gap: $spacing-12;
+  padding: $spacing-12 $spacing-16;
+  border-radius: $border-radius-sm;
+  background: transparent;
+  border: none;
+  color: $color-text-primary;
+  font-family: $font-body;
+  font-size: $font-size-base;
+  font-weight: $font-weight-medium;
+  text-align: start;
+  text-decoration: none;
+  cursor: pointer;
+  width: 100%;
+
+  &:hover {
+    background: $color-bg-2;
+  }
+
+  svg {
+    color: $color-text-secondary;
+    flex-shrink: 0;
+  }
+}
+
+// Footer row hosting the theme + locale toggle on mobile. Sits at
+// the bottom of the column via `margin-block-start: auto` so the
+// nav and account actions stack at the top while preferences stay
+// out of the way.
+.preferences {
+  margin-block-start: auto;
+  padding-block-start: $spacing-24;
+  display: flex;
+  justify-content: flex-start;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer,
+  .backdrop {
+    transition: none;
+  }
+}

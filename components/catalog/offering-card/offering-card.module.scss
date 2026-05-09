@@ -2,25 +2,24 @@
 @use "@/styles/spacing" as *;
 @use "@/styles/typography" as *;
 
-.link {
-  display: block;
-  text-decoration: none;
-  color: inherit;
-  height: 100%;
-
-  &:focus-visible {
-    outline: 2px solid $focus-ring;
-    outline-offset: 4px;
-    border-radius: 18px;
-  }
-}
-
 .card {
   display: flex;
   flex-direction: column;
   gap: $spacing-16;
   height: 100%;
   padding: $spacing-20;
+}
+
+.imageLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+
+  &:focus-visible {
+    outline: 2px solid $focus-ring;
+    outline-offset: 4px;
+    border-radius: $border-radius-md;
+  }
 }
 
 .imageWrap {
@@ -48,16 +47,74 @@
   font-size: $font-size-lg;
   font-weight: $font-weight-bold;
   letter-spacing: $letter-spacing-heading;
-  color: $color-text-primary;
   margin: 0;
   line-height: $line-height-heading;
 }
 
+.titleLink {
+  color: $color-text-primary;
+  text-decoration: none;
+
+  &:hover {
+    color: $color-primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $focus-ring;
+    outline-offset: 2px;
+    border-radius: $border-radius-xs;
+  }
+}
+
 .byline {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-8;
   margin: 0;
+  color: $color-text-secondary;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
+  text-decoration: none;
+  align-self: flex-start;
+
+  &:hover {
+    color: $color-text-primary;
+    text-decoration: none;
+
+    .bylineName {
+      color: $color-primary;
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid $focus-ring;
+    outline-offset: 2px;
+    border-radius: $border-radius-full;
+  }
+}
+
+.avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: $color-bg-3;
+  border: 1px solid $color-border;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: $color-text-secondary;
+  flex-shrink: 0;
+}
+
+.avatarImg {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.bylineName {
+  transition: color 0.2s ease;
 }
 
 .description {
@@ -96,4 +153,17 @@
   color: $color-secondary;
   font-weight: $font-weight-semibold;
   font-size: $font-size-sm;
+  text-decoration: none;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: $color-secondary-hover;
+    text-decoration: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $focus-ring;
+    outline-offset: 2px;
+    border-radius: $border-radius-xs;
+  }
 }

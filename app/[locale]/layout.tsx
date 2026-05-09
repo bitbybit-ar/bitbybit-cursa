@@ -9,7 +9,8 @@ import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/lib/contexts/theme-context";
 import { SignerProviderClient } from "@/components/auth/signer-provider-client";
 import { ToastProvider } from "@/components/ui/toast";
-import { LanguageToggle } from "@/components/ui/language-toggle";
+import { Navbar } from "@/components/layout/navbar";
+import { Footer } from "@/components/layout/footer";
 import "@/styles/globals.scss";
 
 const nunito = Nunito({
@@ -150,8 +151,9 @@ export default async function LocaleLayout({
                 <a href="#main" className="skip-link">
                   {t("skipToContent")}
                 </a>
-                <LanguageToggle />
+                <Navbar />
                 <main id="main">{children}</main>
+                <Footer />
               </ToastProvider>
             </SignerProviderClient>
           </ThemeProvider>

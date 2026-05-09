@@ -69,6 +69,7 @@
   // — Brand role tokens (auto-flip via the swapped scale) —
   --color-primary:         var(--primary-500);
   --color-primary-hover:   var(--primary-700);
+  --color-primary-soft:    var(--primary-300);
   --color-secondary:       var(--secondary-500);
   --color-secondary-hover: var(--secondary-700);
   --focus-ring:            var(--gray-700);
@@ -76,6 +77,20 @@
   // — Semantic decorative pair (Button danger / success surfaces) —
   --color-accent:     #ef4444;
   --color-accent-alt: #22c55e;
+
+  // — Dark-CTA surface (GitHub-style "neutral dark" button). In light
+  //   mode this lands on near-black for strong contrast against the
+  //   white page bg; in dark mode it lifts to slate so the button
+  //   doesn't merge into the page bg (#0f0f1a). White text holds AA
+  //   contrast on both. —
+  --color-cta-dark: #0f0f1a;
+
+  // — Polaroid panel (the cream "photo paper" backdrop in the travel
+  //   companions and need-motivation sections). White in light mode
+  //   keeps the original photo-paper look; warm off-white in dark
+  //   mode tames the white-on-navy contrast (~21:1 → ~9:1) without
+  //   losing the "physical card pinned to a board" feel. —
+  --color-polaroid-bg: #ffffff;
 
   // — Semantic feedback (intentionally independent of brand) —
   --color-success: #22c55e;
@@ -149,9 +164,24 @@
   //  no override needed for color-primary-hover, color-secondary-
   //  hover, or focus-ring.)
 
+  // — `--color-primary-soft` does NOT auto-flip via the scale.
+  //   In light mode primary-300 is the LIGHTER step (#93c5fd).
+  //   In dark mode the scale reverses, so primary-300 becomes
+  //   the DARKER step (#1d4ed8) — which would render
+  //   indistinguishable from primary-500 (the regular CTA).
+  //   Re-bind to primary-700 in dark so "soft" stays "lighter
+  //   than primary" in both themes (both resolve to #93c5fd). —
+  --color-primary-soft: var(--primary-700);
+
   // — Semantic decorative pair (lighter red/green for navy bg) —
   --color-accent:     #f87171;
   --color-accent-alt: #34d399;
+
+  // — Dark-CTA surface lifted off the page bg. See light-mode note. —
+  --color-cta-dark: #334155;
+
+  // — Polaroid panel — warm cream against navy. See light-mode note. —
+  --color-polaroid-bg: #f5f0e6;
 
   // — Semantic feedback (lighter on navy; warning stays gold) —
   --color-success: #34d399;

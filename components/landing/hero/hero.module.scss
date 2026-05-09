@@ -1,0 +1,149 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/common-mixins" as *;
+@use "@/styles/media-mixins" as *;
+
+// Hero owns the full viewport height. Sticky navbar sits on top of
+// the first 60px so the inner padding-top adds another 32px of
+// breathing room before the centered content begins.
+.heroFrame {
+  position: relative;
+  overflow: hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(#{$navbar-height} + #{$spacing-32}) 0 $spacing-48;
+
+  @include mobile {
+    padding: calc(#{$navbar-height} + #{$spacing-24}) 0 $spacing-32;
+  }
+}
+
+.bubbles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.inner {
+  @include container;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: $spacing-20;
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.title {
+  font-family: $font-display;
+  font-size: clamp(2.4rem, 6vw, 4.2rem);
+  font-weight: $font-weight-extrabold;
+  line-height: $line-height-tight;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+  margin: 0;
+}
+
+.gradientWord {
+  display: inline-block;
+  background-image: linear-gradient(
+    135deg,
+    $color-primary 0%,
+    $color-secondary 45%,
+    $accent-pink 100%
+  );
+  background-size: 200% 200%;
+  animation: gradient-shift 6s ease infinite;
+  @include gradient-text;
+}
+
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gradientWord {
+    animation: none;
+    background-position: 0% 50%;
+  }
+}
+
+.subtitle {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: $line-height-base;
+}
+
+.ctas {
+  display: flex;
+  gap: $spacing-16;
+  justify-content: center;
+  margin-top: $spacing-8;
+
+  @include mobile {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.cta {
+  min-width: 220px;
+
+  @include mobile {
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+// Uses `$color-primary-soft` (the role token, NOT `$primary-300`)
+// so it stays "lighter than primary" in both themes — see the note
+// in `_theme.scss` for why the scale-flip would otherwise collapse
+// this CTA into the regular primary in dark mode.
+.ctaSoft {
+  background-color: $color-primary-soft;
+  background-image: linear-gradient(
+    135deg,
+    $ceramic-gloss-strong 0%,
+    $ceramic-gloss-soft 35%,
+    transparent 55%
+  );
+  box-shadow:
+    0 4px 12px alpha($color-primary-soft, 22%),
+    inset 0 1px 0 $ceramic-gloss-edge,
+    inset 0 -2px 4px $ceramic-shadow-edge;
+
+  &:hover:not(:disabled) {
+    box-shadow:
+      0 8px 24px alpha($color-primary-soft, 30%),
+      inset 0 1px 0 alpha($static-white, 50%),
+      inset 0 -2px 4px alpha($static-black, 20%);
+  }
+
+  &:active:not(:disabled) {
+    box-shadow:
+      0 2px 6px alpha($color-primary-soft, 18%),
+      inset 0 -1px 0 alpha($static-white, 30%),
+      inset 0 2px 4px alpha($static-black, 22%);
+  }
+}

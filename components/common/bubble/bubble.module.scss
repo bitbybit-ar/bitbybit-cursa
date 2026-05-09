@@ -1,0 +1,133 @@
+@use "@/styles/colors" as *;
+@use "@/styles/common-mixins" as *;
+
+.bubble {
+  border-radius: 50%;
+  position: absolute;
+  pointer-events: none;
+  will-change: transform;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.blue {
+  --bubble-color: #{$color-primary};
+}
+
+.lime {
+  --bubble-color: #{$color-secondary};
+}
+
+.green {
+  --bubble-color: #{$color-accent-alt};
+}
+
+.red {
+  --bubble-color: #{$color-accent};
+}
+
+.pink {
+  --bubble-color: #{$accent-pink};
+}
+
+.cyan {
+  --bubble-color: #{$accent-cyan};
+}
+
+.orange {
+  --bubble-color: #{$accent-orange};
+}
+
+.gold {
+  --bubble-color: #{$accent-gold};
+}
+
+.solid {
+  @include bubble-surface(
+    alpha(
+      var(--bubble-color),
+      var(--bubble-custom-opacity, var(--bubble-opacity, 10%))
+    )
+  );
+}
+
+.gradient {
+  @include bubble-surface(
+    linear-gradient(
+      135deg,
+      alpha(var(--bubble-color), var(--bubble-custom-opacity, 14%)),
+      alpha(var(--bubble-color), 4%)
+    )
+  );
+}
+
+.icon {
+  @include bubble-surface(
+    alpha(var(--bubble-color), var(--bubble-custom-opacity, 8%))
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 40%;
+    height: 40%;
+    color: var(--bubble-color);
+    opacity: 0.6;
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.float {
+  animation: bubble-float 6s ease-in-out infinite;
+}
+
+.drift {
+  animation: bubble-drift 8s ease-in-out infinite;
+}
+
+.floatSlow {
+  animation: bubble-float-slow 10s ease-in-out infinite;
+}
+
+@keyframes bubble-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-15px) rotate(3deg);
+  }
+}
+
+@keyframes bubble-drift {
+  0%,
+  100% {
+    transform: translateX(0) translateY(0);
+  }
+  33% {
+    transform: translateX(8px) translateY(-12px);
+  }
+  66% {
+    transform: translateX(-5px) translateY(-18px);
+  }
+}
+
+@keyframes bubble-float-slow {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg) scale(1);
+  }
+  50% {
+    transform: translateY(-20px) rotate(-2deg) scale(1.02);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .float,
+  .drift,
+  .floatSlow {
+    animation: none;
+  }
+}

@@ -1,0 +1,39 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-16;
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: $spacing-32 0;
+}
+
+.title {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: $line-height-base;
+}
+
+.comingSoon {
+  text-align: center;
+  padding: $spacing-48 0;
+  color: $color-text-secondary;
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  text-transform: uppercase;
+  letter-spacing: $letter-spacing-wide;
+}

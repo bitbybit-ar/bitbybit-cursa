@@ -1,0 +1,76 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+
+.footer {
+  border-top: 1px solid $color-border;
+  padding: $spacing-32 0;
+  margin-top: $spacing-64;
+}
+
+.inner {
+  max-width: $container-max-width;
+  margin: 0 auto;
+  padding: 0 $container-padding;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: $spacing-16;
+
+  @include mobile {
+    padding: 0 $container-padding-mobile;
+    flex-wrap: nowrap;
+    align-items: flex-start;
+    gap: $spacing-20;
+  }
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: $spacing-8;
+}
+
+.brandText {
+  font-family: $font-display;
+  font-weight: $font-weight-bold;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: $spacing-20;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+
+  @include mobile {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: $spacing-12;
+  }
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-8;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  line-height: 1;
+
+  svg {
+    display: block;
+  }
+
+  &:hover {
+    color: $color-text-primary;
+    text-decoration: none;
+  }
+}
