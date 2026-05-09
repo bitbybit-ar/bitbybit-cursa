@@ -48,6 +48,13 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- **Spanish URLs are now unprefixed.** next-intl is configured
+  with `localePrefix: "as-needed"` so the default locale (`es`)
+  serves at `/`, `/panel`, `/m/[slug]`, etc., while English
+  keeps the `/en` prefix. `proxy.ts` regexes, `lib/seo.ts`
+  canonical/alternates, `app/sitemap.ts`, and the OG `url` in
+  `app/[locale]/layout.tsx` were updated to match. `/es/...`
+  redirects to the unprefixed form via the locale middleware.
 - **`app/[locale]/page.tsx` is no longer the marketplace
   feed.** The discovery feed moved to
   `app/[locale]/explorar/page.tsx`; the home renders the

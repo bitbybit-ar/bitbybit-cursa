@@ -6,11 +6,14 @@ import { verifySessionToken } from "@/lib/auth";
 
 const intlMiddleware = createMiddleware(routing);
 
-// Match `/{es,en}/panel` and `/{es,en}/panel/...`. Captures the
-// locale so we can preserve it across the sign-in bounce.
-const PANEL_PATH_RE = /^\/(es|en)\/panel(?:\/.*)?$/;
-// Match `/{es,en}/onboarding`. Reserved for the slug-claim flow.
-const ONBOARDING_PATH_RE = /^\/(es|en)\/onboarding(?:\/.*)?$/;
+// Match `/panel` (unprefixed Spanish, the default locale) and
+// `/en/panel`. Captures the non-default locale prefix so we can
+// preserve it across the sign-in bounce; an undefined capture
+// means Spanish.
+const PANEL_PATH_RE = /^(?:\/(en))?\/panel(?:\/.*)?$/;
+// Match `/onboarding` and `/en/onboarding`. Reserved for the
+// slug-claim flow.
+const ONBOARDING_PATH_RE = /^(?:\/(en))?\/onboarding(?:\/.*)?$/;
 
 /**
  * Edge middleware.
@@ -28,8 +31,10 @@ const ONBOARDING_PATH_RE = /^\/(es|en)\/onboarding(?:\/.*)?$/;
  *   2. Gate `/[locale]/onboarding` to signed-in users — same
  *      bounce.
  *
- * Everything else falls through to the next-intl locale middleware
- * so `/` redirects to `/es`, `/foo` accepts both locales, etc.
+ * Everything else falls through to the next-intl locale middleware.
+ * Spanish is the default locale and is served unprefixed (`/`,
+ * `/foo`); English routes carry the `/en` prefix. `/es/...` is
+ * redirected to the unprefixed form by the locale middleware.
  *
  * The session check uses `verifySessionToken` (jose-only, no
  * `next/headers`) so this whole module runs on the edge runtime.
@@ -40,18 +45,26 @@ export default async function proxy(request: NextRequest): Promise<NextResponse>
   const onboardingMatch = ONBOARDING_PATH_RE.exec(pathname);
 
   if (panelMatch || onboardingMatch) {
-    const locale = (panelMatch ?? onboardingMatch)![1];
+    const locale =
+      panelMatch?.[1] ?? onboardingMatch?.[1] ?? routing.defaultLocale;
     const session = await readSession(request);
 
     if (!session) {
-      const url = new URL(`/${locale}/iniciar-sesion`, request.url);
+      // Default locale (es) is unprefixed; other locales carry a
+      // `/<locale>` prefix.
+      const localePrefix =
+        locale === routing.defaultLocale ? "" : `/${locale}`;
+      const url = new URL(
+        `${localePrefix}/iniciar-sesion`,
+        request.url
+      );
       // Strip the locale prefix from `next` — the sign-in page
       // re-applies it via next-intl's locale-aware router.
-      const localePrefix = `/${locale}`;
       const fallbackTarget = panelMatch ? "/panel" : "/onboarding";
-      const targetPath = pathname.startsWith(localePrefix)
-        ? pathname.slice(localePrefix.length) || fallbackTarget
-        : pathname;
+      const targetPath =
+        localePrefix && pathname.startsWith(localePrefix)
+          ? pathname.slice(localePrefix.length) || fallbackTarget
+          : pathname || fallbackTarget;
       url.searchParams.set("next", targetPath);
       return NextResponse.redirect(url);
     }
