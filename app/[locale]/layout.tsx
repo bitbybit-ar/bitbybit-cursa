@@ -57,7 +57,7 @@ export async function generateMetadata({
       siteName: t("siteName"),
       title: t("siteTitle"),
       description: t("description"),
-      url: `${baseUrl}/${locale}`,
+      url: locale === "es" ? baseUrl : `${baseUrl}/${locale}`,
       locale: ogLocale,
       alternateLocale: altLocale,
     },

@@ -9,6 +9,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-09 | Conventions, Buyer flow | Switched next-intl to `localePrefix: "as-needed"`. Spanish (default) is now served unprefixed (`/`, `/panel`, …) and English keeps the `/en` prefix. | Spanish is the primary audience; the `/es` prefix added a redirect hop and made every share/canonical URL a level deeper than necessary. As-needed gives Spanish the natural URL while preserving an unambiguous English surface. |
 | 2026-05-09 | Static | Added `/como-funciona` and `/caracteristicas` rows. Corrected the FAQ row from `/preguntas` to `/faq` to match the implemented folder. | Three new public content pages shipped (How it works, Features, FAQ); the FAQ slug recorded here had drifted from the actual route, which would mislead contributors. |
 | 2026-05-08 | Panel API | Removed `/api/admin/upload`; image uploads now go browser-direct to Blossom servers. | ADR 0011 pins Blossom for image storage. There is no server-side proxy, so the route does not exist; documenting it would mislead contributors into building one. |
 | 2026-05-07 | Buyer flow | Renamed checkout segment from `[invoiceId]` to `[orderId]`. | Status polling lives at `/api/orders/[orderId]`; the order id is the opaque key the buyer carries from checkout to receipt; using the same name across all three surfaces removes a translation step for contributors. |
@@ -32,9 +33,13 @@
 
 ## Conventions
 
-- All user-facing routes are scoped to `/[locale]/...`. Spanish
-  (`es`) is the default locale, English (`en`) is secondary.
-  next-intl middleware handles redirects and `Accept-Language`.
+- All user-facing routes are scoped to `/[locale]/...` in the
+  filesystem, but the wire shape is **as-needed**: Spanish
+  (`es`, the default locale) is served **without** a locale
+  prefix, and English (`en`, secondary) is served with `/en`.
+  So `/[locale]/panel` resolves to `/panel` in Spanish and
+  `/en/panel` in English. next-intl middleware redirects
+  `/es/...` → `/...` and handles `Accept-Language`.
 - Slugs are Spanish-default, lowercase, kebab-case, and without
   diacritics (`/configuracion`, not `/configuración`). The
   in-page copy uses the accented form.
@@ -56,8 +61,9 @@ clicks, pays, and walks away with a redemption code or download.
 
 | Route | Purpose | Notes |
 |---|---|---|
-| `/` | 307 → `/es` | next-intl middleware |
-| `/[locale]` | Landing + catalog | Single-purpose deployment; the home page *is* the catalog. Renders offerings from Postgres. |
+| `/` | Landing + catalog (Spanish) | Default locale, no prefix. |
+| `/en` | Landing + catalog (English) | Secondary locale, prefixed. |
+| `/[locale]` | Filesystem segment | Source-of-truth shape under `app/[locale]/...`; resolves to the unprefixed URL for `es` and to `/en/...` for `en`. |
 | `/[locale]/c/[slug]` | Offering detail | Description, what the buyer gets, price (sats + ARS), CTA. `c` not `cursos` to avoid colliding with the brand word. |
 | `/[locale]/checkout/[orderId]` | Lightning invoice | QR + copy-to-clipboard, status polling against `/api/orders/[orderId]`. Survives reload. If `settings.features_autorenewal` is on, both pay-buttons (one-shot vs NWC) are visible — buyer self-selects. |
 | `/[locale]/gracias/[orderId]` | Permanent receipt | Redemption code (`type=code`) or short-lived signed download URL (`type=download`). Inline "Conectá tu Nostr para guardar este pedido" prompt. Decision pinned in ADR [0006](decisions/0006-nostr-and-inapp-delivery.md). |

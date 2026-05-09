@@ -16,18 +16,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const base = getBaseUrl();
   const lastModified = new Date();
 
+  // Default locale (es) is served unprefixed; other locales carry
+  // a `/<locale>` prefix.
+  const urlFor = (locale: string, path: string): string => {
+    const prefix = locale === routing.defaultLocale ? "" : `/${locale}`;
+    const suffix = path === "/" ? "" : path;
+    return `${base}${prefix}${suffix}` || base;
+  };
+
   return routing.locales.flatMap((locale) =>
     STATIC_PATHS.map(({ path, priority }) => ({
-      url: `${base}/${locale}${path === "/" ? "" : path}`,
+      url: urlFor(locale, path),
       lastModified,
       changeFrequency: "monthly" as const,
       priority: locale === routing.defaultLocale ? priority : priority * 0.8,
       alternates: {
         languages: Object.fromEntries(
-          routing.locales.map((l) => [
-            l,
-            `${base}/${l}${path === "/" ? "" : path}`,
-          ]),
+          routing.locales.map((l) => [l, urlFor(l, path)]),
         ),
       },
     })),
