@@ -181,10 +181,11 @@
 // surface, white icon, lift-on-hover) so it reads as the same CTA
 // the desktop "Sign in" button represents — just compressed to the
 // icon at small viewports. Fixed square 44×44 (touch-target floor)
-// so it pairs visually with the burger.
+// so it pairs visually with the burger. Hidden on desktop where the
+// full-text "Sign in" button takes over.
 .iconCta {
+  display: none;
   @include ceramic-surface($color-primary, 28%);
-  display: flex;
   align-items: center;
   justify-content: center;
   width: 44px;
@@ -204,6 +205,10 @@
       inset 0 1px 0 alpha($static-white, 50%),
       inset 0 -2px 4px alpha($static-black, 20%);
     text-decoration: none;
+  }
+
+  @include mobile {
+    display: flex;
   }
 }
 

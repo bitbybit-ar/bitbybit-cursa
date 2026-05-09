@@ -72,7 +72,25 @@
       "orContribute": "O contribuí a un proyecto específico",
       "cursaRepo": "Cursá en GitHub",
       "arenaRepo": "Arena en GitHub",
-      "habitsRepo": "Habits en GitHub"
+      "habitsRepo": "Habits en GitHub",
+      "zapModal": {
+        "title": "Zapeá a los devs",
+        "description": "Apoyá al equipo de BitByBit con un zap Lightning.",
+        "amount": "Cantidad (sats)",
+        "customPlaceholder": "Cantidad personalizada...",
+        "comment": "Mensaje (opcional)",
+        "commentPlaceholder": "¡Sigan construyendo!",
+        "send": "Enviar zap",
+        "sending": "Enviando...",
+        "success": "¡Zap enviado! ¡Gracias por el apoyo!",
+        "error": "No pudimos enviar el zap. Asegurate de que tu wallet Lightning esté desbloqueada y volvé a intentar.",
+        "errorNoAddress": "La dirección Lightning no está configurada todavía.",
+        "errorInvalidAddress": "No se pudo resolver la dirección Lightning. Puede que no esté activa todavía.",
+        "noWebln": "No se detectó una extensión de wallet — escaneá el QR o copiá la factura para pagar desde cualquier billetera Lightning. Detectamos el pago automáticamente.",
+        "copyInvoice": "Copiar invoice",
+        "copiedInvoice": "¡Invoice copiada!",
+        "waitingPayment": "Esperando el pago..."
+      }
     },
     "footer": {
       "ariaLabel": "Proyectos de BitByBit",
@@ -165,6 +183,7 @@
   },
   "common": {
     "back": "Atrás",
+    "close": "Cerrar",
     "closeDialog": "Cerrar"
   },
   "panel": {

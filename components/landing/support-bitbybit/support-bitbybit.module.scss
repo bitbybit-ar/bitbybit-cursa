@@ -100,11 +100,13 @@
   padding: $spacing-12 $spacing-32;
   min-width: 220px;
   color: $static-white;
+  border: none;
   border-radius: $border-radius-md;
   font-family: $font-body;
   font-size: $font-size-base;
   font-weight: $font-weight-bold;
   text-decoration: none;
+  cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 
   &:hover {
