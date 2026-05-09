@@ -100,14 +100,30 @@ repo's copy is intentionally identical and should stay in sync.
   for non-secret display values.
 - **Verify Wapu webhook signatures.** Every incoming webhook must be
   authenticated before any state change.
-- **Settlement is Wapu-only in v1.** Do not introduce a settlement
-  abstraction or a second rail. Decision pinned in ADR
-  `docs/architecture/decisions/0002-settlement-via-wapu.md`.
+- **Two settlement rails, picked per merchant.** Wapu is still the
+  only ARS rail (sats→ARS via Lightning, push to CBU/alias). The
+  second rail receives sats directly to a merchant's Lightning
+  Address via LNURL-pay; the merchant chooses one in `/settings`.
+  The checkout API dispatches on `merchants.payout_method`. Do not
+  introduce a third rail. Decision in ADR
+  `docs/architecture/decisions/0015-sats-settlement-rail.md`
+  (superseding the rail-count clause of ADR
+  `docs/architecture/decisions/0002-settlement-via-wapu.md`).
+- **LN settlement requires LUD-21.** The merchant's LN-address
+  provider must return a `verify` URL on its LNURL-pay callback;
+  without it we have no server-side way to confirm payment. The
+  settings PATCH mints a 1-sat probe invoice when a merchant
+  sets/changes their LN address and rejects providers that do not
+  advertise LUD-21.
+- **Wapu webhook only flips Wapu-rail orders.** A webhook delivery
+  for an order whose `rail !== 'wapu_ars'` is refused with 404 and
+  no body. The sats rail is verified by polling the order's
+  `lnurl_verify_url` from `/api/orders/[orderId]`.
 - **Catalog and runtime settings live in Postgres.** Offerings,
-  CBU/alias, and the autorenewal toggle are rows in Postgres
-  (drizzle), edited from `/[locale]/mis-cursos` and
-  `/[locale]/configuracion`. No stock counts, no variants, no
-  inventory. Decision in ADR
+  CBU/alias, Lightning Address, payout method, and the autorenewal
+  toggle are rows in Postgres (drizzle), edited from
+  `/[locale]/my-courses` and `/[locale]/settings`. No stock counts,
+  no variants, no inventory. Decision in ADR
   `docs/architecture/decisions/0009-offerings-and-settings-in-database.md`,
   superseding the catalog half of ADR
   `docs/architecture/decisions/0004-static-config-deployment.md`.
@@ -122,24 +138,35 @@ repo's copy is intentionally identical and should stay in sync.
   `docs/architecture/decisions/0010-no-yaml-config.md`.
 - **Auto-renewal is opt-in per merchant.** The flag lives in
   `merchants.features_autorenewal` (Postgres), toggled from
-  `/[locale]/configuracion`. When off, the NWC client, cron
-  handler, and encrypted-secrets storage are *deployed but
-  dormant* — gated by a runtime check on the flag. Decision in
-  ADR
+  `/[locale]/settings`. When off, the NWC client, cron handler,
+  and encrypted-secrets storage are *deployed but dormant* — gated
+  by a runtime check on the flag. Decision in ADR
   `docs/architecture/decisions/0005-prepaid-default-autorenewal-optin.md`
   (amended by ADR 0009).
 - **Creator surfaces are open to every signed-in user.** Any
-  Nostr-authenticated session can reach `/[locale]/mis-cursos`,
-  `/[locale]/configuracion`, `/[locale]/mis-ventas`, and
-  `/[locale]/mis-estudiantes`. The merchant row is auto-created
-  with placeholder values on first server-side need
-  (`ensureMerchantForPubkey`); there is no slug-claim gate.
-  Mutations to orders/payments/buyers are out of v1 scope
-  (read-only); offerings get full CRUD; settings updates that
-  touch payment-destination fields (CBU, alias) require a
-  NIP-07 re-sign at save time. Decision in ADR
+  Nostr-authenticated session can reach `/[locale]/my-courses`,
+  `/[locale]/create-course`, `/[locale]/settings`, and
+  `/[locale]/orders`. The merchant row is auto-created at sign-in
+  (`ensureMerchantForPubkey` from `/api/auth/nostr`) seeded from
+  the user's Nostr kind:0 metadata (display_name → slug + display
+  name, picture → avatar, about → bio); the user can rename their
+  slug from `/settings` later. There is no slug-claim gate, no
+  separate `/onboarding` step. Mutations to orders/payments/buyers
+  are out of v1 scope (read-only); offerings get full CRUD;
+  settings updates that touch payment-destination fields (CBU,
+  alias, Lightning Address, payout_method) require a NIP-07
+  re-sign at save time. Decision in ADR
   `docs/architecture/decisions/0014-marketplace-open-to-all-logged-in-users.md`,
   superseding ADRs 0008 and 0012.
+- **All logged-in routes are English under a `(logged-in)` route
+  group.** `/settings`, `/my-courses`, `/create-course`,
+  `/orders`, `/purchases`. Public routes follow the same English
+  convention: `/explore`, `/sign-in`, `/receipt/[orderId]`,
+  `/claim/[orderId]`. `/m/[slug]` and `/checkout/[orderId]` keep
+  their existing names. Legacy paths (pre-ADR-0014 `/panel/*` and
+  the ADR-0014-era Spanish slugs) 308-redirect to the new URLs via
+  `proxy.ts`. Reserved-slug list in `lib/admin/ar-bank-id.ts`
+  blocks merchants from claiming any of these.
 - **Notifications are a Postgres table polled by the navbar
   bell.** Wapu's `paid` webhook emits `order.paid` to the buyer
   (when signed in) and `sale.received` to the merchant. Helpers

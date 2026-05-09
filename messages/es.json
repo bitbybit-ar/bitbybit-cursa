@@ -34,7 +34,7 @@
     },
     "hero": {
       "title": "Cursá tu próxima clase con <gradient>sats</gradient>.",
-      "subtitle": "Comprá clases, talleres y materiales con tu wallet Lightning. El profe cobra en pesos, en su CBU.",
+      "subtitle": "Comprá clases, talleres y materiales con tu wallet Lightning. El profe cobra sats o en pesos, en su CBU.",
       "ctaExplore": "Explorar cursos",
       "ctaPublish": "Publicá tu curso"
     },
@@ -208,7 +208,7 @@
   "catalog": {
     "hero": {
       "title": "Cursá tu próxima clase con sats.",
-      "subtitle": "Comprá clases, talleres y materiales con tu wallet Lightning. El profe cobra en pesos, en su CBU."
+      "subtitle": "Comprá clases, talleres y materiales con tu wallet Lightning. El profe cobra sats o en pesos, en su CBU."
     },
     "list": {
       "heading": "Disponibles ahora",
@@ -247,6 +247,10 @@
   "receipt": {
     "title": "¡Listo! Tu compra está confirmada.",
     "subtitle": "Guardá esta página: es tu comprobante permanente.",
+    "settlement": {
+      "ars": "Liquidado en pesos al CBU/alias del profesor.",
+      "sats": "Liquidado en sats al Lightning Address del profesor."
+    },
     "code": {
       "label": "Código de canje",
       "pending": "Tu código está siendo asignado. Recargá esta página en unos segundos.",
@@ -285,6 +289,12 @@
     "close": "Cerrar",
     "closeDialog": "Cerrar"
   },
+  "createCourse": {
+    "metadataTitle": "Nuevo curso",
+    "back": "Volver al catálogo",
+    "title": "Nuevo curso",
+    "subtitle": "Definí los detalles para que el curso aparezca en tu storefront."
+  },
   "myCourses": {
     "metadataTitle": "Mis cursos",
     "title": "Mis cursos",
@@ -297,12 +307,6 @@
     "type": {
       "code": "Código de canje",
       "download": "Descarga"
-    },
-    "create": {
-      "metadataTitle": "Nuevo curso",
-      "back": "Volver al catálogo",
-      "title": "Nuevo curso",
-      "subtitle": "Definí los detalles para que el curso aparezca en tu storefront."
     },
     "edit": {
       "metadataTitle": "Editar {slug}",
@@ -357,17 +361,17 @@
       "archiveConfirm": "¿Seguro que querés archivar este curso? Dejará de mostrarse en el storefront."
     }
   },
-  "mySales": {
-    "metadataTitle": "Mis ventas",
-    "title": "Mis ventas",
+  "orders": {
+    "metadataTitle": "Pedidos",
+    "title": "Pedidos",
     "subtitle": "Historial de ventas de tu storefront. Solo lectura en v1.",
     "empty": "Todavía no hay ventas.",
     "anonymous": "Anónimo",
     "unknownOffering": "Oferta desconocida",
     "detail": {
-      "metadataTitle": "Detalle de la venta",
-      "back": "Volver a ventas",
-      "title": "Detalle de la venta",
+      "metadataTitle": "Detalle del pedido",
+      "back": "Volver a pedidos",
+      "title": "Detalle del pedido",
       "orderId": "ID del pedido",
       "offering": "Oferta",
       "createdAt": "Creado",
@@ -381,41 +385,29 @@
       "wapuInvoiceId": "Wapu invoice ID",
       "wapuSettlementRef": "Referencia de liquidación",
       "unknownOffering": "Oferta desconocida",
-      "readOnlyHint": "Las ventas son de solo lectura en v1: ni reembolsos, ni reenvíos, ni marcado manual de entrega."
+      "readOnlyHint": "Los pedidos son de solo lectura en v1: ni reembolsos, ni reenvíos, ni marcado manual de entrega."
     }
   },
-  "myStudents": {
-    "metadataTitle": "Mis estudiantes",
-    "title": "Mis estudiantes",
-    "subtitle": "Compradores con identidad Nostr asociada.",
-    "empty": "Todavía no hay estudiantes con identidad.",
-    "orderCount": "{n, plural, one {# pedido} other {# pedidos}}",
-    "paidCount": "{n, plural, one {# pagado} other {# pagados}}",
-    "lastSeen": "Último: {date}",
-    "detail": {
-      "metadataTitle": "Detalle del estudiante",
-      "back": "Volver a estudiantes",
-      "title": "Estudiante",
-      "orderCount": "Pedidos",
-      "paidCount": "Pagados",
-      "totalArs": "Total ARS",
-      "ordersHeading": "Pedidos",
-      "unknownOffering": "Oferta desconocida"
-    }
-  },
-  "accountSettings": {
-    "metadataTitle": "Configuración",
+  "settings": {
+    "metadataTitle": "Configuración · Cursá",
     "title": "Configuración",
     "subtitle": "Datos de cobro y opciones del storefront.",
     "warningTitle": "Cambios visibles para todos los compradores.",
     "warningBody": "El CBU/alias acá define a dónde se acreditan tus pagos. Verificá los datos antes de guardar.",
     "form": {
       "payoutLegend": "Datos de cobro",
-      "payoutHint": "Wapu deposita los pesos en este CBU o alias. Necesitás al menos uno.",
+      "payoutHint": "Elegí cómo querés recibir lo que vendés. Podés cambiar el método más adelante.",
+      "railArs": "Cobrar en pesos (CBU/alias)",
+      "railArsHint": "Wapu convierte los sats a ARS y deposita en tu cuenta argentina.",
+      "railSats": "Cobrar en sats (Lightning Address)",
+      "railSatsHint": "Recibís los sats directamente en tu wallet, sin pasar por Wapu. Tu proveedor tiene que soportar LUD-21.",
       "cbu": "CBU",
       "cbuPlaceholder": "0000003100000000000000",
       "alias": "Alias",
       "aliasPlaceholder": "MI.ALIAS.MP",
+      "lightningAddress": "Lightning Address",
+      "lightningAddressPlaceholder": "vos@walletofsatoshi.com",
+      "lightningAddressHint": "Compatible con Wallet of Satoshi, Strike, Alby Hub, LNbits, ZBD, Primal y otros que soporten LUD-21. Al guardar generamos una factura de prueba de 1 sat para verificar la dirección — la podés ignorar; expira sin pagar.",
       "featuresLegend": "Funciones",
       "autorenewal": "Auto-renovación con NWC",
       "autorenewalHint": "Mostrá la opción de auto-renovación en el checkout. Apagada deja el código dormante.",
@@ -424,8 +416,10 @@
       "saved": "Configuración guardada.",
       "saveFailed": "No pudimos guardar la configuración. Probá de nuevo.",
       "destinationRequired": "Tenés que cargar al menos un CBU o un alias.",
+      "lightningAddressRequired": "Cargá una Lightning Address para cobrar en sats.",
+      "lightningAddressInvalid": "Esa Lightning Address no responde o no soporta LUD-21. Probá con WoS, Strike, Alby Hub, LNbits, ZBD o Primal.",
       "signRequiredTitle": "Confirmá el cambio con tu firma",
-      "signRequiredBody": "Cambiar el CBU o alias requiere una firma adicional con tu signer Nostr.",
+      "signRequiredBody": "Cambiar el CBU, alias o Lightning Address requiere una firma adicional con tu signer Nostr.",
       "signCancelled": "Cancelaste la firma. Intentá de nuevo cuando estés listo.",
       "signClockSkew": "La hora de tu dispositivo no coincide. Sincronizala y volvé a intentar."
     }
@@ -539,13 +533,17 @@
     "unreadCount": "{count, plural, =0 {Ninguna sin leer} one {# sin leer} other {# sin leer}}",
     "markAllRead": "Marcar todo como leído",
     "types": {
-      "order.paid": {
-        "title": "Pago confirmado",
-        "body": "Tu compra de {offering} ya está lista."
+      "order": {
+        "paid": {
+          "title": "Pago confirmado",
+          "body": "Tu compra de {offering} ya está lista."
+        }
       },
-      "sale.received": {
-        "title": "Venta nueva",
-        "body": "Alguien compró {offering}."
+      "sale": {
+        "received": {
+          "title": "Venta nueva",
+          "body": "Alguien compró {offering}."
+        }
       }
     }
   },

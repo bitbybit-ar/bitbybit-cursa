@@ -10,7 +10,7 @@ import { ReSignPrompt } from "@/components/auth/re-sign-prompt";
  * stays a server component (functions can't cross the RSC boundary).
  *
  * The modal handles "re-attach to existing session" only — Cursá's
- * full login flow lives at /iniciar-sesion, not in a modal. The
+ * full login flow lives at /sign-in, not in a modal. The
  * modal is rendered unconditionally; it returns null when not open.
  */
 export function SignerProviderClient({ children }: { children: ReactNode }) {

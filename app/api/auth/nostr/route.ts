@@ -5,6 +5,8 @@ import { parseNostrAuthHeader } from "@/lib/nostr/http-auth";
 import { createSession, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { LocaleSchema, SignerTypeSchema, type Locale, type SignerType } from "@/lib/schemas/auth";
 import { SESSION_DURATION_DAYS } from "@/lib/auth-constants";
+import { fetchKind0Profile } from "@/lib/nostr/profile";
+import { ensureMerchantForPubkey } from "@/lib/admin/merchants";
 
 /**
  * NIP-98 (HTTP Auth) login.
@@ -91,6 +93,28 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const pubkey = event.pubkey;
   const signerType = readSignerType(event.tags);
   const locale = readLocale(event.tags);
+
+  // Auto-create the merchant row at sign-in (ADR 0015), seeded
+  // from the user's kind:0 metadata when available so the storefront
+  // /m/[slug] doesn't ship placeholder values. Best-effort: if the
+  // relay set returns nothing in 3s, we fall back to the pubkey-
+  // derived placeholder slug + display_name and the user can rename
+  // from /settings later. Failures here are non-fatal — sign-in
+  // proceeds even if the merchant insert errors (legacy sessions
+  // from before this code can still hit lazy-create surfaces).
+  try {
+    const profile = await fetchKind0Profile(pubkey);
+    await ensureMerchantForPubkey(pubkey, {
+      display_name: profile.display_name ?? profile.name,
+      avatar_url: profile.picture,
+      bio: profile.about,
+    });
+  } catch (err) {
+    console.warn(
+      `[auth/nostr] ensureMerchantForPubkey failed for ${pubkey}:`,
+      err instanceof Error ? err.message : err
+    );
+  }
 
   const token = await createSession({
     pubkey,

@@ -1,0 +1,103 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-24;
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-12;
+  text-align: center;
+  margin-bottom: $spacing-16;
+}
+
+.successBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background-color: color-mix(in srgb, $color-success 15%, transparent);
+  color: $color-success;
+  margin-bottom: $spacing-8;
+}
+
+.title {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+}
+
+.subtitle {
+  margin: 0;
+  color: $color-text-secondary;
+  line-height: $line-height-base;
+}
+
+.offeringName {
+  margin: 0;
+  text-align: center;
+  font-family: $font-family-display;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.settlement {
+  margin: 0;
+  text-align: center;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.pendingCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-16;
+  text-align: center;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: $spacing-32;
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid color-mix(in srgb, $color-primary 25%, transparent);
+  border-top-color: $color-primary;
+  animation: spin 0.9s linear infinite;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-4;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  text-decoration: none;
+
+  &:hover {
+    color: $color-text-primary;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/i18n/routing";
+import { Link, useRouter, usePathname } from "@/i18n/routing";
 import { Avatar } from "@/components/common/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -38,6 +38,8 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
   const t = useTranslations("landing.nav");
   const { session, signOut } = useSignerContext();
   const router = useRouter();
+  const pathname = usePathname();
+  const isSignInPage = pathname === "/sign-in";
   const { profile } = useNostrProfile(session?.pubkey);
   const drawerRef = useRef<HTMLElement>(null);
 
@@ -135,7 +137,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
           {session ? (
             <>
               <Link
-                href="/mis-compras"
+                href="/purchases"
                 className={styles.action}
                 onClick={onClose}
               >
@@ -143,7 +145,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                 {t("myPurchases")}
               </Link>
               <Link
-                href="/mis-cursos"
+                href="/my-courses"
                 className={styles.action}
                 onClick={onClose}
               >
@@ -151,7 +153,7 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                 {t("myCourses")}
               </Link>
               <Link
-                href="/configuracion"
+                href="/settings"
                 className={styles.action}
                 onClick={onClose}
               >
@@ -167,9 +169,9 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
                 {t("signOut")}
               </button>
             </>
-          ) : (
+          ) : isSignInPage ? null : (
             <Button
-              href="/iniciar-sesion"
+              href="/sign-in"
               variant="primary"
               fullWidth
               onClick={onClose}

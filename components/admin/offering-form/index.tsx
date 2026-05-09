@@ -104,8 +104,8 @@ export function OfferingForm({ offering }: OfferingFormProps) {
     setIsPending(true);
     try {
       const url = isEdit
-        ? `/api/admin/offerings/${offering!.id}`
-        : "/api/admin/offerings";
+        ? `/api/my-courses/${offering!.id}`
+        : "/api/my-courses";
       const res = await fetch(url, {
         method: isEdit ? "PATCH" : "POST",
         headers: { "content-type": "application/json" },
@@ -128,7 +128,7 @@ export function OfferingForm({ offering }: OfferingFormProps) {
         return;
       }
       showToast(t("saved"), "success");
-      router.push("/mis-cursos");
+      router.push("/my-courses");
       router.refresh();
     } catch {
       showToast(tErr("network"), "error");
@@ -144,7 +144,7 @@ export function OfferingForm({ offering }: OfferingFormProps) {
 
     setIsArchiving(true);
     try {
-      const res = await fetch(`/api/admin/offerings/${offering.id}`, {
+      const res = await fetch(`/api/my-courses/${offering.id}`, {
         method: "DELETE",
       });
       if (!res.ok) {
@@ -152,7 +152,7 @@ export function OfferingForm({ offering }: OfferingFormProps) {
         return;
       }
       showToast(t("archived"), "success");
-      router.push("/mis-cursos");
+      router.push("/my-courses");
       router.refresh();
     } catch {
       showToast(tErr("network"), "error");

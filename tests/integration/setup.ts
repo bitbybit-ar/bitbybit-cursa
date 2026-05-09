@@ -48,6 +48,8 @@ export async function seedMerchant(
     display_name: string;
     alias: string | null;
     cbu: string | null;
+    lightning_address: string | null;
+    payout_method: "cbu_alias" | "lightning_address";
     active: boolean;
   }> = {}
 ) {
@@ -61,6 +63,8 @@ export async function seedMerchant(
       display_name: overrides.display_name ?? "Demo Merchant",
       alias: overrides.alias ?? "demo.test.alias",
       cbu: overrides.cbu ?? null,
+      lightning_address: overrides.lightning_address ?? null,
+      payout_method: overrides.payout_method ?? "cbu_alias",
       active: overrides.active ?? true,
     })
     .returning();

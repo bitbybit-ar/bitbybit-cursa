@@ -1,9 +1,9 @@
 # 0002. Hardcode settlement via Wapu
 
 - **Date**: 2026-05-05
-- **Status**: Accepted
+- **Status**: Superseded by [0015](0015-sats-settlement-rail.md) (settlement-rail-count clause only; ADR 0015 adds a sats rail next to Wapu without removing it)
 - **Deciders**: BitByBit team
-- **Last updated**: 2026-05-07
+- **Last updated**: 2026-05-09
 
 ---
 
@@ -11,6 +11,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-09 | Status | Marked the single-rail clause superseded by ADR 0015. Wapu remains the only ARS rail; the sats rail joins it as a sibling, picked per merchant. | Merchants asked to keep their pay in sats and the v1 single-rail constraint blocked it. ADR 0002's "neutral" section already foresaw revisiting via a follow-up ADR. |
 | 2026-05-07 | References | Removed the dead `docs.wapu.app/api-docs/en` URL and added the production + staging API base URLs (`be-prod.wapu.app`, `staging.wapu.app`). The wapu-cli repo reference was already present; promoted it to the canonical source of the API contract while Wapu's formal docs site does not exist. Also captured the operational detail that Wapu settles ARS by **alias** (not raw CBU), which our `settings.alias` column should treat as the primary required field. | The reference list pointed at a 404 URL, and the wapu-cli source (which I read after the original ADR was written) reveals concrete operational facts — the alias-based payout in particular — that future readers should see without having to reread the CLI source. |
 | 2026-05-05 | — | Initial version. | Pin the settlement choice before scaffolding so the codebase does not grow a speculative abstraction. |
 

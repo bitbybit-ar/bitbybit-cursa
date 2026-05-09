@@ -156,7 +156,7 @@ export default async function HowItWorksPage({ params }: Props) {
           <h2 className={styles.sectionTitle}>{t("cta.title")}</h2>
           <div className={styles.ctaButtons}>
             <Button
-              href="/explorar"
+              href="/explore"
               variant="primary"
               size="lg"
               className={styles.cta}
@@ -164,7 +164,7 @@ export default async function HowItWorksPage({ params }: Props) {
               {t("cta.explore")}
             </Button>
             <Button
-              href="/iniciar-sesion?next=/mis-cursos/nueva"
+              href="/sign-in?next=/create-course"
               variant="primary"
               size="lg"
               className={`${styles.cta} ${styles.ctaSoft}`}

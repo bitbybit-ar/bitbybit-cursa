@@ -49,7 +49,7 @@ export interface SessionUser {
   /**
    * The merchant row keyed to this pubkey, or null when the user
    * has not claimed a slug yet (or has been deactivated). The
-   * panel layout redirects null merchants to /onboarding;
+   * panel layout redirects null merchants to /sign-in;
    * client-side consumers gate the "manage your store" CTA.
    */
   merchant: SessionMerchantSummary | null;

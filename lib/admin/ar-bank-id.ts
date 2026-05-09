@@ -45,14 +45,38 @@ export type AliasError = "format" | "length" | "no_letter";
 export type CbuError = "format";
 export type SlugError = "format" | "length" | "reserved";
 
-const RESERVED_SLUGS = new Set([
+/**
+ * Slugs the merchant cannot claim. Public so callers that GENERATE
+ * candidate slugs (e.g. lib/admin/merchants.ts when seeding from
+ * kind:0 metadata) can avoid producing one that the validator
+ * would later reject. A duplicated copy in the merchants module
+ * would drift on every URL rename — single source of truth here.
+ */
+export const RESERVED_SLUGS = new Set([
+  // Current English routes
+  "settings",
+  "my-courses",
+  "create-course",
+  "orders",
+  "purchases",
+  "explore",
+  "sign-in",
+  "receipt",
+  "claim",
+  "checkout",
+  // Legacy paths still served via 308 redirects
   "panel",
   "onboarding",
   "iniciar-sesion",
   "mis-compras",
+  "mis-cursos",
+  "mis-ventas",
+  "mis-estudiantes",
+  "configuracion",
   "reclamar",
-  "checkout",
+  "explorar",
   "gracias",
+  // Reserved for system / framework
   "api",
   "c",
   "m",

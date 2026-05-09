@@ -13,9 +13,13 @@ import {
 import { isSignerCancellation } from "@/lib/nostr/auth-errors";
 import styles from "./settings-form.module.scss";
 
+type PayoutMethod = "cbu_alias" | "lightning_address";
+
 interface SettingsFormProps {
   initialCbu: string;
   initialAlias: string;
+  initialLightningAddress: string;
+  initialPayoutMethod: PayoutMethod;
   initialAutorenewal: boolean;
 }
 
@@ -27,16 +31,23 @@ function emptyToNull(value: string): string | null {
 export function SettingsForm({
   initialCbu,
   initialAlias,
+  initialLightningAddress,
+  initialPayoutMethod,
   initialAutorenewal,
 }: SettingsFormProps) {
-  const t = useTranslations("accountSettings.form");
+  const t = useTranslations("settings.form");
   const tErr = useTranslations("errors");
   const router = useRouter();
   const { showToast } = useToast();
   const { signWithPrompt } = useSignerContext();
 
+  const [payoutMethod, setPayoutMethod] =
+    useState<PayoutMethod>(initialPayoutMethod);
   const [cbu, setCbu] = useState(initialCbu);
   const [alias, setAlias] = useState(initialAlias);
+  const [lightningAddress, setLightningAddress] = useState(
+    initialLightningAddress
+  );
   const [isAutorenewal, setIsAutorenewal] = useState(initialAutorenewal);
   const [isPending, setIsPending] = useState(false);
 
@@ -44,16 +55,25 @@ export function SettingsForm({
     e.preventDefault();
     if (isPending) return;
 
-    if (!cbu.trim() && !alias.trim()) {
+    if (payoutMethod === "cbu_alias" && !cbu.trim() && !alias.trim()) {
       showToast(t("destinationRequired"), "error");
+      return;
+    }
+    if (payoutMethod === "lightning_address" && !lightningAddress.trim()) {
+      showToast(t("lightningAddressRequired"), "error");
       return;
     }
 
     const nextCbu = emptyToNull(cbu);
     const nextAlias = emptyToNull(alias);
+    const nextLightningAddress = emptyToNull(lightningAddress);
     const cbuChanged = nextCbu !== emptyToNull(initialCbu);
     const aliasChanged = nextAlias !== emptyToNull(initialAlias);
-    const requiresReSign = cbuChanged || aliasChanged;
+    const lightningChanged =
+      nextLightningAddress !== emptyToNull(initialLightningAddress);
+    const railChanged = payoutMethod !== initialPayoutMethod;
+    const requiresReSign =
+      cbuChanged || aliasChanged || lightningChanged || railChanged;
 
     setIsPending(true);
     try {
@@ -62,6 +82,8 @@ export function SettingsForm({
       const serialized = JSON.stringify({
         cbu: nextCbu,
         alias: nextAlias,
+        lightning_address: nextLightningAddress,
+        payout_method: payoutMethod,
         features_autorenewal: isAutorenewal,
       });
 
@@ -71,7 +93,7 @@ export function SettingsForm({
 
       if (requiresReSign) {
         const url = new URL(
-          "/api/admin/settings",
+          "/api/settings",
           window.location.origin
         ).toString();
         const payloadHash = await hashSettingsBody(serialized);
@@ -94,15 +116,13 @@ export function SettingsForm({
         }
       }
 
-      const res = await fetch("/api/admin/settings", {
+      const res = await fetch("/api/settings", {
         method: "PATCH",
         headers,
         body: serialized,
       });
       if (!res.ok) {
         if (res.status === 401 || res.status === 404) {
-          // 404 here means the admin gate fired, not a missing
-          // resource — same handling as before.
           if (res.status === 404) {
             router.push("/");
             return;
@@ -116,6 +136,16 @@ export function SettingsForm({
           }
           showToast(t("signRequiredBody"), "error");
           return;
+        }
+        if (res.status === 400) {
+          const json = (await res.json().catch(() => null)) as {
+            error?: string;
+            reason?: string;
+          } | null;
+          if (json?.error === "lightning_address_invalid") {
+            showToast(t("lightningAddressInvalid"), "error");
+            return;
+          }
         }
         showToast(t("saveFailed"), "error");
         return;
@@ -135,38 +165,91 @@ export function SettingsForm({
         <legend className={styles.legend}>{t("payoutLegend")}</legend>
         <p className={styles.legendHint}>{t("payoutHint")}</p>
 
-        <div className={styles.field}>
-          <label htmlFor="cbu" className={styles.label}>
-            {t("cbu")}
+        <div className={styles.railSelector}>
+          <label className={styles.railOption}>
+            <input
+              type="radio"
+              name="payout_method"
+              value="cbu_alias"
+              checked={payoutMethod === "cbu_alias"}
+              onChange={() => setPayoutMethod("cbu_alias")}
+            />
+            <span>
+              <strong>{t("railArs")}</strong>
+              <span className={styles.railHint}>{t("railArsHint")}</span>
+            </span>
           </label>
-          <input
-            id="cbu"
-            type="text"
-            inputMode="numeric"
-            className={styles.input}
-            value={cbu}
-            onChange={(e) => setCbu(e.target.value)}
-            placeholder={t("cbuPlaceholder")}
-            autoComplete="off"
-            spellCheck={false}
-          />
+          <label className={styles.railOption}>
+            <input
+              type="radio"
+              name="payout_method"
+              value="lightning_address"
+              checked={payoutMethod === "lightning_address"}
+              onChange={() => setPayoutMethod("lightning_address")}
+            />
+            <span>
+              <strong>{t("railSats")}</strong>
+              <span className={styles.railHint}>{t("railSatsHint")}</span>
+            </span>
+          </label>
         </div>
 
-        <div className={styles.field}>
-          <label htmlFor="alias" className={styles.label}>
-            {t("alias")}
-          </label>
-          <input
-            id="alias"
-            type="text"
-            className={styles.input}
-            value={alias}
-            onChange={(e) => setAlias(e.target.value)}
-            placeholder={t("aliasPlaceholder")}
-            autoComplete="off"
-            spellCheck={false}
-          />
-        </div>
+        {payoutMethod === "cbu_alias" ? (
+          <>
+            <div className={styles.field}>
+              <label htmlFor="cbu" className={styles.label}>
+                {t("cbu")}
+              </label>
+              <input
+                id="cbu"
+                type="text"
+                inputMode="numeric"
+                className={styles.input}
+                value={cbu}
+                onChange={(e) => setCbu(e.target.value)}
+                placeholder={t("cbuPlaceholder")}
+                autoComplete="off"
+                spellCheck={false}
+              />
+            </div>
+
+            <div className={styles.field}>
+              <label htmlFor="alias" className={styles.label}>
+                {t("alias")}
+              </label>
+              <input
+                id="alias"
+                type="text"
+                className={styles.input}
+                value={alias}
+                onChange={(e) => setAlias(e.target.value)}
+                placeholder={t("aliasPlaceholder")}
+                autoComplete="off"
+                spellCheck={false}
+              />
+            </div>
+          </>
+        ) : (
+          <div className={styles.field}>
+            <label htmlFor="lightning_address" className={styles.label}>
+              {t("lightningAddress")}
+            </label>
+            <input
+              id="lightning_address"
+              type="text"
+              inputMode="email"
+              className={styles.input}
+              value={lightningAddress}
+              onChange={(e) => setLightningAddress(e.target.value)}
+              placeholder={t("lightningAddressPlaceholder")}
+              autoComplete="off"
+              spellCheck={false}
+            />
+            <span className={styles.fieldHint}>
+              {t("lightningAddressHint")}
+            </span>
+          </div>
+        )}
       </fieldset>
 
       <fieldset className={styles.fieldset}>

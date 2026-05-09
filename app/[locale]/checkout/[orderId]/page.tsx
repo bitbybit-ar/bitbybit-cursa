@@ -26,7 +26,7 @@ export default async function CheckoutPage({ params }: Props) {
   if (!order) notFound();
 
   if (order.status === "paid") {
-    redirect({ href: `/gracias/${orderId}`, locale });
+    redirect({ href: `/receipt/${orderId}`, locale });
   }
 
   const offering = await getOfferingById(order.offering_id);

@@ -173,3 +173,66 @@ describe("POST /api/wapu/webhook — rejections", () => {
     expect(after?.status).toBe("pending");
   });
 });
+
+// Rail guard (ADR 0015). A Wapu-shaped webhook arriving for a
+// direct_lightning order must be refused — the verify-URL polling
+// path is responsible for that rail; letting Wapu flip the row
+// would create a payment-confirmation oracle for an unrelated
+// settlement track.
+describe("POST /api/wapu/webhook — rail guard (direct_lightning)", () => {
+  it("404s when the order's rail is direct_lightning, leaving the row pending", async () => {
+    const merchant = await seedMerchant({
+      // Switch rail to LN; createOrder will stamp the new order
+      // with rail=direct_lightning.
+      payout_method: "lightning_address",
+      lightning_address: "alice@strike.me",
+      cbu: null,
+      alias: null,
+    });
+    const [offering] = await testDb
+      .insert(offerings)
+      .values({
+        merchant_id: merchant.id,
+        slug: "ln-offering",
+        type: "code",
+        title: "LN Course",
+        description: "via lightning",
+        price_ars: 1000,
+      })
+      .returning();
+    const result = await createOrder({
+      offering_id: offering.id,
+      pubkey: null,
+    });
+    const order = await getOrder(result.order_id);
+    expect(order?.rail).toBe("direct_lightning");
+
+    // Hand-craft a valid Wapu webhook for this order id.
+    const event: WapuWebhookEvent = {
+      event_type: "direct_fiat.paid",
+      tentative_uuid: "should-not-match",
+      payment_hash: order!.payment_hash!,
+      occurred_at: Math.floor(Date.now() / 1000),
+      amount_sats: order!.amount_sats,
+      amount_ars: order!.amount_ars,
+      external_id: result.order_id,
+      settlement_ref: "wapu_should_not_settle_this",
+    };
+    const signer = new MockWapuClient("test-webhook-secret");
+    const { rawBody, signature } = signer.signWebhookPayload(event);
+    const res = await POST(buildWebhookRequest(rawBody, signature));
+
+    expect(res.status).toBe(404);
+    // 404 has no body — confirm we did not surface the order's
+    // existence in the response.
+    expect(await res.text()).toBe("");
+
+    // Order must still be pending. A bug here would mean Wapu can
+    // mark sats-rail orders paid without the merchant's wallet
+    // ever receiving the funds.
+    const after = await getOrder(result.order_id);
+    expect(after?.status).toBe("pending");
+    expect(after?.paid_at).toBeNull();
+    expect(after?.wapu_settlement_ref).toBeNull();
+  });
+});

@@ -5,6 +5,10 @@ import {
   getWapuClient,
   type DirectPaymentFunding,
 } from "@/lib/wapu";
+import {
+  getLightningClient,
+  LightningMintError,
+} from "@/lib/lightning";
 import { pickPayoutAlias } from "@/lib/admin/merchants";
 
 export interface CreateOrderInput {
@@ -13,16 +17,34 @@ export interface CreateOrderInput {
   pubkey: string | null;
 }
 
+/**
+ * Funding instructions returned by createOrder. Rail-agnostic — the
+ * checkout UI only needs bolt11, amounts, and a TTL hint. The ARS
+ * amount is always present (always priced in pesos for display); it
+ * is settled-in only for `wapu_ars` orders. payment_hash rides along
+ * for callers (tests, debugging) that want to assert on the on-row
+ * identifier; the public /api/checkout response strips it.
+ */
+export interface OrderFunding {
+  bolt11: string;
+  amount_sats: number;
+  amount_ars: number;
+  expires_at: number;
+  payment_hash: string;
+}
+
 export interface CreateOrderResult {
   order_id: string;
-  funding: DirectPaymentFunding;
+  funding: OrderFunding;
 }
 
 export type CreateOrderError =
   | "offering_not_found"
   | "offering_archived"
   | "merchant_inactive"
-  | "merchant_payout_missing";
+  | "merchant_payout_missing"
+  | "merchant_lightning_address_missing"
+  | "lightning_mint_failed";
 
 export class OrderCreateError extends Error {
   constructor(public readonly code: CreateOrderError) {
@@ -31,23 +53,31 @@ export class OrderCreateError extends Error {
   }
 }
 
+// Default sats price when the offering has no pinned price_sats and
+// the order rides the direct-Lightning rail. Wapu derives sats from
+// ARS at funding time on its own; the LN rail has no upstream rate
+// quote, so we fall back to a fixed dev rate matching
+// MockWapuClient.MOCK_SATS_PER_ARS. Production deployments will swap
+// this for a live FX feed before flipping LIGHTNING_USE_REAL_CLIENT.
+const FALLBACK_SATS_PER_ARS = 4;
+
 /**
- * Atomically create a pending order row and the matching Wapu
- * direct-payment funding instructions. The order id is the opaque
- * `orderId` that powers the receipt URL
- * `/[locale]/gracias/[orderId]`.
+ * Atomically create a pending order row and the matching funding
+ * instructions. The order id is the opaque `orderId` that powers
+ * the receipt URL `/[locale]/receipt/[orderId]`.
  *
- * Marketplace edition (ADR 0012):
- *   - The offering's merchant must be active and have a payout
- *     destination (alias or CBU) on file.
- *   - Wapu routes the ARS straight to the merchant's
- *     `pickPayoutAlias` value at settlement time. The platform
- *     never holds funds.
+ * Two rails (ADR 0015):
  *
- * If Wapu rejects the tentative or funding step we surface the
- * error to the caller and never write the order row — failed
- * checkouts should not leave orphaned `pending` rows polluting any
- * dashboard.
+ *   - merchant.payout_method = 'cbu_alias' (default) → Wapu mints a
+ *     BOLT11 against the merchant's bank alias/CBU and settles ARS
+ *     to the merchant after the buyer pays.
+ *   - merchant.payout_method = 'lightning_address' → lib/lightning
+ *     resolves the merchant's LN address, mints a BOLT11 directly,
+ *     and the merchant's wallet receives the sats. No Wapu, no ARS.
+ *     The order's `lnurl_verify_url` powers the status poller.
+ *
+ * Failed checkouts delete the pending row before throwing so we do
+ * not leave orphans polluting any dashboard.
  */
 export async function createOrder(
   input: CreateOrderInput
@@ -68,12 +98,10 @@ export async function createOrder(
   }
   if (!merchant.active) throw new OrderCreateError("merchant_inactive");
 
-  const payoutAlias = pickPayoutAlias(merchant);
-  if (!payoutAlias) throw new OrderCreateError("merchant_payout_missing");
-
-  // Insert the order BEFORE calling Wapu so we have an external_id
-  // to send (the order's row id). If Wapu fails we delete the row
-  // before throwing so failed checkouts do not leave pending rows.
+  // Insert the order first so we have an external_id to give upstream.
+  // Stamp the rail at insert time from the merchant's current
+  // payout_method — flipping the rail later does not retroactively
+  // rewrite an in-flight order.
   const [pendingRow] = await db
     .insert(orders)
     .values({
@@ -82,30 +110,29 @@ export async function createOrder(
       merchant_id: merchant.id,
       amount_ars: offering.price_ars,
       amount_sats: 0,
+      rail:
+        merchant.payout_method === "lightning_address"
+          ? "direct_lightning"
+          : "wapu_ars",
     })
     .returning();
 
   try {
-    const wapu = getWapuClient();
-    const tentative = await wapu.createDirectPayment({
-      amount_ars: offering.price_ars,
-      alias: payoutAlias,
-      receiver_name: merchant.display_name,
-      external_id: pendingRow.id,
+    if (merchant.payout_method === "lightning_address") {
+      const funding = await fundDirectLightningOrder({
+        order_id: pendingRow.id,
+        offering_title: offering.title,
+        offering_price_ars: offering.price_ars,
+        offering_price_sats: offering.price_sats,
+        lightning_address: merchant.lightning_address,
+      });
+      return { order_id: pendingRow.id, funding };
+    }
+    const funding = await fundWapuOrder({
+      order_id: pendingRow.id,
+      offering_price_ars: offering.price_ars,
+      merchant,
     });
-    const funding = await wapu.issueDirectPaymentFunding(tentative.uuid);
-
-    await db
-      .update(orders)
-      .set({
-        amount_sats: funding.amount_sats,
-        payment_hash: funding.payment_hash,
-        wapu_tentative_uuid: tentative.uuid,
-        bolt11: funding.bolt11,
-        updated_at: new Date(),
-      })
-      .where(eq(orders.id, pendingRow.id));
-
     return { order_id: pendingRow.id, funding };
   } catch (err) {
     await db.delete(orders).where(eq(orders.id, pendingRow.id));
@@ -113,10 +140,105 @@ export async function createOrder(
   }
 }
 
+async function fundWapuOrder(opts: {
+  order_id: string;
+  offering_price_ars: number;
+  merchant: typeof merchants.$inferSelect;
+}): Promise<OrderFunding> {
+  const db = getDb();
+  const payoutAlias = pickPayoutAlias(opts.merchant);
+  if (!payoutAlias) throw new OrderCreateError("merchant_payout_missing");
+
+  const wapu = getWapuClient();
+  const tentative = await wapu.createDirectPayment({
+    amount_ars: opts.offering_price_ars,
+    alias: payoutAlias,
+    receiver_name: opts.merchant.display_name,
+    external_id: opts.order_id,
+  });
+  const funding: DirectPaymentFunding = await wapu.issueDirectPaymentFunding(
+    tentative.uuid
+  );
+
+  await db
+    .update(orders)
+    .set({
+      amount_sats: funding.amount_sats,
+      payment_hash: funding.payment_hash,
+      wapu_tentative_uuid: tentative.uuid,
+      bolt11: funding.bolt11,
+      updated_at: new Date(),
+    })
+    .where(eq(orders.id, opts.order_id));
+
+  return {
+    bolt11: funding.bolt11,
+    amount_sats: funding.amount_sats,
+    amount_ars: funding.amount_ars,
+    expires_at: funding.expires_at,
+    payment_hash: funding.payment_hash,
+  };
+}
+
+async function fundDirectLightningOrder(opts: {
+  order_id: string;
+  offering_title: string;
+  offering_price_ars: number;
+  offering_price_sats: number | null;
+  lightning_address: string | null;
+}): Promise<OrderFunding> {
+  const db = getDb();
+  if (!opts.lightning_address) {
+    throw new OrderCreateError("merchant_lightning_address_missing");
+  }
+  const amount_sats =
+    opts.offering_price_sats ??
+    opts.offering_price_ars * FALLBACK_SATS_PER_ARS;
+  const ln = getLightningClient();
+  let invoice;
+  try {
+    invoice = await ln.mintInvoice(
+      opts.lightning_address,
+      amount_sats,
+      opts.offering_title
+    );
+  } catch (err) {
+    if (err instanceof LightningMintError) {
+      throw new OrderCreateError("lightning_mint_failed");
+    }
+    throw err;
+  }
+
+  await db
+    .update(orders)
+    .set({
+      amount_sats: invoice.amount_sats,
+      payment_hash: invoice.payment_hash,
+      bolt11: invoice.bolt11,
+      lnurl_verify_url: invoice.verify_url,
+      updated_at: new Date(),
+    })
+    .where(eq(orders.id, opts.order_id));
+
+  return {
+    bolt11: invoice.bolt11,
+    amount_sats: invoice.amount_sats,
+    amount_ars: opts.offering_price_ars,
+    expires_at: invoice.expires_at,
+    payment_hash: invoice.payment_hash,
+  };
+}
+
 /**
  * Idempotent transition to `paid`. The Wapu webhook may fire more
  * than once for the same payment (network retries, at-least-once
- * delivery); this guard makes the second call a no-op.
+ * delivery); for direct_lightning, the LUD-21 status poller may
+ * race itself across overlapping requests. This guard makes any
+ * second call a no-op.
+ *
+ * Rail-agnostic. settlement_ref is only meaningful for the Wapu
+ * rail (it's Wapu's bookkeeping reference for the ARS push); on
+ * direct_lightning callers should pass `null`.
  */
 export async function markOrderPaid(opts: {
   order_id: string;
@@ -174,7 +296,7 @@ export async function getOrder(orderId: string) {
 }
 
 /**
- * History query for /[locale]/mis-compras. Cursor is the
+ * History query for /[locale]/purchases. Cursor is the
  * `created_at` of the last row from the previous page; pass null
  * for the first page.
  */
@@ -199,8 +321,8 @@ export type ClaimOrderResult =
 
 /**
  * Attach an anonymous order to a logged-in buyer's pubkey. Used by
- * `/api/orders/[orderId]/claim` (called from `/[locale]/reclamar/
- * [orderId]`). The opaque orderId from the receipt URL is the
+ * `/api/orders/[orderId]/claim` (called from
+ * `/[locale]/claim/[orderId]`). The opaque orderId from the receipt URL is the
  * access key; if the buyer can name it, they own it. Decision in
  * ADR 0007.
  *

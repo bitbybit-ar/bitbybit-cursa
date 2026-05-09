@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/i18n/routing";
+import { Link, useRouter, usePathname } from "@/i18n/routing";
 import { LogoBlocks } from "@/components/common/logo-blocks";
 import { Avatar } from "@/components/common/avatar";
 import { LocaleThemeToggle } from "@/components/layout/locale-theme-toggle";
@@ -39,6 +39,8 @@ export function Navbar() {
   const t = useTranslations("landing.nav");
   const { session, signOut } = useSignerContext();
   const router = useRouter();
+  const pathname = usePathname();
+  const isSignInPage = pathname === "/sign-in";
   const { profile } = useNostrProfile(session?.pubkey);
   const [scrolled, setScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
@@ -134,7 +136,7 @@ export function Navbar() {
                   {accountMenuOpen ? (
                     <div className={styles.avatarMenu} role="menu">
                       <Link
-                        href="/mis-compras"
+                        href="/purchases"
                         className={styles.menuItem}
                         onClick={closeAccountMenu}
                       >
@@ -142,7 +144,7 @@ export function Navbar() {
                         {t("myPurchases")}
                       </Link>
                       <Link
-                        href="/mis-cursos"
+                        href="/my-courses"
                         className={styles.menuItem}
                         onClick={closeAccountMenu}
                       >
@@ -150,7 +152,7 @@ export function Navbar() {
                         {t("myCourses")}
                       </Link>
                       <Link
-                        href="/configuracion"
+                        href="/settings"
                         className={styles.menuItem}
                         onClick={closeAccountMenu}
                       >
@@ -169,20 +171,20 @@ export function Navbar() {
                   ) : null}
                 </div>
               </>
-            ) : (
+            ) : isSignInPage ? null : (
               <>
                 {/* Mobile-only icon CTA — same destination as the
                     desktop button below, but compressed to an icon
                     so it sits comfortably next to the burger. */}
                 <Link
-                  href="/iniciar-sesion"
+                  href="/sign-in"
                   className={styles.iconCta}
                   aria-label={t("signIn")}
                 >
                   <UserIcon size={18} />
                 </Link>
                 <Button
-                  href="/iniciar-sesion"
+                  href="/sign-in"
                   variant="primary"
                   size="sm"
                   className={styles.desktopOnly}

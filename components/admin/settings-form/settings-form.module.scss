@@ -103,3 +103,50 @@
   padding-top: $spacing-16;
   border-top: 1px solid $color-border;
 }
+
+.railSelector {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+  margin-bottom: $spacing-8;
+}
+
+.railOption {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-12;
+  padding: $spacing-12;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  background: $color-surface;
+  cursor: pointer;
+
+  input[type="radio"] {
+    accent-color: $color-primary;
+    margin-top: $spacing-2;
+  }
+
+  > span {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+    font-size: $font-size-sm;
+  }
+
+  strong {
+    color: $color-text-primary;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.railHint {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  line-height: $line-height-base;
+}
+
+.fieldHint {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  line-height: $line-height-base;
+}
