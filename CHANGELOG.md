@@ -10,6 +10,34 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Navbar sign-in icon CTA no longer leaks onto desktop.**
+  `.iconCta` was setting `display: flex` after the `.mobileOnly`
+  utility had set `display: none`, so the icon button rendered next
+  to the full-text "Sign in" button on desktop. The responsive
+  behavior now lives on `.iconCta` directly (`display: none` by
+  default, `display: flex` inside the mobile breakpoint), and the
+  redundant `mobileOnly` className was removed from the markup.
+
+### Changed
+
+- **"Zap the devs" now opens an in-app Lightning modal** instead
+  of handing the visitor off to a `lightning:` URI. New
+  `<ZapModal>` (ported from `bitbybit-arena`) presents preset
+  amounts (21 / 100 / 500 / 1000 / 5000 sats) plus a custom field
+  and an optional 140-char comment, fetches a BOLT11 invoice via
+  LNURL-pay against `NEXT_PUBLIC_ZAP_LIGHTNING_ADDRESS` (falls
+  back to `NEXT_PUBLIC_LIGHTNING_ADDRESS` for backward
+  compatibility), tries WebLN first, and falls back to a QR + copy-
+  invoice surface with a polling indicator. New supporting modules:
+  `lib/nostr/lnurl.ts`, `lib/hooks/useClipboard.ts`,
+  `lib/hooks/useZapPolling.ts`, and a stub `app/api/zap/status`
+  route that returns `{ paid: false }` until NWC is wired up
+  (matching arena's no-NWC fallback). New i18n keys under
+  `landing.support.zapModal` in both locale files plus a
+  `common.close` key for the success-state CTA.
+
 ### Added
 
 - **Public landing page at `/[locale]`.** The locale root is now

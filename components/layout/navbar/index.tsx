@@ -143,7 +143,7 @@ export function Navbar() {
                     so it sits comfortably next to the burger. */}
                 <Link
                   href="/iniciar-sesion"
-                  className={cn(styles.iconCta, styles.mobileOnly)}
+                  className={styles.iconCta}
                   aria-label={t("signIn")}
                 >
                   <UserIcon size={18} />

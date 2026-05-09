@@ -32,5 +32,9 @@ declare global {
         decrypt(pubkey: string, ciphertext: string): Promise<string>;
       };
     };
+    webln?: {
+      enable(): Promise<void>;
+      sendPayment(paymentRequest: string): Promise<{ preimage: string }>;
+    };
   }
 }
