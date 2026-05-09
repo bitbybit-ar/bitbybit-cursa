@@ -1,0 +1,105 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+
+// `$color-polaroid-bg` is white in light mode and warm off-white in
+// dark mode — captions stay readable via $static-navy in both. Same
+// trick the need-motivation polaroid uses (see its module SCSS for
+// the longer note).
+.polaroid {
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  background: $color-polaroid-bg;
+  padding: $spacing-12 $spacing-12 $spacing-24;
+  border-radius: 4px;
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.08),
+    0 16px 32px rgba(0, 0, 0, 0.12);
+  color: $static-navy;
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease;
+  will-change: transform;
+
+  &:hover {
+    transform: rotate(0deg) translateY(-6px) scale(1.03);
+    box-shadow:
+      0 8px 16px rgba(0, 0, 0, 0.12),
+      0 28px 48px rgba(0, 0, 0, 0.18);
+  }
+
+  @include mobile {
+    width: 80vw;
+    max-width: 320px;
+  }
+}
+
+// Rotation variants — purely decorative. The hover above resets to
+// 0deg to communicate "lifted up off the wall" on focus/hover.
+.rotation-left {
+  transform: rotate(-2.5deg);
+}
+
+.rotation-right {
+  transform: rotate(2deg);
+}
+
+.rotation-none {
+  transform: rotate(0deg);
+}
+
+// Square frame — accepts an image or icon. Gray scaffolding bg so
+// icons sit on a subtle stage against the cream polaroid paper.
+.frame {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  background: $gray-100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin-bottom: $spacing-16;
+  color: $color-primary;
+}
+
+.caption {
+  text-align: center;
+  padding: 0 $spacing-8;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-8;
+
+  // Static colors — the polaroid paper stays cream in both themes,
+  // so flipping gray-N tokens here would invert contrast in dark
+  // mode. See the matching note in `need-motivation.module.scss`.
+  > :global(h1),
+  > :global(h2),
+  > :global(h3),
+  > :global(h4) {
+    margin: 0;
+    font-family: $font-display;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-bold;
+    color: $static-navy;
+  }
+
+  > :global(p) {
+    margin: 0;
+    color: rgba(15 15 26 / 0.7);
+    font-size: $font-size-sm;
+    line-height: 1.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .polaroid {
+    transition: none;
+
+    &:hover {
+      transform: rotate(0deg);
+    }
+  }
+}

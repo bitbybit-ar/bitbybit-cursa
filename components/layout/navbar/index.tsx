@@ -19,12 +19,15 @@ import { useClickOutside } from "@/lib/hooks/useClickOutside";
 import { cn } from "@/lib/utils";
 import styles from "./navbar.module.scss";
 
-const SECTIONS = ["explore", "howItWorks", "features"] as const;
-const SECTION_ANCHORS: Record<(typeof SECTIONS)[number], string> = {
-  explore: "#cursos-destacados",
-  howItWorks: "#como-funciona",
-  features: "#features",
-};
+// Navbar entries are a hybrid: `anchor` jumps to a section that lives
+// on the landing page (only works while viewing `/`); `link` is a
+// locale-aware route that works from anywhere. Keep this list in sync
+// with the matching one in MobileMenu.
+const SECTIONS = [
+  { id: "explore", kind: "anchor", target: "#cursos-destacados" },
+  { id: "howItWorks", kind: "link", target: "/como-funciona" },
+  { id: "features", kind: "link", target: "/caracteristicas" },
+] as const;
 const SCROLLED_THRESHOLD = 16;
 
 export function Navbar() {
@@ -74,11 +77,25 @@ export function Navbar() {
           </Link>
 
           <div className={styles.links}>
-            {SECTIONS.map((id) => (
-              <a key={id} href={SECTION_ANCHORS[id]} className={styles.link}>
-                {t(id)}
-              </a>
-            ))}
+            {SECTIONS.map((section) =>
+              section.kind === "link" ? (
+                <Link
+                  key={section.id}
+                  href={section.target}
+                  className={styles.link}
+                >
+                  {t(section.id)}
+                </Link>
+              ) : (
+                <a
+                  key={section.id}
+                  href={section.target}
+                  className={styles.link}
+                >
+                  {t(section.id)}
+                </a>
+              ),
+            )}
           </div>
 
           <div className={styles.right}>
@@ -143,7 +160,7 @@ export function Navbar() {
                     so it sits comfortably next to the burger. */}
                 <Link
                   href="/iniciar-sesion"
-                  className={cn(styles.iconCta, styles.mobileOnly)}
+                  className={styles.iconCta}
                   aria-label={t("signIn")}
                 >
                   <UserIcon size={18} />

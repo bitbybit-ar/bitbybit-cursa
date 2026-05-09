@@ -72,7 +72,25 @@
       "orContribute": "O contribuí a un proyecto específico",
       "cursaRepo": "Cursá en GitHub",
       "arenaRepo": "Arena en GitHub",
-      "habitsRepo": "Habits en GitHub"
+      "habitsRepo": "Habits en GitHub",
+      "zapModal": {
+        "title": "Zapeá a los devs",
+        "description": "Apoyá al equipo de BitByBit con un zap Lightning.",
+        "amount": "Cantidad (sats)",
+        "customPlaceholder": "Cantidad personalizada...",
+        "comment": "Mensaje (opcional)",
+        "commentPlaceholder": "¡Sigan construyendo!",
+        "send": "Enviar zap",
+        "sending": "Enviando...",
+        "success": "¡Zap enviado! ¡Gracias por el apoyo!",
+        "error": "No pudimos enviar el zap. Asegurate de que tu wallet Lightning esté desbloqueada y volvé a intentar.",
+        "errorNoAddress": "La dirección Lightning no está configurada todavía.",
+        "errorInvalidAddress": "No se pudo resolver la dirección Lightning. Puede que no esté activa todavía.",
+        "noWebln": "No se detectó una extensión de wallet — escaneá el QR o copiá la factura para pagar desde cualquier billetera Lightning. Detectamos el pago automáticamente.",
+        "copyInvoice": "Copiar invoice",
+        "copiedInvoice": "¡Invoice copiada!",
+        "waitingPayment": "Esperando el pago..."
+      }
     },
     "footer": {
       "ariaLabel": "Proyectos de BitByBit",
@@ -81,11 +99,108 @@
       "faqLink": "Preguntas frecuentes",
       "github": "GitHub",
       "githubAriaLabel": "Cursá en GitHub"
+    }
+  },
+  "howItWorks": {
+    "metadataTitle": "Cómo funciona",
+    "metadataDescription": "Cursá usa Lightning para que el comprador pague en sats y Wapu para liquidar pesos al CBU del profe. Te contamos cómo funciona, paso a paso.",
+    "hero": {
+      "title": "<gradient>Sats</gradient> que entran, <gradient>pesos</gradient> que salen.",
+      "subtitle": "Cursá conecta a quien quiere aprender con quien quiere enseñar. Lightning para pagar, Wapu para cobrar al CBU. La plataforma se sale del medio."
     },
-    "faq": {
+    "buyers": {
+      "title": "Si comprás un curso",
+      "step1Title": "Elegís",
+      "step1Body": "Entrás al catálogo, abrís la oferta y mirás el precio en sats y en pesos. No hace falta crear cuenta.",
+      "step2Title": "Pagás con Lightning",
+      "step2Body": "Escaneás el QR con tu wallet Lightning o copiás la invoice. Detectamos el pago automáticamente y te llevamos al recibo.",
+      "step3Title": "Recibís tu compra",
+      "step3Body": "Un código de canje o una descarga directa, según la oferta. El recibo es una URL permanente — guardala. Si conectás tu Nostr, también te llega por DM."
+    },
+    "merchants": {
+      "title": "Si enseñás algo",
+      "step1Title": "Iniciás sesión con Nostr",
+      "step1Body": "Tu llave Nostr es tu cuenta. Sin emails, sin formularios largos.",
+      "step2Title": "Armás tu tienda",
+      "step2Body": "Reclamás un slug (cursa.bitbybit.com.ar/m/tu-slug), pegás tu CBU o alias bancario, y cargás tus primeras ofertas.",
+      "step3Title": "Vendés y cobrás en pesos",
+      "step3Body": "Cuando alguien te paga, Wapu liquida los pesos directo a tu CBU. La plataforma no toca el dinero."
+    },
+    "glossary": {
+      "title": "Quién es quién",
+      "lightningTitle": "Lightning",
+      "lightningBody": "La capa de pagos sobre Bitcoin. Instantánea, barata, ideal para los montos chicos del día a día.",
+      "wapuTitle": "Wapu",
+      "wapuBody": "El sponsor del Hackathon y el rail que convierte sats a pesos y los manda al CBU del profe.",
+      "nostrTitle": "Nostr",
+      "nostrBody": "Protocolo abierto de identidad y mensajería. Tu llave es tu cuenta — para los profes es obligatorio (es el login del panel), para los compradores es opcional."
+    },
+    "custody": {
+      "title": "Tu plata, tus llaves",
+      "body": "Cursá nunca custodia los fondos. Wapu rutea cada pago directo al CBU o alias del profe en cada compra. Si Cursá desaparece mañana, los pagos siguen llegando — el rail es Wapu, no nosotros."
+    },
+    "cta": {
+      "title": "¿Listo para arrancar?",
+      "explore": "Explorar cursos",
+      "publish": "Publicá tu curso"
+    }
+  },
+  "features": {
+    "metadataTitle": "Features",
+    "metadataDescription": "Lo que ofrece Cursá: sats in, pesos out, sin custodia, login Nostr opcional, panel del profe y más.",
+    "hero": {
+      "title": "Lo que ofrece Cursá",
+      "subtitle": "Lo mínimo necesario para vender clases con sats sin renunciar a tu rutina con el banco."
+    },
+    "items": {
+      "satsInPesosOutTitle": "Sats in, pesos out",
+      "satsInPesosOutBody": "El comprador paga en Lightning, el profe recibe pesos en su CBU vía Wapu. Cada parte usa la moneda que conoce.",
+      "noCustodyTitle": "Sin custodia",
+      "noCustodyBody": "Wapu liquida cada pago directo al CBU o alias del profe. La plataforma nunca tiene los fondos en sus manos.",
+      "anonymousByDefaultTitle": "Compra anónima por defecto",
+      "anonymousByDefaultBody": "El comprador llega, paga y se va con un código o descarga. Sin formularios, sin emails, sin cuentas obligatorias.",
+      "optionalNostrLoginTitle": "Login Nostr opcional",
+      "optionalNostrLoginBody": "Si el comprador conecta su identidad Nostr, ve su historial de compras y recibe el código por DM en cualquier dispositivo.",
+      "deliveryInAppTitle": "Entrega in-app y por DM",
+      "deliveryInAppBody": "Recibo permanente en una URL. Si hay identidad Nostr, también llega por DM cifrado. No hay integración con email.",
+      "autorenewalOptInTitle": "Auto-renovación opt-in",
+      "autorenewalOptInBody": "Para suscripciones, el profe puede prender el flujo NWC desde su panel. Apagado por default, prendido cuando lo necesite.",
+      "merchantPanelTitle": "Panel del profe",
+      "merchantPanelBody": "ABM de ofertas, configuración de cobro, vista de pedidos y estudiantes. Login con tu llave Nostr.",
+      "codesOrDownloadsTitle": "Códigos o descargas",
+      "codesOrDownloadsBody": "Cada oferta entrega un código de canje (de un pool que vos cargás) o una descarga directa. Vos elegís por oferta.",
+      "multiTenantSelfHostTitle": "Marketplace o self-host",
+      "multiTenantSelfHostBody": "Vendé desde el marketplace en cursa.bitbybit.com.ar/m/tu-slug, o forkeá el repo y armá tu propio deployment."
+    }
+  },
+  "faq": {
+    "metadataTitle": "Preguntas frecuentes",
+    "metadataDescription": "Respuestas rápidas a lo que más preguntan compradores y profes en Cursá.",
+    "hero": {
       "title": "Preguntas frecuentes",
-      "subtitle": "Estamos armando esta sección. Pronto vas a encontrar acá las respuestas más comunes sobre Cursá.",
-      "comingSoon": "Próximamente"
+      "subtitle": "Lo que más preguntan compradores y profes. ¿Falta algo? Abrí una discusión en GitHub."
+    },
+    "questions": {
+      "lightningQ": "¿Qué es Lightning?",
+      "lightningA": "Es la red de pagos sobre Bitcoin. Pensada para transferencias instantáneas y baratas, perfectas para los montos chicos del día a día.",
+      "walletQ": "¿Necesito una wallet para comprar?",
+      "walletA": "Sí, cualquier wallet Lightning sirve. Si recién arrancás, te recomendamos LaWallet — es argentina, abierta, y tiene login con Nostr.",
+      "wapuQ": "¿Qué es Wapu?",
+      "wapuA": "Es el sponsor del Hackathon #3 de La Crypta y el rail que convierte tus sats a pesos y los manda al CBU o alias del profe.",
+      "argentinaQ": "¿Por qué solo Argentina?",
+      "argentinaA": "Porque Wapu liquida en pesos a CBU o alias bancarios argentinos. Cuando expandan a otros países, podemos seguir.",
+      "anonymousQ": "¿Tengo que crear una cuenta para comprar?",
+      "anonymousA": "No. La compra es anónima por defecto: pagás, recibís el recibo, y eso es todo. La URL del recibo es tu comprobante permanente.",
+      "deliveryQ": "¿Cómo recibo lo que compré?",
+      "deliveryA": "Si la oferta es un código de canje, lo ves en el recibo. Si es una descarga, hacés click y se descarga. Si conectaste Nostr al pagar, también te llega por DM cifrado.",
+      "lostReceiptQ": "¿Y si pierdo el link del recibo?",
+      "lostReceiptA": "Si tu Nostr estaba conectado, lo encontrás en \"Mis compras\". Si compraste como anónimo, podés iniciar sesión con Nostr y reclamar el pedido pegando el ID en la página de reclamo.",
+      "merchantPayoutQ": "¿Cómo cobro como profe?",
+      "merchantPayoutA": "Wapu liquida pesos directo al CBU o alias que cargaste en el panel. Cada pago se acredita por separado — Cursá nunca toca el dinero.",
+      "nostrPanelQ": "¿Qué es Nostr y por qué lo uso para entrar al panel?",
+      "nostrPanelA": "Nostr es un protocolo abierto de identidad y mensajería. Tu llave privada es tu cuenta — sin servidores centrales, sin emails. Para los profes es la única forma de entrar al panel.",
+      "feesQ": "¿Cobran comisión?",
+      "feesA": "Wapu cobra su fee por cada liquidación a CBU. La plataforma Cursá no toma un cut adicional en v1."
     }
   },
   "catalog": {
@@ -165,6 +280,7 @@
   },
   "common": {
     "back": "Atrás",
+    "close": "Cerrar",
     "closeDialog": "Cerrar"
   },
   "panel": {
@@ -377,12 +493,17 @@
   "login": {
     "metadataTitle": "Iniciar sesión",
     "title": "Iniciá sesión con Nostr",
-    "subtitle": "Conectá tu identidad para guardar tus compras y recibir tus códigos por DM. La cuenta es opcional: podés comprar sin iniciar sesión.",
+    "subtitle": "Iniciá sesión para administrar tus cursos o guardar tus compras.",
     "backToHome": "Volver al inicio",
-    "extensionTitle": "Usar extensión",
-    "extensionDescription": "Firmá con tu extensión Nostr (Alby, nos2x).",
-    "nsecTitle": "Iniciar sesión con clave privada",
-    "nsecDescription": "Pegá tu clave privada (nsec). Solo se usa en este navegador.",
+    "extensionTitle": "Extensión del navegador",
+    "extensionDescription": "Nostr WoT, Alby, nos2x u otra extensión",
+    "extensionDetected": "Detectada",
+    "connectQrTitle": "Escanear QR",
+    "connectQrDescription": "nostrconnect:// — escaneá con tu firmante",
+    "connectBunkerTitle": "URL del bunker",
+    "connectBunkerDescription": "bunker:// o NIP-05",
+    "nsecTitle": "Clave secreta (no recomendada)",
+    "nsecDescription": "Pegá tu nsec directamente",
     "nsecLabel": "Tu clave privada (nsec…)",
     "nsecPlaceholder": "nsec1…",
     "nsecWarning": "Tu clave privada nunca debería salir de tu dispositivo. Pegala solo en sitios de confianza, y considerá usar una extensión Nostr para no exponerla.",
@@ -396,8 +517,11 @@
     "nsecInvalidKey": "Esa no parece una clave válida. Revisá el formato (nsec1… o 64 caracteres hex).",
     "rate_limited": "Demasiados intentos. Esperá un momento y volvé a probar.",
     "error": "No pudimos iniciar sesión. Probá de nuevo en un momento.",
-    "orNew": "O bien",
-    "createIdentity": "Crear una identidad nueva",
+    "orNew": "¿Nuevo en Nostr?",
+    "createIdentity": "Crear identidad nueva",
+    "createIdentityDescription": "Generá una identidad Nostr fresca en un click",
+    "wotHint": "¿Probaste la",
+    "wotExtensionLabel": "Extensión Nostr WoT",
     "creatingIdentity": "Generando identidad…",
     "createdTitle": "¡Identidad lista!",
     "createdIntro": "Generamos una clave Nostr nueva para vos. Guardala bien antes de continuar — sin ella no podrás acceder de nuevo.",
@@ -408,23 +532,24 @@
     "createdRetryAuth": "Reintentar inicio de sesión",
     "createdAckLabel": "Guardé mi clave en un lugar seguro.",
     "createdContinue": "Continuar",
-    "connectTitle": "Conectar con un signer remoto",
-    "connectDescription": "Usá Nostr Connect (NIP-46) con apps como nsec.app o Amber.",
-    "connectScanTitle": "Escaneá este código con tu signer Nostr",
-    "connectScanning": "Esperando la conexión…",
-    "connectSlowHint": "Si tu signer no responde, probá pegar la URL bunker:// abajo.",
+    "connectScanModalTitle": "Escaneá con tu firmante",
+    "connectScanModalIntro": "Abrí Amber, nsec.app o cualquier firmante compatible con NIP-46 y escaneá este QR.",
+    "connectWaitingForSigner": "Esperando firmante…",
+    "connectExpiresIn": "Expira en {time}",
+    "connectSlowHint": "¿Seguís esperando? Abrí tu firmante (Amber, nsec.app, Damus) y aprobá la solicitud.",
     "connectQrAlt": "Código QR para conectar tu signer Nostr",
-    "connectCopyURI": "Copiar URL de conexión",
+    "connectCopyURI": "Copiar enlace de conexión",
     "connectCopiedURI": "¡Copiada!",
-    "connectOrPaste": "o",
-    "connectBunkerLabel": "Pegá una URL bunker://",
-    "connectBunkerPlaceholder": "bunker://…",
+    "connectBunkerModalTitle": "Conectá tu bunker",
+    "connectBunkerModalIntro": "Pegá la URL bunker:// que te da tu firmante remoto (o un NIP-05 tipo usuario@dominio).",
+    "connectBunkerLabel": "URL del bunker",
+    "connectBunkerPlaceholder": "bunker://abc123…@relay.example.com",
     "connectBunkerSubmit": "Conectar",
     "connectConnecting": "Conectando con tu signer…",
     "connectExpired": "La conexión venció. Probá de nuevo.",
     "connectRetry": "Reintentar",
     "connectApproveInSigner": "Aprobá la conexión en tu signer",
-    "connectCompatible": "Compatible con nsec.app, Amber, y otros signers NIP-46.",
+    "connectCompatible": "Compatible con Amber, nsec.app, Keychat, nsecBunker y más.",
     "connectError": "No pudimos conectar con tu signer. Probá de nuevo.",
     "connectInvalidBunker": "La URL bunker:// no parece válida."
   },

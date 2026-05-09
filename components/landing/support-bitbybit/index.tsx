@@ -1,11 +1,12 @@
+"use client";
+
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Section } from "@/components/ui/section";
 import { Block } from "@/components/common/block";
 import { BoltIcon, GithubIcon } from "@/components/icons";
+import { ZapModal } from "@/components/landing/zap-modal";
 import styles from "./support-bitbybit.module.scss";
-
-const LIGHTNING_ADDRESS =
-  process.env.NEXT_PUBLIC_LIGHTNING_ADDRESS || "bitbybit@geyser.fund";
 
 const PROJECT_REPOS = [
   { key: "cursaRepo", url: "https://github.com/bitbybit-ar/bitbybit-cursa" },
@@ -15,6 +16,7 @@ const PROJECT_REPOS = [
 
 export function SupportBitByBit() {
   const t = useTranslations("landing.support");
+  const [showZapModal, setShowZapModal] = useState(false);
 
   return (
     <Section id="support" className={styles.section}>
@@ -30,14 +32,15 @@ export function SupportBitByBit() {
         <p className={styles.subtitle}>{t("subtitle")}</p>
 
         <div className={styles.primaryActions}>
-          <a
-            href={`lightning:${LIGHTNING_ADDRESS}`}
+          <button
+            type="button"
             className={styles.zapButton}
+            onClick={() => setShowZapModal(true)}
             aria-label={t("zapAriaLabel")}
           >
             <BoltIcon size={18} color="white" />
             {t("zapDevs")}
-          </a>
+          </button>
           <a
             href="https://github.com/bitbybit-ar"
             target="_blank"
@@ -65,6 +68,8 @@ export function SupportBitByBit() {
           ))}
         </div>
       </div>
+
+      {showZapModal && <ZapModal onClose={() => setShowZapModal(false)} />}
     </Section>
   );
 }

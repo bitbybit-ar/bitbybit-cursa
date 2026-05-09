@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ExtensionSignerButton } from "@/components/auth/extension-signer-button";
-import { KeyIcon, LinkIcon } from "@/components/icons";
+import { KeyIcon, LinkIcon, QrIcon } from "@/components/icons";
 import type { SignerHandle, SignerType } from "@/lib/nostr/signers";
 import type { AuthError } from "@/lib/nostr/auth-errors";
 import styles from "./signer-method-buttons.module.scss";
@@ -18,8 +18,10 @@ interface SignerMethodButtonsProps {
    * signer's pubkey matches this value (re-attach flow).
    */
   expectedPubkey?: string;
-  /** Called when the user picks the NIP-46 Nostr Connect option. */
-  onSelectNip46: () => void;
+  /** Called when the user picks the NIP-46 Scan QR option. */
+  onSelectNip46Qr: () => void;
+  /** Called when the user picks the NIP-46 Bunker URL option. */
+  onSelectNip46Bunker: () => void;
   /** Called when the user picks the nsec paste option. */
   onSelectNsec: () => void;
   /** Disables the picker buttons while the parent is busy. */
@@ -44,7 +46,8 @@ export function SignerMethodButtons({
   onSigner,
   onError,
   expectedPubkey,
-  onSelectNip46,
+  onSelectNip46Qr,
+  onSelectNip46Bunker,
   onSelectNsec,
   disabled,
   allowedMethods = ALL_METHODS,
@@ -72,24 +75,45 @@ export function SignerMethodButtons({
       ) : null}
 
       {showNip46 ? (
-        <Button
-          type="button"
-          variant="primary"
-          fullWidth
-          className={styles.methodButton}
-          onClick={onSelectNip46}
-          disabled={disabled}
-        >
-          <LinkIcon size={20} />
-          <div className={styles.methodInfo}>
-            <span className={styles.methodName}>
-              {t("connectTitle")}
-            </span>
-            <span className={styles.methodDescription}>
-              {t("connectDescription")}
-            </span>
-          </div>
-        </Button>
+        <div className={styles.nip46Row}>
+          <Button
+            type="button"
+            variant="primary"
+            fullWidth
+            className={styles.methodButton}
+            onClick={onSelectNip46Qr}
+            disabled={disabled}
+          >
+            <QrIcon size={20} />
+            <div className={styles.methodInfo}>
+              <span className={styles.methodName}>
+                {t("connectQrTitle")}
+              </span>
+              <span className={styles.methodDescription}>
+                {t("connectQrDescription")}
+              </span>
+            </div>
+          </Button>
+
+          <Button
+            type="button"
+            variant="primary"
+            fullWidth
+            className={styles.methodButton}
+            onClick={onSelectNip46Bunker}
+            disabled={disabled}
+          >
+            <LinkIcon size={20} />
+            <div className={styles.methodInfo}>
+              <span className={styles.methodName}>
+                {t("connectBunkerTitle")}
+              </span>
+              <span className={styles.methodDescription}>
+                {t("connectBunkerDescription")}
+              </span>
+            </div>
+          </Button>
+        </div>
       ) : null}
 
       {showNsec ? (

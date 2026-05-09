@@ -5,7 +5,6 @@ import { useTranslations } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/i18n/routing";
 import { Container } from "@/components/ui/container";
-import { Section } from "@/components/ui/section";
 import { Card } from "@/components/ui/card";
 import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
@@ -37,7 +36,7 @@ import {
 import type { Locale } from "@/lib/schemas/auth";
 import styles from "./signin.module.scss";
 
-type Panel = "picker" | "nsec" | "nip46";
+type Panel = "picker" | "nsec" | "nip46-qr" | "nip46-bunker";
 
 // Discriminated state machine for the create-identity flow:
 //
@@ -229,47 +228,69 @@ export function SignInClient({ locale }: SignInClientProps) {
   };
 
   return (
-    <Section>
-      <Container column>
-        <Card variant="default" className={styles.card}>
-          <h1 className={styles.title}>{t("title")}</h1>
-          <p className={styles.subtitle}>{t("subtitle")}</p>
+    <Container center column>
+      <Card variant="default" className={styles.card}>
+        <h1 className={styles.title}>{t("title")}</h1>
+        <p className={styles.subtitle}>{t("subtitle")}</p>
 
-          <SignerMethodButtons
-            onSigner={handleSigner}
-            onError={handleError}
-            onSelectNip46={() => setPanel("nip46")}
-            onSelectNsec={() => setPanel("nsec")}
-            animate
-          />
+        <SignerMethodButtons
+          onSigner={handleSigner}
+          onError={handleError}
+          onSelectNip46Qr={() => setPanel("nip46-qr")}
+          onSelectNip46Bunker={() => setPanel("nip46-bunker")}
+          onSelectNsec={() => setPanel("nsec")}
+          animate
+        />
 
-          <div className={styles.divider}>
-            <span>{t("orNew")}</span>
+        <div className={styles.divider}>
+          <span>{t("orNew")}</span>
+        </div>
+
+        <Button
+          type="button"
+          variant="secondary"
+          fullWidth
+          onClick={handleCreateIdentity}
+          disabled={isCreating}
+          className={styles.createButton}
+        >
+          <BoltIcon size={20} />
+          <div className={styles.createInfo}>
+            <span className={styles.createName}>
+              {isCreating ? t("creatingIdentity") : t("createIdentity")}
+            </span>
+            <span className={styles.createDescription}>
+              {t("createIdentityDescription")}
+            </span>
           </div>
+        </Button>
 
-          <Button
-            type="button"
-            variant="secondary"
-            fullWidth
-            onClick={handleCreateIdentity}
-            disabled={isCreating}
-            className={styles.createButton}
+        {errorMessage && panel === "picker" ? (
+          <p className={styles.error} role="alert">
+            {errorMessage}
+          </p>
+        ) : null}
+
+        <p className={styles.wotHint}>
+          {t("wotHint")}{" "}
+          <a
+            href="https://nostr-wot.com/download"
+            target="_blank"
+            rel="noopener noreferrer"
+            className={styles.wotLink}
           >
-            <BoltIcon size={20} />
-            {isCreating ? t("creatingIdentity") : t("createIdentity")}
-          </Button>
+            {t("wotExtensionLabel")}
+          </a>
+          ?
+        </p>
+      </Card>
 
-          {errorMessage && panel === "picker" ? (
-            <p className={styles.error} role="alert">
-              {errorMessage}
-            </p>
-          ) : null}
-        </Card>
-
+      <div className={styles.backLinkWrapper}>
         <Link href="/" className={styles.backLink}>
           <ArrowLeftIcon size={16} />
           {t("backToHome")}
         </Link>
+      </div>
 
         {panel === "nsec" ? (
           <Modal onClose={closePanel} title={t("nsecTitle")} size="sm">
@@ -289,9 +310,35 @@ export function SignInClient({ locale }: SignInClientProps) {
           </Modal>
         ) : null}
 
-        {panel === "nip46" ? (
-          <Modal onClose={closePanel} title={t("connectTitle")} size="sm">
+        {panel === "nip46-qr" ? (
+          <Modal
+            onClose={closePanel}
+            onBack={closePanel}
+            title={t("connectScanModalTitle")}
+            size="sm"
+          >
             <NostrConnectPanel
+              mode="qr"
+              onSigner={handleSigner}
+              onError={handleError}
+            />
+            {errorMessage ? (
+              <p className={styles.error} role="alert">
+                {errorMessage}
+              </p>
+            ) : null}
+          </Modal>
+        ) : null}
+
+        {panel === "nip46-bunker" ? (
+          <Modal
+            onClose={closePanel}
+            onBack={closePanel}
+            title={t("connectBunkerModalTitle")}
+            size="sm"
+          >
+            <NostrConnectPanel
+              mode="bunker"
               onSigner={handleSigner}
               onError={handleError}
             />
@@ -392,7 +439,6 @@ export function SignInClient({ locale }: SignInClientProps) {
             </Button>
           </Modal>
         ) : null}
-      </Container>
-    </Section>
+    </Container>
   );
 }

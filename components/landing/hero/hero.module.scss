@@ -4,9 +4,9 @@
 @use "@/styles/common-mixins" as *;
 @use "@/styles/media-mixins" as *;
 
-// Hero owns the full viewport height. Sticky navbar sits on top of
-// the first 60px so the inner padding-top adds another 32px of
-// breathing room before the centered content begins.
+// Hero owns the full viewport height. The fixed navbar overlays
+// the top 60px; the flex centering on a 100vh box already keeps
+// the (short) hero content clear of it without any top padding.
 .heroFrame {
   position: relative;
   overflow: hidden;
@@ -15,10 +15,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: calc(#{$navbar-height} + #{$spacing-32}) 0 $spacing-48;
+  padding: 0 0 $spacing-48;
 
   @include mobile {
-    padding: calc(#{$navbar-height} + #{$spacing-24}) 0 $spacing-32;
+    padding: 0 0 $spacing-32;
   }
 }
 

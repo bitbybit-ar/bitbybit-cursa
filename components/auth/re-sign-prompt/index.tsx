@@ -29,7 +29,7 @@ interface ReSignPromptProps {
   onCancel: () => void;
 }
 
-type Method = "pick" | "nsec" | "nip46";
+type Method = "pick" | "nsec" | "nip46-qr" | "nip46-bunker";
 
 const ALL_METHODS: SignerType[] = ["extension", "nip46", "nsec"];
 
@@ -107,7 +107,9 @@ export function ReSignPrompt({ open, onSigner, onCancel }: ReSignPromptProps) {
       ? tForm("signRequiredTitle")
       : method === "nsec"
         ? tLogin("nsecTitle")
-        : tLogin("connectTitle");
+        : method === "nip46-qr"
+          ? tLogin("connectScanModalTitle")
+          : tLogin("connectBunkerModalTitle");
 
   return (
     <Modal
@@ -124,7 +126,8 @@ export function ReSignPrompt({ open, onSigner, onCancel }: ReSignPromptProps) {
             onSigner={handleSignerFromChild}
             onError={handleError}
             expectedPubkey={expectedPubkey}
-            onSelectNip46={() => setMethod("nip46")}
+            onSelectNip46Qr={() => setMethod("nip46-qr")}
+            onSelectNip46Bunker={() => setMethod("nip46-bunker")}
             onSelectNsec={() => setMethod("nsec")}
             disabled={busy}
             allowedMethods={allowedMethods}
@@ -148,9 +151,22 @@ export function ReSignPrompt({ open, onSigner, onCancel }: ReSignPromptProps) {
         </>
       )}
 
-      {method === "nip46" && (
+      {method === "nip46-qr" && (
         <>
           <NostrConnectPanel
+            mode="qr"
+            onSigner={handleSignerFromChild}
+            onError={handleError}
+            expectedPubkey={expectedPubkey}
+          />
+          {error ? <p className={styles.error}>{error}</p> : null}
+        </>
+      )}
+
+      {method === "nip46-bunker" && (
+        <>
+          <NostrConnectPanel
+            mode="bunker"
             onSigner={handleSignerFromChild}
             onError={handleError}
             expectedPubkey={expectedPubkey}
