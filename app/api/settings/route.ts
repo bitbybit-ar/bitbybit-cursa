@@ -92,7 +92,7 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
       await getLightningClient().mintInvoice(
         nextLightningAddress,
         1,
-        "cursa-probe"
+        "cursats-probe"
       );
     } catch (err) {
       if (err instanceof LightningMintError) {

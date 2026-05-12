@@ -12,7 +12,7 @@ const ZapStatusBodySchema = z.object({
 });
 
 // Polling endpoint paired with `lib/hooks/useZapPolling.ts`. The full
-// arena flow looks the BOLT11 invoice up via NWC; cursa does not yet
+// arena flow looks the BOLT11 invoice up via NWC; cursats does not yet
 // have that wired, so this route is a no-op that matches arena's
 // no-NWC fallback (`{ paid: false }`). The modal still works end-to-end
 // — buyers pay via WebLN or by scanning the QR; auto-detection turns on

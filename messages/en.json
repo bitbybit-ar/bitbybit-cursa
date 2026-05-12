@@ -1,9 +1,9 @@
 {
   "metadata": {
-    "siteName": "BitByBit Cursá",
-    "siteTitle": "BitByBit Cursá — Sats for everyone, pesos for those who need them",
+    "siteName": "BitByBit Cursats",
+    "siteTitle": "BitByBit Cursats — Sats for everyone, pesos for those who need them",
     "description": "Lightning checkout for teachers and educational creators. Buyers pay in sats; you choose how to get paid — sats to your wallet, or pesos to your CBU.",
-    "keywords": "bitbybit,cursa,lightning checkout,bitcoin,sats,lightning address,wapu,payments,argentina,education,classes,teachers,creators,la crypta",
+    "keywords": "bitbybit,cursats,lightning checkout,bitcoin,sats,lightning address,wapu,payments,argentina,education,classes,teachers,creators,la crypta",
     "ogHeadline": "Sats for everyone. Pesos for those who need them.",
     "ogTagline": "Lightning checkout for teachers and educational creators.",
     "skipToContent": "Skip to content"
@@ -57,7 +57,7 @@
     "companions": {
       "title": "Travel companions",
       "subtitle": "Projects and communities we admire,\nbuilders of open infrastructure for a freer future.",
-      "listLabel": "Cursá allies",
+      "listLabel": "Cursats allies",
       "wapuDescription": "Lightning settlement to CBU/alias in Argentina.",
       "laCryptaDescription": "Bitcoin community in Argentina, host of Hackathon #3.",
       "nostrWotDescription": "Web of Trust for Nostr.",
@@ -66,13 +66,13 @@
       "laWalletDescription": "Bitcoin and Lightning wallet on Nostr."
     },
     "support": {
-      "title": "Support Cursá",
+      "title": "Support Cursats",
       "subtitle": "Open source and community-driven. Help us keep building.",
       "zapDevs": "Zap the devs",
       "zapAriaLabel": "Send a Lightning zap to the developers",
       "starOnGithub": "Star on GitHub",
       "orContribute": "Or contribute to a specific project",
-      "cursaRepo": "Cursá on GitHub",
+      "cursatsRepo": "Cursats on GitHub",
       "arenaRepo": "Arena on GitHub",
       "habitsRepo": "Habits on GitHub",
       "zapModal": {
@@ -100,15 +100,15 @@
       "arenaLink": "BitByBit Arena",
       "faqLink": "FAQ",
       "github": "GitHub",
-      "githubAriaLabel": "Cursá on GitHub"
+      "githubAriaLabel": "Cursats on GitHub"
     }
   },
   "howItWorks": {
     "metadataTitle": "How it works",
-    "metadataDescription": "Cursá uses Lightning so the buyer pays in sats. The teacher chooses how to get paid: sats straight to their wallet, or pesos to their CBU via Wapu. Here's how it works, step by step.",
+    "metadataDescription": "Cursats uses Lightning so the buyer pays in sats. The teacher chooses how to get paid: sats straight to their wallet, or pesos to their CBU via Wapu. Here's how it works, step by step.",
     "hero": {
       "title": "<gradient>Sats</gradient> for everyone. <gradient>Pesos</gradient> for those who need them.",
-      "subtitle": "Cursá connects people who want to learn with people who want to teach. Lightning for payments; sats or pesos for payouts — the teacher decides. The platform stays out of the way."
+      "subtitle": "Cursats connects people who want to learn with people who want to teach. Lightning for payments; sats or pesos for payouts — the teacher decides. The platform stays out of the way."
     },
     "buyers": {
       "title": "If you're buying a course",
@@ -124,7 +124,7 @@
       "step1Title": "Sign in with Nostr",
       "step1Body": "Your Nostr key is your account. No emails, no long forms.",
       "step2Title": "Set up your store and pick how you get paid",
-      "step2Body": "Claim a slug (cursa.bitbybit.com.ar/your-slug) and pick your payout: pesos to your CBU/alias (via Wapu) if you'd rather skip Bitcoin altogether, or sats straight to your Lightning Address if you already live in sats. Then add your first offerings.",
+      "step2Body": "Claim a slug (cursats.bitbybit.com.ar/your-slug) and pick your payout: pesos to your CBU/alias (via Wapu) if you'd rather skip Bitcoin altogether, or sats straight to your Lightning Address if you already live in sats. Then add your first offerings.",
       "step3Title": "Sell and get paid in what you chose",
       "step3Body": "When someone pays you, the rail you picked deposits in your account: pesos to your CBU via Wapu, or sats straight to your wallet. The platform never touches the money."
     },
@@ -141,7 +141,7 @@
     },
     "custody": {
       "title": "Your money, your keys",
-      "body": "Cursá never holds the funds. Every payment goes straight to the destination the teacher picked — pesos to a CBU via Wapu, or sats to a Lightning Address. If Cursá disappears tomorrow, payments still land: we aren't the rail."
+      "body": "Cursats never holds the funds. Every payment goes straight to the destination the teacher picked — pesos to a CBU via Wapu, or sats to a Lightning Address. If Cursats disappears tomorrow, payments still land: we aren't the rail."
     },
     "cta": {
       "title": "Ready to get started?",
@@ -151,9 +151,9 @@
   },
   "features": {
     "metadataTitle": "Features",
-    "metadataDescription": "What Cursá offers: two ways to get paid (sats or pesos), no custody, optional Nostr login, in-app delivery, and more.",
+    "metadataDescription": "What Cursats offers: two ways to get paid (sats or pesos), no custody, optional Nostr login, in-app delivery, and more.",
     "hero": {
-      "title": "What Cursá offers",
+      "title": "What Cursats offers",
       "subtitle": "The minimum needed to sell classes in sats — whether you want to cash out in pesos or stay in sats."
     },
     "items": {
@@ -174,12 +174,12 @@
       "codesOrDownloadsTitle": "Codes or downloads",
       "codesOrDownloadsBody": "Each offering delivers a redemption code (from a pool you upload) or a direct download. You choose per offering.",
       "multiTenantSelfHostTitle": "Marketplace or self-host",
-      "multiTenantSelfHostBody": "Sell from the marketplace at cursa.bitbybit.com.ar/your-slug, or fork the repo and run your own deployment."
+      "multiTenantSelfHostBody": "Sell from the marketplace at cursats.bitbybit.com.ar/your-slug, or fork the repo and run your own deployment."
     }
   },
   "faq": {
     "metadataTitle": "FAQ",
-    "metadataDescription": "Quick answers to what buyers and teachers most often ask about Cursá.",
+    "metadataDescription": "Quick answers to what buyers and teachers most often ask about Cursats.",
     "hero": {
       "title": "Frequently asked questions",
       "subtitle": "What buyers and teachers ask most. Missing something? Open a discussion on GitHub."
@@ -200,11 +200,11 @@
       "lostReceiptQ": "What if I lose the receipt link?",
       "lostReceiptA": "If your Nostr was connected, you'll find it under \"My orders\". If you bought anonymously, you can sign in with Nostr and claim the order by pasting the order ID on the claim page.",
       "creatorPayoutQ": "How do I get paid as a teacher?",
-      "creatorPayoutA": "You pick how to get paid in Settings: pesos to a CBU or alias (via Wapu), or sats straight to your Lightning Address. Each payment lands separately at the destination you chose — Cursá never touches the money.",
+      "creatorPayoutA": "You pick how to get paid in Settings: pesos to a CBU or alias (via Wapu), or sats straight to your Lightning Address. Each payment lands separately at the destination you chose — Cursats never touches the money.",
       "nostrSignInQ": "What is Nostr and why do I use it to sign in?",
       "nostrSignInA": "Nostr is an open identity and messaging protocol. Your private key is your account — no central servers, no email. For teachers, it's the only way to create and manage your courses.",
       "feesQ": "Are there fees?",
-      "feesA": "If you get paid in pesos, Wapu charges its settlement fee on each CBU payout. If you get paid in sats to your Lightning Address, you skip the converter entirely: only the standard Lightning routing fees may apply. The Cursá platform itself doesn't take an additional cut in v1."
+      "feesA": "If you get paid in pesos, Wapu charges its settlement fee on each CBU payout. If you get paid in sats to your Lightning Address, you skip the converter entirely: only the standard Lightning routing fees may apply. The Cursats platform itself doesn't take an additional cut in v1."
     }
   },
   "catalog": {
@@ -402,7 +402,7 @@
     }
   },
   "settings": {
-    "metadataTitle": "Settings · Cursá",
+    "metadataTitle": "Settings · Cursats",
     "title": "Settings",
     "subtitle": "Payout details and storefront options.",
     "warningTitle": "Visible to every buyer.",
@@ -412,7 +412,7 @@
       "profileHint": "What buyers see when they land on your storefront.",
       "bannerUrl": "Banner image",
       "bannerUrlPlaceholder": "https://...",
-      "bannerUrlHint": "Shown as the background above your avatar at cursa.bitbybit.com.ar/{your-slug}. Leave empty to use a gradient.",
+      "bannerUrlHint": "Shown as the background above your avatar at cursats.bitbybit.com.ar/{your-slug}. Leave empty to use a gradient.",
       "bannerUrlInvalid": "Enter a valid URL or leave it empty.",
       "payoutLegend": "Payout",
       "payoutHint": "Pick how you want to be paid. You can switch later.",
@@ -572,12 +572,12 @@
   },
   "onboarding": {
     "metadataTitle": "Create your store",
-    "title": "Welcome to Cursá",
+    "title": "Welcome to Cursats",
     "subtitle": "Pick a name, a store handle, and start selling.",
     "form": {
       "slug": "Store handle",
       "slugPlaceholder": "ana-piano",
-      "slugHint": "Used in your public URL: cursa.bitbybit.com.ar/{your-slug}. Lowercase letters, numbers, and hyphens only.",
+      "slugHint": "Used in your public URL: cursats.bitbybit.com.ar/{your-slug}. Lowercase letters, numbers, and hyphens only.",
       "slugTaken": "That handle is taken. Try another.",
       "slugErrors": {
         "format": "Lowercase letters, numbers, and hyphens only (and no leading or trailing hyphens).",

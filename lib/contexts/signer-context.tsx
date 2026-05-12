@@ -3,7 +3,7 @@
 /**
  * SignerProvider — combined session + in-memory Nostr signer state.
  *
- * Cursá's buyer flow only signs once at login; after that, the
+ * Cursats's buyer flow only signs once at login; after that, the
  * session cookie carries the user. The settings surface adds a
  * second surface that needs post-login signing — payment-
  * destination edits (CBU, alias) require a NIP-07 re-sign per ADR
@@ -222,7 +222,7 @@ export function SignerProvider({
     async (next: SignerHandle, locale: Locale): Promise<LoginResult> => {
       // NIP-98 HTTP Auth: build a kind:27235 event whose `u` tag
       // pins the absolute request URL, `method` tag pins the verb,
-      // and the custom `cursa_signer` + `cursa_locale` tags travel
+      // and the custom `cursats_signer` + `cursats_locale` tags travel
       // inside the signed envelope (a MITM cannot forge different
       // values without invalidating the signature). Empty content
       // per the spec.
@@ -239,8 +239,8 @@ export function SignerProvider({
           tags: [
             ["u", url],
             ["method", "POST"],
-            ["cursa_signer", next.type],
-            ["cursa_locale", locale],
+            ["cursats_signer", next.type],
+            ["cursats_locale", locale],
           ],
           content: "",
         });

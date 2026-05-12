@@ -50,7 +50,7 @@ just dismantled.
 ## Decision
 
 `merchant.yaml` is removed from the repo. There is no
-YAML-shaped configuration surface in Cursá.
+YAML-shaped configuration surface in Cursats.
 
 The new model has three layers, each with one editor and one
 editing surface:

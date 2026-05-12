@@ -46,7 +46,7 @@ const NIP46_CONNECT_RELAYS = [
   "wss://relay.nostr.band",
 ];
 
-const LOCAL_CLIENT_KEY_STORAGE = "cursa-nip46-client-key";
+const LOCAL_CLIENT_KEY_STORAGE = "cursats-nip46-client-key";
 
 /**
  * Get (or lazily create) the persistent client secret key used to
@@ -102,12 +102,12 @@ export function createConnectSession(): NostrConnectSession {
     clientPubkey,
     relays: NIP46_CONNECT_RELAYS,
     secret,
-    name: "BitByBit Cursá",
+    name: "BitByBit Cursats",
     url:
       typeof window !== "undefined"
         ? window.location.origin
         : process.env.NEXT_PUBLIC_BASE_URL ||
-          "https://cursa.bitbybit.com.ar",
+          "https://cursats.bitbybit.com.ar",
   });
 
   return { uri, clientSecretKey };

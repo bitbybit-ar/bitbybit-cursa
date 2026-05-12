@@ -1,4 +1,4 @@
-# BitByBit Cursá
+# BitByBit Cursats
 
 Lightning checkout for teachers and educational creators. Buyers
 always pay in sats; sellers pick how to get paid. Built for La
@@ -7,7 +7,7 @@ one of the two payout rails.
 
 > Cursá tu próxima clase con sats.
 
-Source for <https://cursa.bitbybit.com.ar>.
+Source for <https://cursats.bitbybit.com.ar>.
 
 ## What it is
 

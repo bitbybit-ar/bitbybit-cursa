@@ -24,11 +24,11 @@ const SEED_USER = {
   slug: "demo",
   display_name: "Profe Demo",
   bio:
-    "Cuenta de ejemplo. Sirve para probar el catálogo de Cursá " +
+    "Cuenta de ejemplo. Sirve para probar el catálogo de Cursats " +
     "antes de que profesores reales publiquen sus clases.",
   // Wapu-routable destination. The mock client accepts any string;
   // a real Wapu account would be required in production.
-  alias: "demo.cursa.ar",
+  alias: "demo.cursats.ar",
   cbu: null,
   active: true,
 };

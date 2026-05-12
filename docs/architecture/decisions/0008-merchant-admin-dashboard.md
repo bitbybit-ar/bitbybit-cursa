@@ -48,7 +48,7 @@ without ever exposing the others.
 
 ## Decision
 
-Cursá ships a merchant admin dashboard at `/[locale]/panel/...`
+Cursats ships a merchant admin dashboard at `/[locale]/panel/...`
 in v1. Auth is gated by an env var; mutations are scoped narrowly
 on purpose; everything is server-rendered so no admin data
 crosses to a client bundle.

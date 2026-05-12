@@ -19,7 +19,7 @@
 
 ## Context
 
-Cursá needs a payment rail that:
+Cursats needs a payment rail that:
 
 1. Accepts Bitcoin from buyers (Lightning preferred — instant, low
    fee).

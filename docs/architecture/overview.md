@@ -9,6 +9,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-12 | — | Rebranded references from "Cursá" to "Cursats" and updated the deployment URL to `cursats.bitbybit.com.ar`. Aligned the example storefront URLs with ADR 0017 (flat `/<userSlug>` instead of `/m/<userSlug>`). | Brand rename per ADR 0018 — portmanteau of *cursá* (the voseo verb) and *sats*. |
 | 2026-05-12 | What this app is, Routing, Identity model, Creator surfaces (renamed from Merchant admin panel), Stack, Configuration model, Auto-renewal flow, Security, What is intentionally not here, Table of Contents | Replaced single-tenant framing with multi-tenant marketplace; replaced "Wapu only" with the dual-rail model (Wapu ARS + Lightning Address direct sats); removed the `/panel/*` namespace and the `ADMIN_PUBKEYS`-gated admin posture; renamed the panel section to "Creator surfaces" and pointed it at the top-level English routes; updated the Stack image-storage line from Vercel Blob to Blossom; renamed `lib/merchant.ts` → `lib/site.ts` and `merchants` → `users` in the configuration table. | The doc was three pivots behind reality (ADR 0014 opened the marketplace, ADR 0015 added the second rail, ADR 0016 collapsed `merchants` into `users`). Contributors reading this would have built against an architecture that no longer exists. |
 | 2026-05-07 | Stack | Replaced the dead `docs.wapu.app/api-docs/en` reference in the Wapu line with: (a) the actual API base URLs for production and staging, and (b) a pointer to the wapu-cli repo as the public source of the API contract until Wapu publishes formal docs. | The original URL 404s; the wapu-cli repo (github.com/wapu-app/wapu-cli) is currently the only public source of the API contract, and Wapu runs a staging environment at staging.wapu.app for fake-money testing. Future contributors should not waste time on the broken URL. |
 | 2026-05-06 | What this app is, Stack, Routing, Auto-renewal flow, Notifications & delivery, Merchant config, Security, What is intentionally not here, Table of Contents | Replaced the Routing section with a short pointer to `routing.md` (full route map now lives there). Rewrote the Merchant config section: `merchant.yaml` is removed; offerings + CBU/alias + autorenewal flag now live in Postgres and are edited from `/panel`; branding/copy/identity stay in code; `ADMIN_PUBKEYS` lives in env. Updated the auto-renewal flow paragraph: flag is a runtime panel toggle, code is dormant when off. Added Postgres + drizzle and Vercel Blob to the Stack list. Added the panel surface and admin-only API namespace to Security. Removed "no buyer accounts" and "no admin UI" from "What is intentionally not here" (they exist now per ADRs 0007 and 0008). Updated TOC. | ADRs 0007–0010 introduced Postgres, optional Nostr login, the merchant admin panel, offerings + settings in DB, and removed `merchant.yaml`. The overview was the most code-shaped doc in the repo and was lying about all of these. |
@@ -39,8 +40,8 @@
 
 ## What this app is
 
-Cursá is a Next.js multi-tenant marketplace at
-`cursa.bitbybit.com.ar`. Any signed-in Nostr user is implicitly
+Cursats is a Next.js multi-tenant marketplace at
+`cursats.bitbybit.com.ar`. Any signed-in Nostr user is implicitly
 a creator; the user row is materialised on first sign-in (`ensureUserForPubkey`)
 and the seller picks a slug and a payout method from
 `/[locale]/settings`. There is no fork, no separate deployment, no
@@ -49,9 +50,9 @@ who wants their own instance, but the hosted marketplace is the
 default. Decision pinned in ADR
 [0014](decisions/0014-marketplace-open-to-all-logged-in-users.md).
 
-A buyer visits `cursa.bitbybit.com.ar`, browses the global catalog
-or a creator storefront at `/m/<userSlug>`, opens an offering at
-`/m/<userSlug>/c/<offeringSlug>`, gets a Lightning invoice, pays
+A buyer visits `cursats.bitbybit.com.ar`, browses the global catalog
+or a creator storefront at `/<userSlug>`, opens an offering at
+`/<userSlug>/c/<offeringSlug>`, gets a Lightning invoice, pays
 it, and lands on a permanent receipt page at
 `/[locale]/receipt/[orderId]` that shows their redemption code or
 download link. If they connected a Nostr identity at checkout (or
@@ -225,7 +226,7 @@ Routes inventory and request shapes live in
 - `Organization` and `WebSite` JSON-LD are injected in the
   `<head>` from the layout. The `Organization` block sets
   `parentOrganization` to BitByBit so search engines associate
-  Cursá with the wider org.
+  Cursats with the wider org.
 - Dynamic OG image rendered per locale via `next/og` at
   `app/[locale]/opengraph-image.tsx`. Headline and tagline come
   from `messages/{locale}.json` (`metadata.ogHeadline`,
@@ -233,12 +234,12 @@ Routes inventory and request shapes live in
 - `app/sitemap.ts` lists `/es` and `/en` with hreflang alternates.
 - `app/robots.ts` allows everything except `/api/` and `/_next/`.
 - `app/manifest.ts` declares the standalone PWA shell with
-  Cursá's name, short name, theme color (yellow), and icon.
+  Cursats's name, short name, theme color (yellow), and icon.
 - `lib/env.ts` centralises the `NEXT_PUBLIC_BASE_URL` lookup —
   every SEO surface uses it via `getBaseUrl()` and throws at boot
   if the env var is missing.
 - The placeholder favicon at `public/icons/icon.svg` is the
-  BitByBit family logo. Replace it with Cursá's own mark when
+  BitByBit family logo. Replace it with Cursats's own mark when
   brand work lands.
 
 ## Theming
@@ -291,7 +292,7 @@ take from there depends on which rail the seller picked in
 ### Rail = `wapu_ars` (sats → ARS to seller's CBU)
 
 ```text
-Buyer              Cursá app             Wapu              Seller bank
+Buyer              Cursats app             Wapu              Seller bank
   │                    │                   │                     │
   │── click "Comprar" ▶│                   │                     │
   │                    │── create invoice ▶│                     │
@@ -310,7 +311,7 @@ confirmed" on this rail.
 ### Rail = `lightning` (direct sats to seller's Lightning Address)
 
 ```text
-Buyer              Cursá app          Seller's LNURL provider
+Buyer              Cursats app          Seller's LNURL provider
   │                    │                       │
   │── click "Comprar" ▶│                       │
   │                    │── LNURL-pay callback ▶│
@@ -346,7 +347,7 @@ takes effect immediately; no redeploy. Decision in ADR
 (amended by ADR 0009).
 
 ```text
-Cron (daily)     Cursá app           NWC connection         Wapu
+Cron (daily)     Cursats app           NWC connection         Wapu
      │                │                     │                  │
      │── tick ───────▶│                     │                  │
      │                │── list expiring ────│                  │
@@ -374,7 +375,7 @@ falls back to the one-shot button.
 
 ## Notifications & delivery
 
-Cursá does not integrate with email. Two channels deliver content
+Cursats does not integrate with email. Two channels deliver content
 and notifications: an **in-app receipt page** and **optional
 Nostr DMs**. Decision pinned in ADR
 [0006-nostr-and-inapp-delivery](decisions/0006-nostr-and-inapp-delivery.md).
@@ -408,12 +409,12 @@ They keep the receipt URL they were shown at checkout. For
 expiring lesson packs, the storefront UI can show "Renová tu
 bono" CTAs to bring them back.
 
-### Cursá's signing identity
+### Cursats's signing identity
 
 The deployment uses a server-side Nostr key (env: `NOSTR_NSEC`)
 to sign and encrypt outgoing DMs. The key never reaches the
 client. A new key just means a new npub for outgoing DMs;
-buyers read by their own pubkey, not by Cursá's identity, so
+buyers read by their own pubkey, not by Cursats's identity, so
 key rotation is bounded.
 
 ## Configuration model

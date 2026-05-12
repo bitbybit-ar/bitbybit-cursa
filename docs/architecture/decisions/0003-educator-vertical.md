@@ -47,7 +47,7 @@ selling a real bono.
 
 ## Decision
 
-Cursá is a **vertical OSS kit for Argentine educators**, not a
+Cursats is a **vertical OSS kit for Argentine educators**, not a
 generic storefront. The catalog supports exactly two offering
 types:
 
@@ -75,7 +75,7 @@ scope.
 
 ### Negative
 
-- A merchant who sells physical goods cannot use Cursá. They are
+- A merchant who sells physical goods cannot use Cursats. They are
   outside the wedge by design.
 - Future expansion to additional verticals (e.g. fitness studios
   with scheduling, content creators with subscriptions) requires

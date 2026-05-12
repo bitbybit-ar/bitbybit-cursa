@@ -1,6 +1,6 @@
 # Changelog
 
-All notable **product** changes to BitByBit Cursá live here. Format
+All notable **product** changes to BitByBit Cursats live here. Format
 follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
@@ -11,6 +11,26 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 ## [Unreleased]
 
 ### Changed
+
+- **Rebranded the product from "Cursá" to "Cursats".** A portmanteau
+  of the voseo verb *cursá* and *sats* — the wordmark now names what
+  the platform settles in instead of hiding it behind a tagline. The
+  verb form survives in body copy (e.g. the landing tagline *"Cursá
+  tu próxima clase con sats"*); only the brand noun changes. Scope:
+  UI strings (navbar wordmark, footer, manifest, OG image, JSON-LD,
+  i18n `siteName`/`siteTitle`/keywords/welcome/settings titles/FAQ
+  copy), domain references (`cursa.bitbybit.com.ar` →
+  `cursats.bitbybit.com.ar`), GitHub repo references
+  (`bitbybit-ar/bitbybit-cursa` → `bitbybit-ar/bitbybit-cursats`),
+  `package.json` name, test hostnames (`cursa.test` →
+  `cursats.test`), and internal identifiers (Nostr tag namespace
+  `cursa_action` / `cursa_signer` / `cursa_locale` → `cursats_*`;
+  localStorage keys `cursa-nip46-client-key` and
+  `cursa:nostr:profile:` → `cursats-*`; LNURL probe memo
+  `cursa-probe` → `cursats-probe`). The Postgres database name
+  `bitbybit_cursa` is intentionally preserved. The
+  `docs/about/mission.md` "A note on the name" section was rewritten
+  to explain the portmanteau etymology. Decision in ADR 0018.
 
 - **Flattened seller URLs and redesigned the course detail page.**
   Seller storefronts move from `/m/[userSlug]` to `/[userSlug]` and
@@ -199,7 +219,7 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
   compras", "Panel" (merchants/admins), "Cerrar sesión".
   Footer carries Habits / Arena / FAQ / GitHub links.
 - **`Block`, `LogoBlocks`, `Bubble` common components.** Ported
-  from sister projects (home + arena), recolored to the Cursá
+  from sister projects (home + arena), recolored to the Cursats
   palette (blue / lime / pink) with new `pink`, `cyan`,
   `orange`, and `gold` Bubble color variants reading from the
   decorative accent tokens.
@@ -236,7 +256,7 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
   honored while letting the avatar navigate independently.
 - **Auth components removed:** `components/ui/language-toggle/`
   is gone — the navbar's locale toggle replaces it.
-- **Marketplace pivot.** ADR 0012 turns Cursá from a single-
+- **Marketplace pivot.** ADR 0012 turns Cursats from a single-
   tenant tool (one fork per merchant) into a multi-tenant
   marketplace where each professor signs in with their Nostr
   key, claims a slug, and sells from their own storefront at
@@ -543,7 +563,7 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
   Wired as `<SignerProvider>` inside `app/[locale]/layout.tsx`.
   Auto-restores the extension signer on reload when the session
   cookie matches the extension's pubkey. The arena reference
-  splits this into Session/Signer/ReSignIn — Cursá's buyer flow
+  splits this into Session/Signer/ReSignIn — Cursats's buyer flow
   only signs at login, so the slimmed combined version covers
   v1; pull in the arena machinery if a future feature signs
   beyond auth.
@@ -628,7 +648,7 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
   (auto-renewal subscribers always receive DMs since NWC gives us
   their pubkey). No email integration.
 - "A note on the name" section in `docs/about/mission.md`
-  explaining the voseo origin of "Cursá" and the cursa-vs-Cursá
+  explaining the voseo origin of the project name and the cursa-vs-Cursá
   surface convention.
 
 ### Fixed
@@ -741,7 +761,7 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
   `app/[locale]/opengraph-image.tsx`, `app/sitemap.ts`,
   `app/robots.ts`, `app/manifest.ts`, and a placeholder
   `public/icons/icon.svg` (BitByBit family logo, to be replaced with
-  Cursá's own brand mark).
+  Cursats's own brand mark).
 - Initial documentation tree mirroring the canonical structure in
   the `home` repo: `CLAUDE.md`, `README.md`, `CONTRIBUTING.md`,
   `docs/_template.md`, `docs/README.md`, `docs/about/mission.md`,

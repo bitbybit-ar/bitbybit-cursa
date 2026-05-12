@@ -18,7 +18,7 @@
 
 ## Context
 
-Cursá needs to deliver redemption codes and download URLs to buyers
+Cursats needs to deliver redemption codes and download URLs to buyers
 after payment, and to push renewal/cancellation notices to
 subscribers. The default in commerce tooling is transactional email
 (Resend, Postmark, SES). Email requires:
@@ -36,7 +36,7 @@ Nostr-adjacent Lightning ecosystem. A Nostr-first delivery channel
 is consistent with the rest of the family.
 
 For auto-renewal subscribers (ADR
-[0005](0005-prepaid-default-autorenewal-optin.md)), Cursá already
+[0005](0005-prepaid-default-autorenewal-optin.md)), Cursats already
 has the buyer's Nostr identity via the NWC connection. Asking the
 same buyer for an email at checkout is redundant.
 
@@ -86,7 +86,7 @@ manage Nostr keys; the deployment owns one.
   budget, or monitor.
 - Consistent with the BitByBit family's Nostr-first identity model.
 - No SPF/DKIM/DMARC, no inbox reputation, no compliance surface.
-- The in-app receipt is always reliable — it's just a URL Cursá
+- The in-app receipt is always reliable — it's just a URL Cursats
   controls.
 - Auto-renewal subscribers already have an identity, so DMs are
   automatic with no extra config.
@@ -99,10 +99,10 @@ manage Nostr keys; the deployment owns one.
   this with "Renová tu bono" CTAs.
 - Nostr DM relay reliability is lower than email's. If the buyer's
   relays are offline, the DM may not reach them — they can still
-  find the receipt page via the URL Cursá showed them at checkout.
+  find the receipt page via the URL Cursats showed them at checkout.
 - The deployment must manage a server-side Nostr signing key. Loss
   of the key means a new npub for outgoing DMs; bounded impact,
-  since buyers read by their own pubkey, not by Cursá's identity.
+  since buyers read by their own pubkey, not by Cursats's identity.
 
 ### Neutral
 

@@ -7,7 +7,7 @@ import { offerings, orders } from "@/lib/db/schema";
 import { createOrder } from "@/lib/orders";
 import { GET } from "@/app/api/downloads/[orderId]/route";
 
-const DOWNLOAD_BASE = "https://cursa.test/api/downloads";
+const DOWNLOAD_BASE = "https://cursats.test/api/downloads";
 
 beforeAll(async () => {
   const { rows } = await testDb.execute<{ exists: boolean }>(sql`

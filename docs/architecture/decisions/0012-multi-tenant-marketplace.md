@@ -55,7 +55,7 @@ alias (or CBU) and a Nostr identity.
 
 ## Decision
 
-Pivot Cursá to a multi-tenant marketplace:
+Pivot Cursats to a multi-tenant marketplace:
 
 - A new `merchants` table keys every merchant by their Nostr
   pubkey, with their slug, display name, payout alias/CBU, and
@@ -136,7 +136,7 @@ unchanged.
   settings reads, panel pages, the checkout route, the webhook
   handler, the admin API routes, the test fixtures) needs to
   be re-keyed by `merchant_id`. There are no production users
-  of Cursá yet, so the cost is "rewrite-shaped" not
+  of Cursats yet, so the cost is "rewrite-shaped" not
   "migration-shaped" — but it is real engineering time.
 
 ### Neutral
@@ -144,8 +144,8 @@ unchanged.
 - The fork-for-friction story (ADR
   [0010](0010-no-yaml-config.md)) survives as the
   *self-hosting* story for merchants who want sovereignty.
-  Anyone can still fork and run their own single-tenant Cursá;
-  the marketplace is the default at `cursa.bitbybit.com.ar`.
+  Anyone can still fork and run their own single-tenant Cursats;
+  the marketplace is the default at `cursats.bitbybit.com.ar`.
 - `image_url` storage via Blossom (ADR
   [0011](0011-image-storage-via-blossom.md)) is unaffected —
   every merchant signs their own kind:24242 events for their
@@ -155,7 +155,7 @@ unchanged.
 
 ## Alternatives considered
 
-- **Stay single-tenant; add a "deploy your own Cursá" template
+- **Stay single-tenant; add a "deploy your own Cursats" template
   button.** Solves the deploy-friction half of the problem (no
   manual env setup) without inheriting marketplace risk
   (custody, moderation, slug squatting). Rejected because it
@@ -164,7 +164,7 @@ unchanged.
   likely to read a deploy README is the audience we are
   building for.
 - **Multi-tenant via per-merchant subdomains
-  (`maria.cursa.bitbybit.com.ar`).** Stronger merchant-as-
+  (`maria.cursats.bitbybit.com.ar`).** Stronger merchant-as-
   brand story than path-based routing. Rejected for v1
   because Vercel-DNS subdomain provisioning per merchant adds
   scope we can't justify before validating demand. Path-based

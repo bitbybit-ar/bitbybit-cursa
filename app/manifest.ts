@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "BitByBit Cursá",
-    short_name: "Cursá",
+    name: "BitByBit Cursats",
+    short_name: "Cursats",
     description:
       "Lightning checkout for Argentine educators — pay in sats, settle in pesos.",
     start_url: "/",

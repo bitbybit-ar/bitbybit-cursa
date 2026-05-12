@@ -12,7 +12,7 @@ import {
 } from "@/lib/wapu";
 import { POST } from "@/app/api/wapu/webhook/route";
 
-const WEBHOOK_URL = "https://cursa.test/api/wapu/webhook";
+const WEBHOOK_URL = "https://cursats.test/api/wapu/webhook";
 
 beforeEach(async () => {
   vi.unstubAllEnvs();

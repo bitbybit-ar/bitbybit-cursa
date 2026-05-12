@@ -100,8 +100,8 @@ export default async function LocaleLayout({
   const orgJsonLd = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "BitByBit Cursá",
-    alternateName: "Cursá",
+    name: "BitByBit Cursats",
+    alternateName: "Cursats",
     url: baseUrl,
     logo: `${baseUrl}/icons/icon.svg`,
     description: t("description"),
@@ -115,7 +115,7 @@ export default async function LocaleLayout({
       url: "https://bitbybit.com.ar",
       sameAs: ["https://github.com/bitbybit-ar"],
     },
-    sameAs: ["https://github.com/bitbybit-ar/bitbybit-cursa"],
+    sameAs: ["https://github.com/bitbybit-ar/bitbybit-cursats"],
   };
 
   const websiteJsonLd = {

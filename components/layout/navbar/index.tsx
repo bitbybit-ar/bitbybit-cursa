@@ -78,9 +78,9 @@ export function Navbar() {
     <>
       <nav className={cn(styles.navbar, scrolled && styles.scrolled)}>
         <div className={styles.inner}>
-          <Link href="/" className={styles.logo} aria-label="Cursá">
+          <Link href="/" className={styles.logo} aria-label="Cursats">
             <LogoBlocks />
-            <span className={styles.logoText}>Cursá</span>
+            <span className={styles.logoText}>Cursats</span>
           </Link>
 
           <div className={styles.links}>

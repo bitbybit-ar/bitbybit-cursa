@@ -15,7 +15,7 @@ interface CacheEnvelope {
   fetched_at: number;
 }
 
-const STORAGE_PREFIX = "cursa:nostr:profile:";
+const STORAGE_PREFIX = "cursats:nostr:profile:";
 // Stale-while-revalidate window. Cached entries older than this still
 // render immediately, but a background fetch refreshes them.
 const FRESHNESS_MS = 24 * 60 * 60 * 1000;

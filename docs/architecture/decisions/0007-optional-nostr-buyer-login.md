@@ -17,7 +17,7 @@
 
 ## Context
 
-ADR [0006](0006-nostr-and-inapp-delivery.md) committed Cursá to two
+ADR [0006](0006-nostr-and-inapp-delivery.md) committed Cursats to two
 buyer identities:
 
 - **Pre-paid buyers**: an opaque, unguessable `orderId` in the
@@ -32,7 +32,7 @@ gap once the buyer has bought *more than once*:
 - A pre-paid buyer who bought two packs has two unrelated receipt
   URLs and no way to see them in one place. Losing a URL means
   losing access to the redemption code.
-- A subscriber's pubkey is known to Cursá but never surfaced as an
+- A subscriber's pubkey is known to Cursats but never surfaced as an
   account — so they cannot review past renewals or cancel without
   digging through DMs.
 - The asymmetry between "URL identity" and "NWC pubkey identity"
@@ -44,7 +44,7 @@ module (NIP-07 browser extension, raw nsec paste, Nostr Connect /
 NIP-46 remote signer) backed by a `jose` JWT in an httpOnly cookie,
 with `nostr-tools` for verification. It is production-tested, it
 matches BitByBit's family-wide identity model, and it can be
-copied into Cursá with minimal adaptation.
+copied into Cursats with minimal adaptation.
 
 The product principle in `docs/about/mission.md` ("we say no to
 login systems") reflected an aversion to *required* accounts that
@@ -116,7 +116,7 @@ The catalog itself stays config-driven (ADR
 [0004](0004-static-config-deployment.md)): `merchant.yaml` is
 still the source of truth for offerings. Only the *transactional*
 data (orders, payments, sessions) lives in Postgres. This ADR
-does not turn Cursá into a multi-tenant SaaS — each merchant
+does not turn Cursats into a multi-tenant SaaS — each merchant
 still forks and deploys their own instance, with their own
 Postgres database.
 
@@ -143,9 +143,9 @@ rail. Login is an identity feature, not a payments feature.
 
 ### Negative
 
-- Cursá now has a Postgres dependency. Forking merchants must
+- Cursats now has a Postgres dependency. Forking merchants must
   provision a database (Vercel Postgres or self-hosted) and run
-  drizzle migrations. Previously a Cursá deployment had no
+  drizzle migrations. Previously a Cursats deployment had no
   stateful store besides Wapu's records.
 - An auth surface is an attack surface. Session cookies, JWT key
   rotation, NIP-46 relay handling, and NIP-05 resolution all need

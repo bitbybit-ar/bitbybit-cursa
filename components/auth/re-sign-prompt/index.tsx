@@ -3,7 +3,7 @@
 /**
  * Re-attach modal for post-login signing actions.
  *
- * Re-attach mode only — Cursá's login flow lives at /sign-in,
+ * Re-attach mode only — Cursats's login flow lives at /sign-in,
  * not in a modal. By the time we open this prompt, the user has a
  * valid session cookie but no in-memory signer (typical: nsec/NIP-46
  * user reloaded the tab). Methods are narrowed to those at least as

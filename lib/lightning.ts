@@ -125,9 +125,9 @@ export function parseLightningAddress(
  *   - Hostname must contain a dot (rules out single-label names).
  *
  * NOT defended: DNS rebinding (a public domain that resolves to a
- * private IP at fetch time). For Cursá's threat model this is
+ * private IP at fetch time). For Cursats's threat model this is
  * acceptable — the seller controls their own LN provider; if
- * they point Cursá at a malicious provider that DNS-rebinds, they
+ * they point Cursats at a malicious provider that DNS-rebinds, they
  * can extract data from their own deployment but cannot reach
  * other sellers or shared platform services. Hardening to fully
  * defeat rebinding requires resolving the hostname ourselves and

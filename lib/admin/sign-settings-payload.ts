@@ -37,7 +37,7 @@ export async function hashSettingsBody(serialized: string): Promise<string> {
  *   - `u`             — absolute URL of the PATCH endpoint
  *   - `method`        — "PATCH"
  *   - `payload`       — sha256 of the body (binds signature to bytes)
- *   - `cursa_action`  — "settings.update" (binds signature to surface
+ *   - `cursats_action` — "settings.update" (binds signature to surface
  *                       so a captured event cannot be replayed against
  *                       a different signed-action endpoint added
  *                       later)
@@ -53,7 +53,7 @@ export function buildSettingsAuthEvent(
       ["u", url],
       ["method", "PATCH"],
       ["payload", payloadHashHex],
-      ["cursa_action", ACTION_TAG_VALUE],
+      ["cursats_action", ACTION_TAG_VALUE],
     ],
     content: "",
   };

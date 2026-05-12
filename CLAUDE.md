@@ -1,21 +1,21 @@
-# BitByBit Cursá — agent instructions
+# BitByBit Cursats — agent instructions
 
 This file is the canonical guide for any AI agent (or human) working on
-the BitByBit Cursá project. Read it before editing the repo.
+the BitByBit Cursats project. Read it before editing the repo.
 
 ## Project shape
 
-- Next.js 16 (App Router) project at `cursa.bitbybit.com.ar`.
+- Next.js 16 (App Router) project at `cursats.bitbybit.com.ar`.
 - Lightning checkout for Argentine educators. Sats in via the Lightning
   Network, ARS out to the seller's CBU/alias via **Wapu**.
 - Built for La Crypta Hackathon #3 (Commerce). Wapu is the sponsor and
   the payment rail.
 - next-intl (es default, en secondary). next-themes for light/dark.
 - **Has a backend** — API routes for the Wapu webhook, scheduled jobs
-  for the optional auto-renewal flow. Cursá is **not** static-only
+  for the optional auto-renewal flow. Cursats is **not** static-only
   like the `home` repo.
 - Deploys to Vercel from a private GitHub repo at
-  <https://github.com/bitbybit-ar/bitbybit-cursa>.
+  <https://github.com/bitbybit-ar/bitbybit-cursats>.
 
 ## Documentation standard
 

@@ -23,14 +23,14 @@ import { ensureUserForPubkey } from "@/lib/admin/users";
  *   - the ±30s `created_at` window (validateNip98AuthEvent)
  *
  * The signer method (extension / nsec / nip46) and the buyer's
- * locale travel in custom `["cursa_signer", ...]` and
- * `["cursa_locale", ...]` tags so they are part of the signed
+ * locale travel in custom `["cursats_signer", ...]` and
+ * `["cursats_locale", ...]` tags so they are part of the signed
  * envelope — a man-in-the-middle cannot forge a different value
  * onto a captured event without invalidating the signature.
  */
 
-const SIGNER_TAG = "cursa_signer";
-const LOCALE_TAG = "cursa_locale";
+const SIGNER_TAG = "cursats_signer";
+const LOCALE_TAG = "cursats_locale";
 
 const PARSE_FAILURE_CODES = {
   missing: "auth_missing_header",
@@ -123,7 +123,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     signer_type: signerType,
   });
 
-  // sameSite: "strict" — Cursá auth is entirely client-side (NIP-07
+  // sameSite: "strict" — Cursats auth is entirely client-side (NIP-07
   // extension, NIP-46 bunker, or pasted nsec). There is no OAuth
   // callback or partner-site form post that needs the looser "lax"
   // policy. Strict is the tighter default.

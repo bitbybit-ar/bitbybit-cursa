@@ -31,8 +31,8 @@ export interface SiteIdentity {
 }
 
 export const SITE: SiteIdentity = {
-  name: "BitByBit Cursá",
-  domain: "cursa.bitbybit.com.ar",
+  name: "BitByBit Cursats",
+  domain: "cursats.bitbybit.com.ar",
   default_locale: "es",
   social: {},
 };

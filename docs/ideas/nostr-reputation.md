@@ -15,7 +15,7 @@
 
 ## The idea
 
-Cursá's home page renders a "highlighted courses" section that
+Cursats's home page renders a "highlighted courses" section that
 today sources from `lib/mock/highlighted-courses.ts`. Once
 offerings are published as kind:30402 (or our chosen marketplace
 event kind) Nostr events, we can rank them by the reactions

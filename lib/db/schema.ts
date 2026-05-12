@@ -34,7 +34,7 @@ export const orderStatus = pgEnum("order_status", [
 // How a user gets paid (when they sell). Decision in ADR 0015.
 //   cbu_alias         — Wapu converts sats→ARS and pushes to the
 //                       user's Argentine bank alias or CBU.
-//   lightning_address — Cursá mints a BOLT11 directly against the
+//   lightning_address — Cursats mints a BOLT11 directly against the
 //                       user's Lightning Address; sats land in
 //                       the user's own wallet, no ARS conversion.
 export const payoutMethod = pgEnum("payout_method", [

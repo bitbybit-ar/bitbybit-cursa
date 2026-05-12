@@ -24,7 +24,7 @@ even though **checkout** was always Lightning.
 
 A real fraction of educators want to keep their pay in sats — they
 already self-custody and they would rather not convert. Asking them to
-go through ARS-only settlement to use Cursá is a discovery loss the
+go through ARS-only settlement to use Cursats is a discovery loss the
 hackathon brief did not anticipate. ADR 0002's "neutral" section
 already left the door open: "the decision can be revisited in a later
 ADR."
@@ -57,7 +57,7 @@ once and applied to all of their offerings:
 - **`cbu_alias`** (default) — Wapu mints the BOLT11, the buyer pays
   it, Wapu converts to ARS and pushes pesos to the merchant's CBU or
   alias. Existing flow, unchanged.
-- **`lightning_address`** — Cursá's checkout API resolves the
+- **`lightning_address`** — Cursats's checkout API resolves the
   merchant's LN address via `/.well-known/lnurlp/<local-part>`, mints
   the BOLT11 against the LNURL-pay callback, persists the LUD-21
   `verify` URL on the order row, and the buyer pays the merchant's
@@ -91,7 +91,7 @@ defense in depth against a misrouted event flipping a sats-rail order.
 
 ### Positive
 
-- Merchants who self-custody can sell on Cursá without converting
+- Merchants who self-custody can sell on Cursats without converting
   to ARS.
 - The platform never holds funds on either rail. The sats rail is
   an even lighter integration than Wapu (no API key, no shared
@@ -127,7 +127,7 @@ defense in depth against a misrouted event flipping a sats-rail order.
 
 - **Require NWC for the sats rail (port the habits pattern).**
   Rejected: NWC requires the merchant to expose receive permissions
-  and an encrypted secret on Cursá's server, plus a working relay.
+  and an encrypted secret on Cursats's server, plus a working relay.
   An LN address gives us the same outcome (sats land in the
   merchant's wallet) for one pasted string.
 - **Per-offering rail.** Rejected: doubles the storefront complexity

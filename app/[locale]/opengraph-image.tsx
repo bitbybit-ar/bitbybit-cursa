@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getTranslations } from "next-intl/server";
 
-export const alt = "BitByBit Cursá";
+export const alt = "BitByBit Cursats";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -43,7 +43,7 @@ export default async function OgImage({
             <div style={{ display: "flex", width: "32px", height: "32px", borderRadius: "6px", background: "#F7A825" }} />
             <div style={{ display: "flex", width: "32px", height: "32px", borderRadius: "6px", background: "#22C55E" }} />
           </div>
-          <span>BitByBit Cursá</span>
+          <span>BitByBit Cursats</span>
         </div>
 
         <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>

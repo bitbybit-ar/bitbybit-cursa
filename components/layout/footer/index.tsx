@@ -12,7 +12,7 @@ export function Footer() {
       <div className={styles.inner}>
         <div className={styles.brand}>
           <LogoBlocks />
-          <span className={styles.brandText}>Cursá</span>
+          <span className={styles.brandText}>Cursats</span>
         </div>
 
         <nav className={styles.links} aria-label={t("ariaLabel")}>
@@ -36,7 +36,7 @@ export function Footer() {
             {t("faqLink")}
           </Link>
           <a
-            href="https://github.com/bitbybit-ar/bitbybit-cursa"
+            href="https://github.com/bitbybit-ar/bitbybit-cursats"
             target="_blank"
             rel="noopener noreferrer"
             className={styles.link}

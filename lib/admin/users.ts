@@ -137,7 +137,7 @@ export interface InitialUserProfile {
  * subsequent calls without `initial` are pure reads + a placeholder
  * fallback for legacy or relay-failed cases.
  *
- * Cursá's marketplace model is "any signed-in Nostr user can sell".
+ * Cursats's marketplace model is "any signed-in Nostr user can sell".
  * The user row is data, not a gate — any surface that needs it
  * (the user's courses, settings, orders) can call this and trust
  * that a row will be there.

@@ -1,7 +1,7 @@
 # Documentation
 
 > **Status:** Active
-> **Last updated:** 2026-05-05
+> **Last updated:** 2026-05-12
 
 ---
 
@@ -9,13 +9,14 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-12 | What this folder is, Structure | Rebranded "BitByBit Cursá" to "BitByBit Cursats" throughout. | Brand rename per ADR 0018 — portmanteau of *cursá* (the voseo verb) and *sats*. |
 | 2026-05-05 | — | Initial version. | Bootstrap the docs tree using the canonical template from the `home` repo. |
 
 ---
 
 ## What this folder is
 
-Internal documentation for BitByBit Cursá — the project, its
+Internal documentation for BitByBit Cursats — the project, its
 architecture, and the decisions behind it. The structure mirrors the
 canonical template defined in the `home` repo
 (`bitbybit-ar/home/docs/`); see that repo's `docs/README.md` for the
@@ -28,7 +29,7 @@ docs/
 ├── README.md                 ← you are here
 ├── _template.md              ← copy this for new docs
 ├── about/
-│   └── mission.md            ← what Cursá is, who it's for, why
+│   └── mission.md            ← what Cursats is, who it's for, why
 └── architecture/
     ├── overview.md           ← system shape + key invariants
     └── decisions/            ← Architecture Decision Records (ADRs)

@@ -9,7 +9,7 @@ import { ReSignPrompt } from "@/components/auth/re-sign-prompt";
  * modal renderer. Kept separate from the locale layout so the layout
  * stays a server component (functions can't cross the RSC boundary).
  *
- * The modal handles "re-attach to existing session" only — Cursá's
+ * The modal handles "re-attach to existing session" only — Cursats's
  * full login flow lives at /sign-in, not in a modal. The
  * modal is rendered unconditionally; it returns null when not open.
  */

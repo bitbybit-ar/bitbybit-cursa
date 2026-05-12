@@ -30,7 +30,7 @@ describe("admin/sign-settings-payload", () => {
   });
 
   it("buildSettingsAuthEvent pins kind 27235 and the canonical tags", () => {
-    const url = "https://cursa.test/api/settings";
+    const url = "https://cursats.test/api/settings";
     const payloadHash = "abcd".repeat(16);
     const event = buildSettingsAuthEvent(url, payloadHash);
 
@@ -39,12 +39,12 @@ describe("admin/sign-settings-payload", () => {
     expect(findTag(event.tags, "u")).toBe(url);
     expect(findTag(event.tags, "method")).toBe("PATCH");
     expect(findTag(event.tags, "payload")).toBe(payloadHash);
-    expect(findTag(event.tags, "cursa_action")).toBe(SETTINGS_ACTION_TAG);
+    expect(findTag(event.tags, "cursats_action")).toBe(SETTINGS_ACTION_TAG);
   });
 
   it("buildSettingsAuthEvent stamps a current created_at within a few seconds", () => {
     const before = Math.floor(Date.now() / 1000);
-    const event = buildSettingsAuthEvent("https://cursa.test", "0".repeat(64));
+    const event = buildSettingsAuthEvent("https://cursats.test", "0".repeat(64));
     const after = Math.floor(Date.now() / 1000);
     expect(event.created_at).toBeGreaterThanOrEqual(before);
     expect(event.created_at).toBeLessThanOrEqual(after + 1);

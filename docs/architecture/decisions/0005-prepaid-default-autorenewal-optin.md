@@ -39,7 +39,7 @@ have NWC wallets and don't want to set one up.
 
 ## Decision
 
-Cursá ships **two payment flows**, with a per-merchant opt-in:
+Cursats ships **two payment flows**, with a per-merchant opt-in:
 
 - **Pre-paid one-shot** is always on. Every offering can be sold
   as a single Lightning invoice. This works for every Lightning

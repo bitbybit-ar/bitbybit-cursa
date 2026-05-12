@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import { finalizeEvent, generateSecretKey, getPublicKey } from "nostr-tools/pure";
 import { validateNip98AuthEvent } from "@/lib/nostr/verify";
 
-const URL_UNDER_TEST = "https://cursa.test/api/auth/nostr";
+const URL_UNDER_TEST = "https://cursats.test/api/auth/nostr";
 const METHOD = "POST";
 
 function signNip98(opts: {

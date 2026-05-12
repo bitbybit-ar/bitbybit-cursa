@@ -38,7 +38,7 @@ domain.
 
 ## Decision
 
-In v1, **each merchant forks (or templates) the Cursá repo, edits
+In v1, **each merchant forks (or templates) the Cursats repo, edits
 `merchant.yaml`, and deploys their own Vercel project** with their
 own domain. There is no multi-tenant code path, no admin UI, no
 shared database, and no platform-level authentication.

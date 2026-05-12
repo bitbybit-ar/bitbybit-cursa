@@ -11,7 +11,7 @@ import {
 } from "@/lib/lightning";
 import { GET } from "@/app/api/orders/[orderId]/route";
 
-const ORDER_URL = "https://cursa.test/api/orders/abc";
+const ORDER_URL = "https://cursats.test/api/orders/abc";
 
 beforeEach(async () => {
   const { rows } = await testDb.execute<{ exists: boolean }>(sql`

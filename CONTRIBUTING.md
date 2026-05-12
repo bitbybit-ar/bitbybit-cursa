@@ -9,9 +9,10 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-12 | — | Rebranded references from "Cursá" to "Cursats" and updated the deployment URL to `cursats.bitbybit.com.ar`. | Brand rename per ADR 0018 — portmanteau of *cursá* (the voseo verb) and *sats*. |
 | 2026-05-12 | Before you start, Making changes | Replaced "single-tenant template, Wapu settlement" framing with "multi-tenant marketplace, two payout rails (Wapu ARS + Lightning Address)". Replaced the "Wapu is the only settlement rail in v1" rule with the dual-rail rule from ADR 0015 (do not add a third rail; Lightning Address provider must support LUD-21). | ADRs 0014 / 0015 / 0016 turned the project into an open marketplace with two payout rails; the old rules contradicted current code and would mislead any contributor sending a payment-path PR. |
 | 2026-05-07 | Reporting a vulnerability | Replaced the dead `docs.wapu.app` URL with `wapu.app` for out-of-scope Wapu disclosures. | The previous URL 404s; Wapu has not published a formal docs site yet. The company landing is the right pointer for vulnerability disclosure until they publish a security contact. |
-| 2026-05-06 | Making changes, Reporting a vulnerability | Replaced email-delivery code paths and email-sender API key with Nostr signing/DM-delivery code paths and the deployment's Nostr signing key. Added a "Nostr signing keys are server-only" rule to "Making changes". | Reflects ADR 0006 — Cursá does not integrate with email; in-app receipts and Nostr DMs are the delivery channel. |
+| 2026-05-06 | Making changes, Reporting a vulnerability | Replaced email-delivery code paths and email-sender API key with Nostr signing/DM-delivery code paths and the deployment's Nostr signing key. Added a "Nostr signing keys are server-only" rule to "Making changes". | Reflects ADR 0006 — Cursats does not integrate with email; in-app receipts and Nostr DMs are the delivery channel. |
 | 2026-05-05 | — | Initial version. | Set the bar for contributions before the first external commit. Adapted from the `home` repo's CONTRIBUTING.md with payment-surface-specific changes. |
 
 ---
@@ -70,7 +71,7 @@ npm run dev
   webhook only flips orders whose `rail === 'wapu_ars'`; for
   `rail === 'lightning'` orders the receipt page polls the
   seller's LNURL-pay `verify` URL via `/api/orders/[orderId]`.
-- **Two payout rails — do not add a third.** Cursá supports Wapu
+- **Two payout rails — do not add a third.** Cursats supports Wapu
   (sats → ARS to a CBU/alias) and direct sats to a seller's
   Lightning Address (ADR
   `0015-sats-settlement-rail.md`, superseding the rail-count
@@ -157,7 +158,7 @@ This applies in all project spaces — issues, PRs, commits, chats
 
 ## Reporting a vulnerability
 
-Cursá handles real money: it generates Lightning invoices,
+Cursats handles real money: it generates Lightning invoices,
 receives webhooks that trigger ARS payouts, holds buyer-granted
 NWC permissions when auto-renewal is on, and signs encrypted
 Nostr DMs to buyers. Vulnerability reports are taken seriously.
@@ -179,8 +180,8 @@ or mitigation within a reasonable window depending on severity.
 
 In scope:
 
-- The Cursá source code in this repository.
-- The default deployment at `cursa.bitbybit.com.ar`.
+- The Cursats source code in this repository.
+- The default deployment at `cursats.bitbybit.com.ar`.
 - The Wapu integration code paths (invoice creation, webhook
   signature verification, ARS payout triggers).
 - The NWC integration code paths (connection-string storage,
