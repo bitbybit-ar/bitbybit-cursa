@@ -16,11 +16,11 @@ export function HighlightedCourses() {
       </header>
 
       <div className={styles.grid}>
-        {highlightedCourses.map(({ offering, merchant }) => (
+        {highlightedCourses.map(({ offering, seller }) => (
           <OfferingCard
             key={offering.id}
             offering={offering}
-            merchant={merchant}
+            seller={seller}
           />
         ))}
       </div>

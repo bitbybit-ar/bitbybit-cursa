@@ -69,9 +69,9 @@ function rewriteLegacyPath(subpath: string): string | null {
  *   2. Gate creator-facing surfaces (/settings, /my-courses,
  *      /create-course, /orders, /purchases) to signed-in users.
  *      Anonymous visitors bounce to /sign-in preserving the
- *      original target via ?next=. The merchant-row check happens
- *      server-side in each page (via requireUserMerchant); the
- *      edge gate just enforces "you must be signed in".
+ *      original target via ?next=. The user-row check happens
+ *      server-side in each page (via requirePanelUser); the edge
+ *      gate just enforces "you must be signed in".
  *
  *   3. Everything else falls through to the next-intl locale
  *      middleware. Spanish is the default locale and is served
@@ -117,8 +117,8 @@ export default async function proxy(request: NextRequest): Promise<NextResponse>
       return NextResponse.redirect(url);
     }
 
-    // Signed in — fall through. Each page's `requireUserMerchant`
-    // lazily creates the merchant row and 404s on deactivation.
+    // Signed in — fall through. Each page's `requirePanelUser`
+    // lazily creates the user row and 404s on deactivation.
   }
 
   return intlMiddleware(request);

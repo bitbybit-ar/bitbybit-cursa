@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from "vitest";
-import { slugifyDisplayName } from "@/lib/admin/merchants";
+import { slugifyDisplayName } from "@/lib/admin/users";
 
 describe("slugifyDisplayName", () => {
   it("lowercases and hyphenates word boundaries", () => {

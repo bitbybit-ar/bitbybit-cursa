@@ -34,7 +34,7 @@ const FEATURES = [
   { key: "optionalNostrLogin", icon: UserIcon, tone: "nostr", rotation: "right" },
   { key: "deliveryInApp", icon: BellIcon, tone: "cyan", rotation: "left" },
   { key: "autorenewalOptIn", icon: BadgeIcon, tone: "orange", rotation: "right" },
-  { key: "merchantPanel", icon: SettingsIcon, tone: "blue", rotation: "left" },
+  { key: "creatorPanel", icon: SettingsIcon, tone: "blue", rotation: "left" },
   { key: "codesOrDownloads", icon: BookIcon, tone: "lime", rotation: "right" },
   { key: "multiTenantSelfHost", icon: PaletteIcon, tone: "gold", rotation: "left" },
 ] as const;

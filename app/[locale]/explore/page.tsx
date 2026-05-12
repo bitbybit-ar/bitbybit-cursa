@@ -8,9 +8,9 @@ type Props = {
   params: Promise<{ locale: string }>;
 };
 
-// Marketplace discovery (ADR 0012). Renders every active merchant's
+// Marketplace discovery (ADR 0012). Renders every active user's
 // offerings in newest-first order so the platform reads as a feed,
-// not a single store. Per-merchant landing pages live at
+// not a single store. Per-seller landing pages live at
 // /[locale]/m/[slug].
 export const dynamic = "force-dynamic";
 
@@ -35,11 +35,11 @@ export default async function ExplorePage({ params }: Props) {
           <p className={styles.empty}>{t("list.empty")}</p>
         ) : (
           <div className={styles.grid}>
-            {rows.map(({ offering, merchant }) => (
+            {rows.map(({ offering, seller }) => (
               <OfferingCard
                 key={offering.id}
                 offering={offering}
-                merchant={merchant}
+                seller={seller}
               />
             ))}
           </div>

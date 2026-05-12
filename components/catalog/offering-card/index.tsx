@@ -7,7 +7,7 @@ import { PriceTag } from "@/components/catalog/price-tag";
 import type { Offering } from "@/lib/offerings";
 import styles from "./offering-card.module.scss";
 
-interface MerchantCard {
+interface SellerCard {
   slug: string;
   display_name: string;
   avatar_url?: string | null;
@@ -16,29 +16,28 @@ interface MerchantCard {
 interface OfferingCardProps {
   offering: Offering;
   /**
-   * The owning merchant. Required so the card links to the
-   * merchant-scoped detail URL `/m/[mslug]/c/[oslug]` and renders
-   * the merchant's display name on the card.
+   * The owning seller. Required so the card links to the seller-
+   * scoped detail URL `/m/[uslug]/c/[oslug]` and renders the
+   * seller's display name on the card.
    */
-  merchant: MerchantCard;
+  seller: SellerCard;
   /**
-   * When `true`, hide the merchant byline. Use on a single
-   * merchant's storefront (`/m/[slug]`), where the page hero
-   * already names them.
+   * When `true`, hide the seller byline. Use on a single seller's
+   * storefront (`/m/[slug]`), where the page hero already names them.
    */
-  hideMerchant?: boolean;
+  hideSeller?: boolean;
 }
 
 export function OfferingCard({
   offering,
-  merchant,
-  hideMerchant = false,
+  seller,
+  hideSeller = false,
 }: OfferingCardProps) {
   const t = useTranslations("catalog.card");
   const tType = useTranslations("offering.type");
 
-  const offeringHref = `/m/${merchant.slug}/c/${offering.slug}`;
-  const merchantHref = `/m/${merchant.slug}`;
+  const offeringHref = `/m/${seller.slug}/c/${offering.slug}`;
+  const sellerHref = `/m/${seller.slug}`;
 
   return (
     <Card variant="hover" className={styles.card}>
@@ -62,12 +61,12 @@ export function OfferingCard({
             {offering.title}
           </Link>
         </h3>
-        {hideMerchant ? null : (
-          <Link href={merchantHref} className={styles.byline}>
+        {hideSeller ? null : (
+          <Link href={sellerHref} className={styles.byline}>
             <span className={styles.avatar} aria-hidden="true">
-              {merchant.avatar_url ? (
+              {seller.avatar_url ? (
                 <Image
-                  src={merchant.avatar_url}
+                  src={seller.avatar_url}
                   alt=""
                   width={24}
                   height={24}
@@ -77,7 +76,7 @@ export function OfferingCard({
                 <UserIcon size={14} />
               )}
             </span>
-            <span className={styles.bylineName}>{merchant.display_name}</span>
+            <span className={styles.bylineName}>{seller.display_name}</span>
           </Link>
         )}
         <p className={styles.description}>{offering.description}</p>

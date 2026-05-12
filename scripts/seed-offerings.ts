@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { eq, and } from "drizzle-orm";
-import { merchants, offerings } from "@/lib/db/schema";
+import { users, offerings } from "@/lib/db/schema";
 
 // Same dotenv precedence as scripts/migrate.ts so a single
 // MIGRATE_ENV_FILE/.env.local/.env file drives both commands.
@@ -11,16 +11,16 @@ if (envFile) config({ path: envFile });
 config({ path: ".env.local" });
 config({ path: ".env" });
 
-// Marketplace pivot (ADR 0012): every offering belongs to a
-// merchant. The seed inserts a single example merchant under a
-// well-known pubkey (all-zeros) and attaches the sample offerings
-// to it. Fresh installs can browse the discovery home before any
-// real merchant has signed up.
-const SEED_MERCHANT_PUBKEY =
+// Marketplace pivot (ADRs 0012, 0016): every offering belongs to a
+// user. The seed inserts a single example user under a well-known
+// pubkey (all-zeros) and attaches the sample offerings to it.
+// Fresh installs can browse the discovery home before any real
+// user has signed up.
+const SEED_USER_PUBKEY =
   "0000000000000000000000000000000000000000000000000000000000000000";
 
-const SEED_MERCHANT = {
-  pubkey: SEED_MERCHANT_PUBKEY,
+const SEED_USER = {
+  pubkey: SEED_USER_PUBKEY,
   slug: "demo",
   display_name: "Profe Demo",
   bio:
@@ -78,36 +78,36 @@ async function main() {
   const sql = neon(databaseUrl);
   const db = drizzle(sql);
 
-  // Ensure the seed merchant exists. Idempotent — re-runs of the
-  // seed script will skip if the row is already there.
-  const [existingMerchant] = await db
+  // Ensure the seed user exists. Idempotent — re-runs of the seed
+  // script will skip if the row is already there.
+  const [existingUser] = await db
     .select()
-    .from(merchants)
-    .where(eq(merchants.pubkey, SEED_MERCHANT.pubkey))
+    .from(users)
+    .where(eq(users.pubkey, SEED_USER.pubkey))
     .limit(1);
-  let merchant = existingMerchant;
-  if (!merchant) {
+  let user = existingUser;
+  if (!user) {
     const [inserted] = await db
-      .insert(merchants)
-      .values(SEED_MERCHANT)
+      .insert(users)
+      .values(SEED_USER)
       .returning();
-    merchant = inserted;
-    console.log(`Seed merchant inserted: slug=${merchant.slug}`);
+    user = inserted;
+    console.log(`Seed user inserted: slug=${user.slug}`);
   } else {
-    console.log(`Seed merchant present: slug=${merchant.slug}`);
+    console.log(`Seed user present: slug=${user.slug}`);
   }
 
   let inserted = 0;
   let skipped = 0;
   for (const row of SAMPLE_OFFERINGS) {
-    // Slug is unique per (merchant_id, slug); check the pair before
+    // Slug is unique per (user_id, slug); check the pair before
     // inserting so the script stays idempotent.
     const [existing] = await db
       .select({ id: offerings.id })
       .from(offerings)
       .where(
         and(
-          eq(offerings.merchant_id, merchant.id),
+          eq(offerings.user_id, user.id),
           eq(offerings.slug, row.slug)
         )
       )
@@ -118,7 +118,7 @@ async function main() {
     }
     await db
       .insert(offerings)
-      .values({ ...row, merchant_id: merchant.id });
+      .values({ ...row, user_id: user.id });
     inserted += 1;
   }
   console.log(

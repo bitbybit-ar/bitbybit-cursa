@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { NextRequest } from "next/server";
 import { sql } from "drizzle-orm";
-import { testDb, cleanDb, seedMerchant } from "../setup";
+import { testDb, cleanDb, seedUser } from "../setup";
 import { offerings } from "@/lib/db/schema";
 import { createOrder, getOrder } from "@/lib/orders";
 import {
@@ -31,7 +31,7 @@ beforeEach(async () => {
 async function seedLightningOrder() {
   const ln = new MockLightningClient();
   _setLightningClientForTests(ln);
-  const merchant = await seedMerchant({
+  const user = await seedUser({
     pubkey: "a".repeat(64),
     slug: "ln-status-test",
     payout_method: "lightning_address",
@@ -42,7 +42,7 @@ async function seedLightningOrder() {
   const [offering] = await testDb
     .insert(offerings)
     .values({
-      merchant_id: merchant.id,
+      user_id: user.id,
       slug: "ln-offering",
       type: "code",
       title: "Status test",
@@ -57,7 +57,7 @@ async function seedLightningOrder() {
     offering_id: offering.id,
     pubkey: null,
   });
-  return { ln, merchant, offering, orderId: result.order_id };
+  return { ln, user, offering, orderId: result.order_id };
 }
 
 function buildStatusRequest(): NextRequest {

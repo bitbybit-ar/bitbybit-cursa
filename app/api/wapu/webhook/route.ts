@@ -7,7 +7,7 @@ import {
   markOrderPaid,
 } from "@/lib/orders";
 import { getOfferingById } from "@/lib/offerings";
-import { getMerchantById } from "@/lib/admin/merchants";
+import { getUserById } from "@/lib/admin/users";
 import { emitNotification } from "@/lib/notifications";
 
 const SIGNATURE_HEADER = "x-wapu-signature";
@@ -115,7 +115,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       });
       drawStatus = draw.status;
       if (draw.status === "pool_empty") {
-        // Real merchant problem — they sold something they have no
+        // Real seller problem — they sold something they have no
         // codes left for. Loud log so it shows up in the panel /
         // monitoring; the receipt page renders the graceful
         // "tu código está siendo asignado" pending state.
@@ -126,14 +126,14 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
       // Fan out in-app notifications. Buyer gets `order.paid` only
       // when they signed in at checkout (anonymous orders carry no
-      // recipient). Merchant always gets `sale.received`. Failures
+      // recipient). Seller always gets `sale.received`. Failures
       // here are non-fatal — the order is already paid.
       try {
         const order = await getOrder(parsed.external_id);
         if (order) {
-          const [offering, merchant] = await Promise.all([
+          const [offering, seller] = await Promise.all([
             getOfferingById(order.offering_id),
-            getMerchantById(order.merchant_id),
+            getUserById(order.user_id),
           ]);
           const offeringTitle = offering?.title ?? "";
           const payload = {
@@ -147,9 +147,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
               payload,
             });
           }
-          if (merchant?.pubkey) {
+          if (seller?.pubkey) {
             await emitNotification({
-              recipient_pubkey: merchant.pubkey,
+              recipient_pubkey: seller.pubkey,
               kind: "sale.received",
               payload,
             });

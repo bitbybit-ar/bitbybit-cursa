@@ -1,11 +1,11 @@
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { getDb } from "@/lib/db";
-import { merchants } from "@/lib/db/schema";
+import { users } from "@/lib/db/schema";
 import {
   AliasSchema,
   CbuSchema,
-  MerchantSlugSchema,
+  UserSlugSchema,
   RESERVED_SLUGS,
   classifyPayoutDestination,
 } from "@/lib/admin/ar-bank-id";
@@ -13,8 +13,10 @@ import { LightningAddressSchema } from "@/lib/schemas/primitives";
 import { writeAuditLog } from "./audit";
 
 /**
- * Merchant row helpers (ADR 0012). One row per professor on the
- * marketplace, keyed by their Nostr pubkey.
+ * User row helpers (ADRs 0012, 0014, 0016). One row per signed-in
+ * Nostr account, keyed by their pubkey. Auto-created at sign-in
+ * from kind:0 metadata; payout fields stay null until the user
+ * actually sells something.
  *
  * Conventions:
  *
@@ -23,30 +25,30 @@ import { writeAuditLog } from "./audit";
  *     are talking about a specific row.
  *   - The CBU/alias re-sign machinery from ADR 0008 lives at
  *     `lib/admin/sign-settings-payload.ts` and stays in place;
- *     the route consumers wire it through with the merchant id
+ *     the route consumers wire it through with the user id
  *     instead of the singleton settings row.
- *   - Audit-log writes carry `merchant_id` from this layer up so
+ *   - Audit-log writes carry `user_id` from this layer up so
  *     the platform-admin moderation surface can filter the log
- *     by merchant.
+ *     by user.
  */
 
-export type Merchant = typeof merchants.$inferSelect;
+export type User = typeof users.$inferSelect;
 
-export const ClaimMerchantSchema = z.object({
-  slug: MerchantSlugSchema,
+export const ClaimUserSchema = z.object({
+  slug: UserSlugSchema,
   display_name: z.string().trim().min(2).max(80),
   bio: z.string().trim().max(500).nullable().optional(),
-  // Payout fields are optional at claim time — the merchant fills
-  // them in from the profile page before their first sale. The
-  // application layer rejects checkouts on offerings whose merchant
+  // Payout fields are optional at claim time — the user fills them
+  // in from the settings page before their first sale. The
+  // application layer rejects checkouts on offerings whose seller
   // has neither.
   alias: AliasSchema.nullable().optional(),
   cbu: CbuSchema.nullable().optional(),
 });
 
-export type ClaimMerchantInput = z.infer<typeof ClaimMerchantSchema>;
+export type ClaimUserInput = z.infer<typeof ClaimUserSchema>;
 
-export const UpdateMerchantProfileSchema = z
+export const UpdateUserProfileSchema = z
   .object({
     display_name: z.string().trim().min(2).max(80),
     bio: z.string().trim().max(500).nullable(),
@@ -59,52 +61,46 @@ export const UpdateMerchantProfileSchema = z
   })
   .partial();
 
-export type UpdateMerchantProfileInput = z.infer<
-  typeof UpdateMerchantProfileSchema
->;
+export type UpdateUserProfileInput = z.infer<typeof UpdateUserProfileSchema>;
 
-export async function getMerchantByPubkey(
-  pubkey: string
-): Promise<Merchant | null> {
+export async function getUserByPubkey(pubkey: string): Promise<User | null> {
   const db = getDb();
   const [row] = await db
     .select()
-    .from(merchants)
-    .where(eq(merchants.pubkey, pubkey))
+    .from(users)
+    .where(eq(users.pubkey, pubkey))
     .limit(1);
   return row ?? null;
 }
 
-export async function getMerchantBySlug(
-  slug: string
-): Promise<Merchant | null> {
+export async function getUserBySlug(slug: string): Promise<User | null> {
   const db = getDb();
   const [row] = await db
     .select()
-    .from(merchants)
-    .where(eq(merchants.slug, slug))
+    .from(users)
+    .where(eq(users.slug, slug))
     .limit(1);
   return row ?? null;
 }
 
-export async function getMerchantById(id: string): Promise<Merchant | null> {
+export async function getUserById(id: string): Promise<User | null> {
   const db = getDb();
   const [row] = await db
     .select()
-    .from(merchants)
-    .where(eq(merchants.id, id))
+    .from(users)
+    .where(eq(users.id, id))
     .limit(1);
   return row ?? null;
 }
 
-export async function listActiveMerchants(): Promise<Merchant[]> {
+export async function listActiveUsers(): Promise<User[]> {
   const db = getDb();
-  return db.select().from(merchants).where(eq(merchants.active, true));
+  return db.select().from(users).where(eq(users.active, true));
 }
 
 /**
  * Slugify a free-form display name into something matching
- * MERCHANT_SLUG_REGEX. Lowercase, ASCII-only, hyphens between word
+ * USER_SLUG_REGEX. Lowercase, ASCII-only, hyphens between word
  * boundaries, max 40 chars, no leading/trailing hyphens. Returns
  * null when the input does not produce at least 3 valid characters
  * or matches a reserved route slug — caller falls back to the
@@ -126,29 +122,29 @@ export function slugifyDisplayName(name: string): string | null {
   return slug;
 }
 
-export interface InitialMerchantProfile {
+export interface InitialUserProfile {
   display_name?: string;
   avatar_url?: string;
   bio?: string;
 }
 
 /**
- * Return the merchant row keyed to `pubkey`, creating it lazily if
- * it does not exist (ADR 0014). Per ADR 0015, the row is seeded
- * from the user's Nostr kind:0 metadata at sign-in time when
- * available; subsequent calls without `initial` are pure reads + a
- * placeholder fallback for legacy or relay-failed cases.
+ * Return the user row keyed to `pubkey`, creating it lazily if it
+ * does not exist (ADR 0014). Per ADR 0015, the row is seeded from
+ * the user's Nostr kind:0 metadata at sign-in time when available;
+ * subsequent calls without `initial` are pure reads + a placeholder
+ * fallback for legacy or relay-failed cases.
  *
  * Cursá's marketplace model is "any signed-in Nostr user can sell".
- * The merchant row is data, not a gate — any surface that needs it
+ * The user row is data, not a gate — any surface that needs it
  * (the user's courses, settings, orders) can call this and trust
  * that a row will be there.
  */
-export async function ensureMerchantForPubkey(
+export async function ensureUserForPubkey(
   pubkey: string,
-  initial?: InitialMerchantProfile
-): Promise<Merchant> {
-  const existing = await getMerchantByPubkey(pubkey);
+  initial?: InitialUserProfile
+): Promise<User> {
+  const existing = await getUserByPubkey(pubkey);
   if (existing) return existing;
 
   const db = getDb();
@@ -160,8 +156,7 @@ export async function ensureMerchantForPubkey(
   const candidates = [namedSlug, placeholderSlug].filter(
     (s): s is string => typeof s === "string"
   );
-  const displayName =
-    initial?.display_name?.trim() || placeholderSlug;
+  const displayName = initial?.display_name?.trim() || placeholderSlug;
 
   // Retry on slug collision. The pubkey-prefixed candidate is
   // astronomically unlikely to collide; the named slug can if two
@@ -177,7 +172,7 @@ export async function ensureMerchantForPubkey(
   for (const slug of attempts) {
     try {
       const [row] = await db
-        .insert(merchants)
+        .insert(users)
         .values({
           pubkey,
           slug,
@@ -189,7 +184,7 @@ export async function ensureMerchantForPubkey(
       return row;
     } catch (err) {
       // A concurrent request claimed the pubkey first; re-read.
-      const winner = await getMerchantByPubkey(pubkey);
+      const winner = await getUserByPubkey(pubkey);
       if (winner) return winner;
       // Slug collision — try the next candidate. Anything else,
       // bubble up.
@@ -197,21 +192,20 @@ export async function ensureMerchantForPubkey(
       if (!/slug/i.test(message)) throw err;
     }
   }
-  throw new Error("ensure_merchant_failed: slug retries exhausted");
+  throw new Error("ensure_user_failed: slug retries exhausted");
 }
 
 /**
- * Insert a new merchant row keyed by `pubkey`. Throws on slug
- * collision so the API route can map the error code to a
- * user-facing toast.
+ * Insert a new user row keyed by `pubkey`. Throws on slug collision
+ * so the API route can map the error code to a user-facing toast.
  */
-export async function claimMerchant(
+export async function claimUser(
   pubkey: string,
-  input: ClaimMerchantInput
-): Promise<Merchant> {
+  input: ClaimUserInput
+): Promise<User> {
   const db = getDb();
   const [row] = await db
-    .insert(merchants)
+    .insert(users)
     .values({
       pubkey,
       slug: input.slug,
@@ -222,7 +216,7 @@ export async function claimMerchant(
     })
     .returning();
   await writeAuditLog({
-    merchant_id: row.id,
+    user_id: row.id,
     actor_pubkey: pubkey,
     route: "/api/sign-in",
     action: "claim",
@@ -231,19 +225,19 @@ export async function claimMerchant(
   return row;
 }
 
-export async function updateMerchantProfile(
+export async function updateUserProfile(
   id: string,
-  patch: UpdateMerchantProfileInput,
+  patch: UpdateUserProfileInput,
   actorPubkey: string,
   meta: { signedEventId?: string } = {}
-): Promise<Merchant> {
+): Promise<User> {
   const db = getDb();
-  const before = await getMerchantById(id);
+  const before = await getUserById(id);
   if (!before) {
-    throw new Error(`merchant_not_found: ${id}`);
+    throw new Error(`user_not_found: ${id}`);
   }
 
-  const next: Partial<Merchant> = { updated_at: new Date() };
+  const next: Partial<User> = { updated_at: new Date() };
   if (patch.display_name !== undefined) next.display_name = patch.display_name;
   if (patch.bio !== undefined) next.bio = patch.bio;
   if (patch.avatar_url !== undefined) next.avatar_url = patch.avatar_url;
@@ -260,28 +254,28 @@ export async function updateMerchantProfile(
   }
 
   const [row] = await db
-    .update(merchants)
+    .update(users)
     .set(next)
-    .where(eq(merchants.id, id))
+    .where(eq(users.id, id))
     .returning();
 
   // Diff intentionally redacts CBU + alias values — payment-
   // destination secrets-adjacent. Record only WHICH fields
   // changed; the new values live in the row itself.
   const changedKeys = (
-    Object.keys(patch) as Array<keyof UpdateMerchantProfileInput>
+    Object.keys(patch) as Array<keyof UpdateUserProfileInput>
   ).filter(
     (k) =>
       patch[k] !== undefined &&
       JSON.stringify(patch[k]) !==
-        JSON.stringify(before[k as keyof Merchant])
+        JSON.stringify(before[k as keyof User])
   );
   const payload_diff: Record<string, unknown> = { changed: changedKeys };
   if (meta.signedEventId) {
     payload_diff.signed = { event_id: meta.signedEventId, kind: 27235 };
   }
   await writeAuditLog({
-    merchant_id: row.id,
+    user_id: row.id,
     actor_pubkey: actorPubkey,
     route: "/api/settings",
     action: "update",
@@ -294,17 +288,17 @@ export async function updateMerchantProfile(
 /**
  * The Wapu direct-payment `alias` parameter accepts either an
  * Argentine bank alias (6–20 chars `[A-Za-z0-9.-]`) or a 22-digit
- * CBU. Pick whichever the merchant has on file, preferring alias
- * (shorter, the merchant typed it on purpose). Returns null when
- * the merchant has neither — the checkout layer rejects the order.
+ * CBU. Pick whichever the user has on file, preferring alias
+ * (shorter, the user typed it on purpose). Returns null when
+ * the user has neither — the checkout layer rejects the order.
  */
-export function pickPayoutAlias(merchant: Merchant): string | null {
-  if (merchant.alias) {
-    const c = classifyPayoutDestination(merchant.alias);
+export function pickPayoutAlias(user: User): string | null {
+  if (user.alias) {
+    const c = classifyPayoutDestination(user.alias);
     if (c) return c.value;
   }
-  if (merchant.cbu) {
-    const c = classifyPayoutDestination(merchant.cbu);
+  if (user.cbu) {
+    const c = classifyPayoutDestination(user.cbu);
     if (c) return c.value;
   }
   return null;

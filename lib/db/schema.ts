@@ -31,40 +31,42 @@ export const orderStatus = pgEnum("order_status", [
   "refunded",
 ]);
 
-// How a merchant gets paid. Decision in ADR 0015.
+// How a user gets paid (when they sell). Decision in ADR 0015.
 //   cbu_alias         — Wapu converts sats→ARS and pushes to the
-//                       merchant's Argentine bank alias or CBU.
+//                       user's Argentine bank alias or CBU.
 //   lightning_address — Cursá mints a BOLT11 directly against the
-//                       merchant's Lightning Address; sats land in
-//                       the merchant's own wallet, no ARS conversion.
+//                       user's Lightning Address; sats land in
+//                       the user's own wallet, no ARS conversion.
 export const payoutMethod = pgEnum("payout_method", [
   "cbu_alias",
   "lightning_address",
 ]);
 
 // Which settlement rail an individual order rode. Stamped at order
-// creation from the merchant's then-current `payout_method`. We
-// snapshot it on the order so a merchant flipping their rail later
+// creation from the seller's then-current `payout_method`. We
+// snapshot it on the order so a user flipping their rail later
 // does not retroactively change the receipt of an already-paid order.
 export const orderRail = pgEnum("order_rail", [
   "wapu_ars",
   "direct_lightning",
 ]);
 
-// --- Merchants ---
-// One row per professor/educator selling on the marketplace. Keyed
-// by Nostr pubkey — the merchant's identity is their key, period.
-// Decision in ADR 0012.
+// --- Users ---
+// One row per signed-in account. Keyed by Nostr pubkey — the user's
+// identity is their key, period. Auto-created at sign-in (ADR 0014)
+// from kind:0 metadata; payout fields stay null until the user sells.
+// Decision in ADR 0016 (collapses the prior `merchants` table into
+// `users`; supersedes the table-naming half of ADR 0012).
 //
-// Payout fields (cbu, alias) start null on a fresh claim and get
-// filled from the panel before the first sale; the application
-// layer rejects checkouts on an offering whose merchant has neither.
+// Payout fields (cbu, alias, lightning_address) are meaningful only
+// for users who actually sell. The application layer rejects
+// checkouts on an offering whose seller has neither rail filled in.
 //
-// `active` is the platform-admin moderation gate. Inactive merchants
+// `active` is the platform-admin moderation gate. Inactive users
 // disappear from discovery and their offerings cannot be purchased,
 // but the row + history stays for audit.
-export const merchants = pgTable(
-  "merchants",
+export const users = pgTable(
+  "users",
   {
     id: uuid("id").primaryKey().defaultRandom(),
     pubkey: varchar("pubkey", { length: 64 }).notNull().unique(),
@@ -78,9 +80,9 @@ export const merchants = pgTable(
     // Format: local-part@domain. Validated at write time to also
     // resolve a working LNURL-pay endpoint with LUD-21 support.
     lightning_address: varchar("lightning_address", { length: 128 }),
-    // Which rail this merchant uses to receive funds. ADR 0015.
-    // 'cbu_alias' preserves prior behavior on migration; merchants
-    // who want sats flip the radio in the settings page.
+    // Which rail this user uses to receive funds (when selling).
+    // ADR 0015. 'cbu_alias' preserves prior behavior on migration;
+    // users who want sats flip the radio in the settings page.
     payout_method: payoutMethod("payout_method")
       .notNull()
       .default("cbu_alias"),
@@ -92,27 +94,28 @@ export const merchants = pgTable(
     updated_at: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => [
-    uniqueIndex("merchants_pubkey_idx").on(table.pubkey),
-    uniqueIndex("merchants_slug_idx").on(table.slug),
-    index("merchants_active_idx").on(table.active),
+    uniqueIndex("users_pubkey_idx").on(table.pubkey),
+    uniqueIndex("users_slug_idx").on(table.slug),
+    index("users_active_idx").on(table.active),
   ]
 );
 
 // --- Offerings ---
 // Catalog rows. Edited from /[locale]/my-courses. Decisions in
-// ADRs 0009 (storage), 0012 (per-merchant ownership), and 0014
-// (any signed-in user is implicitly a merchant). Soft delete via
+// ADRs 0009 (storage), 0012 (per-seller ownership, predates the
+// users-table rename), 0014 (any signed-in user can sell), and
+// 0016 (merchants table collapsed into users). Soft delete via
 // archived_at; hard delete is not exposed in v1 because orders
 // reference offerings and we do not want orphaned references.
 export const offerings = pgTable(
   "offerings",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    merchant_id: uuid("merchant_id")
+    user_id: uuid("user_id")
       .notNull()
-      .references(() => merchants.id, { onDelete: "cascade" }),
-    // Slug is unique per merchant, not globally — two merchants can
-    // both have an offering called "intro-bitcoin".
+      .references(() => users.id, { onDelete: "cascade" }),
+    // Slug is unique per user, not globally — two users can both
+    // have an offering called "intro-bitcoin".
     slug: varchar("slug", { length: 80 }).notNull(),
     type: offeringType("type").notNull(),
     title: varchar("title", { length: 200 }).notNull(),
@@ -135,11 +138,8 @@ export const offerings = pgTable(
     updated_at: timestamp("updated_at").notNull().defaultNow(),
   },
   (table) => [
-    uniqueIndex("offerings_merchant_slug_idx").on(
-      table.merchant_id,
-      table.slug
-    ),
-    index("offerings_merchant_id_idx").on(table.merchant_id),
+    uniqueIndex("offerings_user_slug_idx").on(table.user_id, table.slug),
+    index("offerings_user_id_idx").on(table.user_id),
     index("offerings_archived_at_idx").on(table.archived_at),
   ]
 );
@@ -148,11 +148,12 @@ export const offerings = pgTable(
 // One row per checkout. id is the opaque orderId in the receipt URL
 // /[locale]/receipt/[orderId]. Anonymous orders have null pubkey;
 // logged-in or npub-paste-at-checkout orders carry the buyer pubkey
-// for DM delivery and history. Decisions in ADRs 0007, 0009, 0012.
+// for DM delivery and history. Decisions in ADRs 0007, 0009, 0012,
+// 0016.
 //
-// merchant_id is denormalized from offering.merchant_id — it could
-// be derived through a join, but every per-merchant query filters
-// on it, so the index pays for itself.
+// user_id is denormalized from offering.user_id (the seller) — it
+// could be derived through a join, but every per-seller query
+// filters on it, so the index pays for itself.
 //
 // The Wapu integration moved from invoice-based (single-tenant) to
 // direct-payment (marketplace, ADR 0012). `wapu_tentative_uuid`
@@ -171,20 +172,21 @@ export const orders = pgTable(
     offering_id: uuid("offering_id")
       .notNull()
       .references(() => offerings.id),
-    merchant_id: uuid("merchant_id")
+    // The seller's user row.
+    user_id: uuid("user_id")
       .notNull()
-      .references(() => merchants.id),
+      .references(() => users.id),
     status: orderStatus("status").notNull().default("pending"),
     amount_ars: integer("amount_ars").notNull(),
     amount_sats: integer("amount_sats").notNull(),
     // Which rail this order rides. Stamped at creation from the
-    // merchant's `payout_method`. ADR 0015.
+    // seller's `payout_method`. ADR 0015.
     rail: orderRail("rail").notNull().default("wapu_ars"),
     payment_hash: varchar("payment_hash", { length: 64 }),
     wapu_tentative_uuid: text("wapu_tentative_uuid"),
     // BOLT11 invoice string. For wapu_ars: returned by Wapu's funding
     // endpoint. For direct_lightning: minted by lib/lightning from
-    // the merchant's LNURL-pay callback. Cached so the checkout page
+    // the seller's LNURL-pay callback. Cached so the checkout page
     // survives reloads (and the QR can re-render) without re-calling
     // the upstream.
     bolt11: text("bolt11"),
@@ -202,7 +204,7 @@ export const orders = pgTable(
     index("orders_pubkey_idx").on(table.pubkey),
     index("orders_status_idx").on(table.status),
     index("orders_offering_id_idx").on(table.offering_id),
-    index("orders_merchant_id_idx").on(table.merchant_id),
+    index("orders_user_id_idx").on(table.user_id),
     index("orders_created_at_idx").on(table.created_at),
   ]
 );
@@ -213,15 +215,15 @@ export const orders = pgTable(
 // schema changes; secrets must be redacted at the API layer before
 // the write.
 //
-// merchant_id was added with ADR 0012: every audit row now scopes
-// to a merchant for filtering on the platform-admin moderation
-// surface. Nullable for forward-compat with platform-level
-// mutations that do not belong to any one merchant.
+// user_id was added with ADR 0012 (renamed from merchant_id in
+// ADR 0016): every audit row scopes to a user for filtering on the
+// platform-admin moderation surface. Nullable for forward-compat
+// with platform-level mutations that do not belong to any one user.
 export const adminAuditLog = pgTable(
   "admin_audit_log",
   {
     id: uuid("id").primaryKey().defaultRandom(),
-    merchant_id: uuid("merchant_id").references(() => merchants.id),
+    user_id: uuid("user_id").references(() => users.id),
     actor_pubkey: varchar("actor_pubkey", { length: 64 }).notNull(),
     route: text("route").notNull(),
     action: varchar("action", { length: 80 }).notNull(),
@@ -230,17 +232,17 @@ export const adminAuditLog = pgTable(
   },
   (table) => [
     index("admin_audit_log_actor_pubkey_idx").on(table.actor_pubkey),
-    index("admin_audit_log_merchant_id_idx").on(table.merchant_id),
+    index("admin_audit_log_user_id_idx").on(table.user_id),
     index("admin_audit_log_created_at_idx").on(table.created_at),
   ]
 );
 
 // --- Notifications ---
 // One row per in-app notification. Recipient is the Nostr pubkey
-// (no FK to merchants — buyers without a merchant row also receive
-// `order.paid` notifications). Polled by the bell component every
-// 30s. read_at null = unread; setting it stamps the time without
-// deleting history. Decision in ADR 0014.
+// (no FK to users — kept loose so a notification can land before
+// the user row materializes if needed). Polled by the bell
+// component every 30s. read_at null = unread; setting it stamps
+// the time without deleting history. Decision in ADR 0014.
 export const notifications = pgTable(
   "notifications",
   {

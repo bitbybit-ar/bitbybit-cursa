@@ -24,7 +24,7 @@ export interface AdminOrderDetail extends AdminOrderRow {
 const DEFAULT_LIMIT = 50;
 
 export async function listAdminOrders(
-  merchantId: string,
+  userId: string,
   opts: { limit?: number } = {}
 ): Promise<AdminOrderRow[]> {
   const db = getDb();
@@ -42,13 +42,13 @@ export async function listAdminOrders(
     })
     .from(orders)
     .leftJoin(offerings, eq(orders.offering_id, offerings.id))
-    .where(eq(orders.merchant_id, merchantId))
+    .where(eq(orders.user_id, userId))
     .orderBy(desc(orders.created_at))
     .limit(opts.limit ?? DEFAULT_LIMIT);
 }
 
 export async function getAdminOrderDetail(
-  merchantId: string,
+  userId: string,
   orderId: string
 ): Promise<AdminOrderDetail | null> {
   const db = getDb();
@@ -71,7 +71,7 @@ export async function getAdminOrderDetail(
     .from(orders)
     .leftJoin(offerings, eq(orders.offering_id, offerings.id))
     .where(
-      and(eq(orders.id, orderId), eq(orders.merchant_id, merchantId))
+      and(eq(orders.id, orderId), eq(orders.user_id, userId))
     )
     .limit(1);
   return row ?? null;
@@ -86,7 +86,7 @@ export interface AdminStudentRow {
 }
 
 export async function listAdminStudents(
-  merchantId: string,
+  userId: string,
   opts: { limit?: number } = {}
 ): Promise<AdminStudentRow[]> {
   const db = getDb();
@@ -105,7 +105,7 @@ export async function listAdminStudents(
       MAX(created_at) AS most_recent
     FROM ${orders}
     WHERE pubkey IS NOT NULL
-      AND merchant_id = ${merchantId}
+      AND user_id = ${userId}
     GROUP BY pubkey
     ORDER BY most_recent DESC
     LIMIT ${opts.limit ?? DEFAULT_LIMIT}
@@ -120,7 +120,7 @@ export async function listAdminStudents(
 }
 
 export async function getAdminStudentDetail(
-  merchantId: string,
+  userId: string,
   pubkey: string
 ): Promise<{
   pubkey: string;
@@ -141,7 +141,7 @@ export async function getAdminStudentDetail(
     .where(
       and(
         eq(orders.pubkey, pubkey),
-        eq(orders.merchant_id, merchantId)
+        eq(orders.user_id, userId)
       )
     );
 
@@ -164,7 +164,7 @@ export async function getAdminStudentDetail(
     .where(
       and(
         eq(orders.pubkey, pubkey),
-        eq(orders.merchant_id, merchantId)
+        eq(orders.user_id, userId)
       )
     )
     .orderBy(desc(orders.created_at));

@@ -31,17 +31,17 @@ export const testDb = drizzle(sqlClient, { schema });
  */
 export async function cleanDb() {
   await testDb.execute(
-    sql`TRUNCATE TABLE admin_audit_log, orders, offerings, merchants RESTART IDENTITY CASCADE`
+    sql`TRUNCATE TABLE admin_audit_log, orders, offerings, users RESTART IDENTITY CASCADE`
   );
 }
 
 /**
- * Insert a merchant row with optional overrides. Tests that need
- * an offering or order start by calling this so the FK in
- * `offerings.merchant_id` / `orders.merchant_id` always points at
- * a real row. ADR 0012.
+ * Insert a user row with optional overrides. Tests that need an
+ * offering or order start by calling this so the FK in
+ * `offerings.user_id` / `orders.user_id` always points at a real
+ * row. ADRs 0012, 0016.
  */
-export async function seedMerchant(
+export async function seedUser(
   overrides: Partial<{
     pubkey: string;
     slug: string;
@@ -56,11 +56,11 @@ export async function seedMerchant(
   const pubkey = overrides.pubkey ?? "f".repeat(64);
   const slug = overrides.slug ?? "demo";
   const [row] = await testDb
-    .insert(schema.merchants)
+    .insert(schema.users)
     .values({
       pubkey,
       slug,
-      display_name: overrides.display_name ?? "Demo Merchant",
+      display_name: overrides.display_name ?? "Demo User",
       alias: overrides.alias ?? "demo.test.alias",
       cbu: overrides.cbu ?? null,
       lightning_address: overrides.lightning_address ?? null,

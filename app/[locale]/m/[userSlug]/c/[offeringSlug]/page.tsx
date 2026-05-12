@@ -8,60 +8,54 @@ import { Section } from "@/components/ui/section";
 import { PriceTag } from "@/components/catalog/price-tag";
 import { BuyButton } from "@/components/checkout/buy-button";
 import { ArrowLeftIcon } from "@/components/icons";
-import { getOfferingByMerchantAndSlug } from "@/lib/offerings";
+import { getOfferingByUserAndSlug } from "@/lib/offerings";
 import { alternatesFor } from "@/lib/seo";
 import styles from "./page.module.scss";
 
 type Props = {
   params: Promise<{
     locale: string;
-    merchantSlug: string;
+    userSlug: string;
     offeringSlug: string;
   }>;
 };
 
-// Marketplace-scoped offering detail (ADR 0012). Slug uniqueness
-// is per-merchant, so the route nests under /m/[merchantSlug].
-// Render per request so merchant edits propagate without a deploy.
+// Marketplace-scoped offering detail (ADR 0012). Slug uniqueness is
+// per-user, so the route nests under /m/[userSlug]. Render per
+// request so seller edits propagate without a deploy.
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
 }: Props): Promise<Metadata> {
-  const { locale, merchantSlug, offeringSlug } = await params;
-  const row = await getOfferingByMerchantAndSlug(
-    merchantSlug,
-    offeringSlug
-  );
+  const { locale, userSlug, offeringSlug } = await params;
+  const row = await getOfferingByUserAndSlug(userSlug, offeringSlug);
   if (!row) return {};
   return {
-    title: `${row.offering.title} · ${row.merchant.display_name}`,
+    title: `${row.offering.title} · ${row.seller.display_name}`,
     description: row.offering.description.slice(0, 160),
     alternates: alternatesFor(
       locale,
-      `/m/${merchantSlug}/c/${offeringSlug}`
+      `/m/${userSlug}/c/${offeringSlug}`
     ),
   };
 }
 
 export default async function OfferingPage({ params }: Props) {
-  const { locale, merchantSlug, offeringSlug } = await params;
+  const { locale, userSlug, offeringSlug } = await params;
   setRequestLocale(locale);
-  const row = await getOfferingByMerchantAndSlug(
-    merchantSlug,
-    offeringSlug
-  );
+  const row = await getOfferingByUserAndSlug(userSlug, offeringSlug);
   if (!row) notFound();
-  const { offering, merchant } = row;
+  const { offering, seller } = row;
 
   const t = await getTranslations("offering");
 
   return (
     <Section>
       <Container column>
-        <Link href={`/m/${merchant.slug}`} className={styles.back}>
+        <Link href={`/m/${seller.slug}`} className={styles.back}>
           <ArrowLeftIcon size={16} />
-          {merchant.display_name}
+          {seller.display_name}
         </Link>
 
         <article className={styles.layout}>

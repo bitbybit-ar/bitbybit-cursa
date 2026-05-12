@@ -4,11 +4,11 @@
  * SignerProvider — combined session + in-memory Nostr signer state.
  *
  * Cursá's buyer flow only signs once at login; after that, the
- * session cookie carries the user. The merchant panel adds a second
- * surface that needs post-login signing — payment-destination edits
- * (CBU, alias) require a NIP-07 re-sign per ADR 0008. The
- * `signWithPrompt` + `requestReSignIn` machinery (ported from
- * `bitbybit-arena/lib/signer-context.tsx`) services that flow.
+ * session cookie carries the user. The settings surface adds a
+ * second surface that needs post-login signing — payment-
+ * destination edits (CBU, alias) require a NIP-07 re-sign per ADR
+ * 0008. The `signWithPrompt` + `requestReSignIn` machinery (ported
+ * from `bitbybit-arena/lib/signer-context.tsx`) services that flow.
  *
  * Owns:
  *   - session fetch (`/api/auth/session`)
@@ -36,7 +36,7 @@ import {
 import type { NostrEvent, UnsignedNostrEvent } from "@/lib/nostr/types";
 import type { SignerType, Locale } from "@/lib/schemas/auth";
 
-export interface SessionMerchantSummary {
+export interface SessionUserSummary {
   id: string;
   slug: string;
   display_name: string;
@@ -47,12 +47,12 @@ export interface SessionUser {
   locale: Locale;
   signer_type: SignerType | null;
   /**
-   * The merchant row keyed to this pubkey, or null when the user
-   * has not claimed a slug yet (or has been deactivated). The
-   * panel layout redirects null merchants to /sign-in;
-   * client-side consumers gate the "manage your store" CTA.
+   * The user row keyed to this pubkey, or null when the user has
+   * not claimed a slug yet (or has been deactivated). The panel
+   * layout redirects null users to /sign-in; client-side consumers
+   * gate the "manage your store" CTA.
    */
-  merchant: SessionMerchantSummary | null;
+  user: SessionUserSummary | null;
   /** Whether this pubkey is in PLATFORM_ADMIN_PUBKEYS. */
   platform_admin: boolean;
 }

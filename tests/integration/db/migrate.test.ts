@@ -1,8 +1,8 @@
 // @vitest-environment node
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { sql } from "drizzle-orm";
-import { testDb, cleanDb, seedMerchant } from "../setup";
-import { offerings, orders, merchants } from "@/lib/db/schema";
+import { testDb, cleanDb, seedUser } from "../setup";
+import { offerings, orders, users } from "@/lib/db/schema";
 
 beforeAll(async () => {
   // Sanity: the test DB must already be migrated.
@@ -24,10 +24,10 @@ beforeEach(async () => {
   await cleanDb();
 });
 
-describe("db/migrate — merchants", () => {
-  it("inserts a merchant keyed by pubkey", async () => {
+describe("db/migrate — users", () => {
+  it("inserts a user keyed by pubkey", async () => {
     const [row] = await testDb
-      .insert(merchants)
+      .insert(users)
       .values({
         pubkey: "a".repeat(64),
         slug: "test-prof",
@@ -40,13 +40,13 @@ describe("db/migrate — merchants", () => {
   });
 
   it("rejects a duplicate pubkey", async () => {
-    await testDb.insert(merchants).values({
+    await testDb.insert(users).values({
       pubkey: "a".repeat(64),
       slug: "first",
       display_name: "First",
     });
     await expect(
-      testDb.insert(merchants).values({
+      testDb.insert(users).values({
         pubkey: "a".repeat(64),
         slug: "second",
         display_name: "Second",
@@ -55,13 +55,13 @@ describe("db/migrate — merchants", () => {
   });
 
   it("rejects a duplicate slug", async () => {
-    await testDb.insert(merchants).values({
+    await testDb.insert(users).values({
       pubkey: "a".repeat(64),
       slug: "shared",
       display_name: "First",
     });
     await expect(
-      testDb.insert(merchants).values({
+      testDb.insert(users).values({
         pubkey: "b".repeat(64),
         slug: "shared",
         display_name: "Second",
@@ -71,12 +71,12 @@ describe("db/migrate — merchants", () => {
 });
 
 describe("db/migrate — offerings", () => {
-  it("inserts and reads back a code offering scoped to a merchant", async () => {
-    const merchant = await seedMerchant();
+  it("inserts and reads back a code offering scoped to a user", async () => {
+    const user = await seedUser();
     const [row] = await testDb
       .insert(offerings)
       .values({
-        merchant_id: merchant.id,
+        user_id: user.id,
         slug: "bono-4-clases",
         type: "code",
         title: "Bono 4 clases",
@@ -86,15 +86,15 @@ describe("db/migrate — offerings", () => {
       .returning();
 
     expect(row.slug).toBe("bono-4-clases");
-    expect(row.merchant_id).toBe(merchant.id);
+    expect(row.user_id).toBe(user.id);
     expect(row.type).toBe("code");
     expect(row.archived_at).toBeNull();
   });
 
-  it("rejects a duplicate slug within one merchant", async () => {
-    const merchant = await seedMerchant();
+  it("rejects a duplicate slug within one user", async () => {
+    const user = await seedUser();
     await testDb.insert(offerings).values({
-      merchant_id: merchant.id,
+      user_id: user.id,
       slug: "duplicado",
       type: "code",
       title: "First",
@@ -104,7 +104,7 @@ describe("db/migrate — offerings", () => {
 
     await expect(
       testDb.insert(offerings).values({
-        merchant_id: merchant.id,
+        user_id: user.id,
         slug: "duplicado",
         type: "code",
         title: "Second",
@@ -114,17 +114,17 @@ describe("db/migrate — offerings", () => {
     ).rejects.toThrow();
   });
 
-  it("allows the same slug across two different merchants", async () => {
-    const a = await seedMerchant({
+  it("allows the same slug across two different users", async () => {
+    const a = await seedUser({
       pubkey: "a".repeat(64),
-      slug: "merch-a",
+      slug: "user-a",
     });
-    const b = await seedMerchant({
+    const b = await seedUser({
       pubkey: "b".repeat(64),
-      slug: "merch-b",
+      slug: "user-b",
     });
     await testDb.insert(offerings).values({
-      merchant_id: a.id,
+      user_id: a.id,
       slug: "shared",
       type: "code",
       title: "From A",
@@ -132,7 +132,7 @@ describe("db/migrate — offerings", () => {
       price_ars: 1000,
     });
     await testDb.insert(offerings).values({
-      merchant_id: b.id,
+      user_id: b.id,
       slug: "shared",
       type: "code",
       title: "From B",
@@ -144,11 +144,11 @@ describe("db/migrate — offerings", () => {
 
 describe("db/migrate — orders", () => {
   it("accepts an anonymous order with null pubkey", async () => {
-    const merchant = await seedMerchant();
+    const user = await seedUser();
     const [offering] = await testDb
       .insert(offerings)
       .values({
-        merchant_id: merchant.id,
+        user_id: user.id,
         slug: "anon-test",
         type: "code",
         title: "Anon",
@@ -161,7 +161,7 @@ describe("db/migrate — orders", () => {
       .insert(orders)
       .values({
         offering_id: offering.id,
-        merchant_id: merchant.id,
+        user_id: user.id,
         amount_ars: 1000,
         amount_sats: 100,
       })
@@ -169,15 +169,15 @@ describe("db/migrate — orders", () => {
 
     expect(order.pubkey).toBeNull();
     expect(order.status).toBe("pending");
-    expect(order.merchant_id).toBe(merchant.id);
+    expect(order.user_id).toBe(user.id);
   });
 
   it("rejects an order whose offering_id does not exist", async () => {
-    const merchant = await seedMerchant();
+    const user = await seedUser();
     await expect(
       testDb.insert(orders).values({
         offering_id: "00000000-0000-0000-0000-000000000000",
-        merchant_id: merchant.id,
+        user_id: user.id,
         amount_ars: 1000,
         amount_sats: 100,
       })

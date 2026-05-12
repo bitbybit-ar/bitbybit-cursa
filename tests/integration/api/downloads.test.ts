@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeEach, beforeAll } from "vitest";
 import { NextRequest } from "next/server";
 import { sql, eq } from "drizzle-orm";
-import { testDb, cleanDb, seedMerchant } from "../setup";
+import { testDb, cleanDb, seedUser } from "../setup";
 import { offerings, orders } from "@/lib/db/schema";
 import { createOrder } from "@/lib/orders";
 import { GET } from "@/app/api/downloads/[orderId]/route";
@@ -28,14 +28,14 @@ beforeEach(async () => {
 });
 
 async function seedDownloadOffering(downloadUrl: string | null) {
-  const merchant = await seedMerchant({
+  const user = await seedUser({
     pubkey: `${Date.now().toString(16).padStart(64, "0")}`.slice(0, 64),
     slug: `dl-${Date.now().toString(36)}`,
   });
   const [row] = await testDb
     .insert(offerings)
     .values({
-      merchant_id: merchant.id,
+      user_id: user.id,
       slug: `dl-${Date.now()}-${Math.random().toString(36).slice(2)}`,
       type: "download",
       title: "PDF",
@@ -48,14 +48,14 @@ async function seedDownloadOffering(downloadUrl: string | null) {
 }
 
 async function seedCodeOffering() {
-  const merchant = await seedMerchant({
+  const user = await seedUser({
     pubkey: `c${Date.now().toString(16).padStart(63, "0")}`.slice(0, 64),
     slug: `code-${Date.now().toString(36)}`,
   });
   const [row] = await testDb
     .insert(offerings)
     .values({
-      merchant_id: merchant.id,
+      user_id: user.id,
       slug: `code-${Date.now()}-${Math.random().toString(36).slice(2)}`,
       type: "code",
       title: "Code",

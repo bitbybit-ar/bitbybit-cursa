@@ -5,7 +5,7 @@ import {
   markOrderPaid,
 } from "@/lib/orders";
 import { getOfferingById } from "@/lib/offerings";
-import { getMerchantById } from "@/lib/admin/merchants";
+import { getUserById } from "@/lib/admin/users";
 import { emitNotification } from "@/lib/notifications";
 import { getLightningClient } from "@/lib/lightning";
 
@@ -17,7 +17,7 @@ import { getLightningClient } from "@/lib/lightning";
  *
  *   - wapu_ars: the Wapu webhook flips the row to `paid`. This GET
  *     is just a DB read.
- *   - direct_lightning: there is no webhook. We poll the merchant's
+ *   - direct_lightning: there is no webhook. We poll the seller's
  *     LUD-21 verify URL on each status check, and if the upstream
  *     reports `settled: true`, we run markOrderPaid + drawAndAssignCode
  *     + the same notifications fan-out as the Wapu path. Failures
@@ -63,13 +63,13 @@ export async function GET(
             );
           }
           // Mirror the Wapu webhook's notifications fan-out: buyer
-          // (when signed in) gets order.paid, merchant always gets
+          // (when signed in) gets order.paid, seller always gets
           // sale.received. Non-fatal if the emit fails — order is
           // already paid.
           try {
-            const [offering, merchant] = await Promise.all([
+            const [offering, seller] = await Promise.all([
               getOfferingById(order.offering_id),
-              getMerchantById(order.merchant_id),
+              getUserById(order.user_id),
             ]);
             const payload = {
               order_id: order.id,
@@ -82,9 +82,9 @@ export async function GET(
                 payload,
               });
             }
-            if (merchant?.pubkey) {
+            if (seller?.pubkey) {
               await emitNotification({
-                recipient_pubkey: merchant.pubkey,
+                recipient_pubkey: seller.pubkey,
                 kind: "sale.received",
                 payload,
               });

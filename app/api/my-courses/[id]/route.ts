@@ -5,7 +5,7 @@ import {
   updateOfferingForAdmin,
   archiveOfferingForAdmin,
 } from "@/lib/admin/offerings";
-import { requireMerchant } from "@/lib/admin/require-merchant";
+import { requireUser } from "@/lib/admin/require-user";
 
 const ParamsSchema = z.object({ id: z.string().uuid() });
 
@@ -13,7 +13,7 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
-  const auth = await requireMerchant();
+  const auth = await requireUser();
   if (!auth.ok) return auth.response;
 
   const resolved = await params;
@@ -38,7 +38,7 @@ export async function PATCH(
   }
 
   const result = await updateOfferingForAdmin(
-    auth.merchant.id,
+    auth.user.id,
     parsedParams.data.id,
     parsedBody.data,
     auth.session.pubkey
@@ -62,7 +62,7 @@ export async function DELETE(
   _req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse> {
-  const auth = await requireMerchant();
+  const auth = await requireUser();
   if (!auth.ok) return auth.response;
 
   const resolved = await params;
@@ -72,7 +72,7 @@ export async function DELETE(
   }
 
   const result = await archiveOfferingForAdmin(
-    auth.merchant.id,
+    auth.user.id,
     parsed.data.id,
     auth.session.pubkey
   );

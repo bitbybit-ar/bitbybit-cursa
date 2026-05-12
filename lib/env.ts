@@ -41,12 +41,12 @@ export function getAuthSecret(): Uint8Array {
 }
 
 // Comma-separated list of hex pubkeys allowed into the
-// platform-admin moderation surface (separate from per-merchant
+// platform-admin moderation surface (separate from per-user
 // panel access). ADR 0012 renamed this from `ADMIN_PUBKEYS`
 // because the marketplace pivot turned "admin" into two distinct
-// roles: every merchant administers their own /panel; only
-// platform admins moderate other merchants. Env (not DB) so the
-// very first platform admin can act before any row exists.
+// roles: every user administers their own panel; only platform
+// admins moderate other users. Env (not DB) so the very first
+// platform admin can act before any row exists.
 export function getPlatformAdminPubkeys(): string[] {
   const raw = process.env.PLATFORM_ADMIN_PUBKEYS;
   if (!raw) return [];
