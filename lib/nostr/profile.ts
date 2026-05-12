@@ -4,8 +4,8 @@ import { PUBLIC_RELAYS } from "@/lib/nostr/relays";
 
 /**
  * Server-side kind:0 profile fetch. Used at sign-in to pre-populate
- * the merchant row with the user's existing Nostr identity (display
- * name, picture) instead of placeholder values. ADR 0015 — auto-create
+ * the user row with the caller's existing Nostr identity (display
+ * name, picture) instead of placeholder values. ADR 0014 — auto-create
  * with kind:0 metadata at sign-in.
  *
  * Best-effort. If the relay set is slow or has nothing for this

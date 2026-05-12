@@ -48,7 +48,7 @@ export interface CreateDirectPaymentRequest {
    * we get here — see `lib/admin/ar-bank-id.ts`).
    */
   alias: string;
-  /** Merchant's display name; appears on the buyer's Wapu receipt. */
+  /** Seller's display name; appears on the buyer's Wapu receipt. */
   receiver_name: string;
   type?: WapuTransferType;
   funding_method?: WapuFundingMethod;
