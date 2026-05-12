@@ -17,13 +17,13 @@ interface OfferingCardProps {
   offering: Offering;
   /**
    * The owning seller. Required so the card links to the seller-
-   * scoped detail URL `/m/[uslug]/c/[oslug]` and renders the
+   * scoped detail URL `/[uslug]/c/[oslug]` and renders the
    * seller's display name on the card.
    */
   seller: SellerCard;
   /**
    * When `true`, hide the seller byline. Use on a single seller's
-   * storefront (`/m/[slug]`), where the page hero already names them.
+   * storefront (`/[slug]`), where the page hero already names them.
    */
   hideSeller?: boolean;
 }
@@ -36,8 +36,8 @@ export function OfferingCard({
   const t = useTranslations("catalog.card");
   const tType = useTranslations("offering.type");
 
-  const offeringHref = `/m/${seller.slug}/c/${offering.slug}`;
-  const sellerHref = `/m/${seller.slug}`;
+  const offeringHref = `/${seller.slug}/c/${offering.slug}`;
+  const sellerHref = `/${seller.slug}`;
 
   return (
     <Card variant="hover" className={styles.card}>

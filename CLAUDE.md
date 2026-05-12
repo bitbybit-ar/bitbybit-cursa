@@ -165,11 +165,14 @@ repo's copy is intentionally identical and should stay in sync.
   group.** `/settings`, `/my-courses`, `/create-course`,
   `/orders`, `/purchases`. Public routes follow the same English
   convention: `/explore`, `/sign-in`, `/receipt/[orderId]`,
-  `/claim/[orderId]`. `/m/[slug]` and `/checkout/[orderId]` keep
-  their existing names. Legacy paths (pre-ADR-0014 `/panel/*` and
-  the ADR-0014-era Spanish slugs) 308-redirect to the new URLs via
-  `proxy.ts`. Reserved-slug list in `lib/admin/ar-bank-id.ts`
-  blocks users from claiming any of these.
+  `/claim/[orderId]`. Seller pages live at the top level:
+  `/[userSlug]` (storefront) and `/[userSlug]/c/[offeringSlug]`
+  (offering detail) — ADR 0017 dropped the previous `/m/` prefix
+  before launch. `/checkout/[orderId]` keeps its existing name.
+  Legacy paths (pre-ADR-0014 `/panel/*` and the ADR-0014-era
+  Spanish slugs) 308-redirect to the new URLs via `proxy.ts`.
+  Reserved-slug list in `lib/admin/ar-bank-id.ts` blocks users from
+  claiming any top-level route name (including `c` and `m`).
 - **Notifications are a Postgres table polled by the navbar
   bell.** Wapu's `paid` webhook emits `order.paid` to the buyer
   (when signed in) and `sale.received` to the seller. Helpers

@@ -2,6 +2,7 @@
 
 > **Status:** Active
 > **Last updated:** 2026-05-12
+> (revised same day for ADR 0017 — flat seller URLs)
 
 ---
 
@@ -9,6 +10,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-12 | Buyer flow, Conventions | Flattened seller URLs: `/[locale]/m/[userSlug]` → `/[locale]/[userSlug]` and `/[locale]/m/[userSlug]/c/[offeringSlug]` → `/[locale]/[userSlug]/c/[offeringSlug]`. Redesigned the offering detail page (hero + rail/delivery badges + instructor block) and wired the landing's mock courses (`lib/mock/highlighted-courses.ts`) as a fallback so the three demo URLs render without a populated DB. | ADR 0017. With merchants collapsed into users (ADR 0016) the `/m/` namespace no longer maps to a distinct concept; the offering page also needed real shape before the marketplace launches. |
 | 2026-05-12 | — | Wholesale rewrite to match the actual `app/` tree. Replaced every Spanish creator slug (`/mis-cursos`, `/mis-ventas`, `/mis-estudiantes`, `/configuracion`, `/iniciar-sesion`, `/mis-compras`, `/gracias`, `/reclamar`) with its English equivalent under the `(logged-in)` route group. Replaced the obsolete `/api/admin/*` namespace with the actual `/api/my-courses` + `/api/settings` shape. Documented the three-generation redirect chain in `proxy.ts` (pre-0014 panel → 0014-era Spanish → final English). Removed routes that were aspirational but not implemented (`/api/admin/upload`, `/api/admin/orders`, `/api/admin/stats`, `/api/nip05/resolve`, `/[locale]/terminos`, `/[locale]/privacidad`). | The doc was documenting routes that no longer exist (`/mis-cursos`, etc. — now redirected) and routes that never existed in the form described (`/api/admin/*` was renamed). Contributors trying to call documented endpoints would have hit 404s. |
 | 2026-05-09 | Conventions, Account, Panel, API, Not routed | Removed the `/panel/*` namespace; creator surfaces moved to top-level routes (`/mis-cursos`, `/configuracion`, `/mis-ventas`, `/mis-estudiantes`). Documented the legacy 308 redirects in `proxy.ts`. Recorded `/api/notifications`. | ADR 0014: every signed-in user is implicitly a creator; the merchant row is data, not a gate. |
 | 2026-05-09 | Conventions, Buyer flow | Switched next-intl to `localePrefix: "as-needed"`. Spanish (default) is now served unprefixed (`/`, `/mis-cursos`, …) and English keeps the `/en` prefix. | Spanish is the primary audience; the `/es` prefix added a redirect hop and made every share/canonical URL a level deeper than necessary. As-needed gives Spanish the natural URL while preserving an unambiguous English surface. |
@@ -54,10 +56,13 @@
   [0014](decisions/0014-marketplace-open-to-all-logged-in-users.md);
   reserved-slug list in `lib/admin/ar-bank-id.ts` blocks any of
   these from being claimed as a user slug.
-- The storefront URL `/m/[userSlug]` deliberately keeps its short
-  shape (no rename to e.g. `/u/`) so external links shared before
-  ADR 0016 continue to work; only the dynamic-segment param name
-  changed (`[merchantSlug]` → `[userSlug]`).
+- The storefront URL is `/[userSlug]` (ADR 0017). It used to nest
+  under `/m/[userSlug]` for share-link continuity with the
+  pre-merger merchant model (ADR 0016), but the marketplace had not
+  shipped any production links yet, so the prefix was dropped before
+  launch. The reserved-slug list in `lib/admin/ar-bank-id.ts` blocks
+  any user from claiming a top-level route name, so the flattening
+  cannot collide with `/explore`, `/settings`, etc.
 - Dynamic segments use the shape that survives the longest:
   opaque ids for orders (`[orderId]`), human slugs for offerings
   (`[slug]` / `[offeringSlug]`), human slugs for sellers
@@ -84,8 +89,8 @@ clicks, pays, and walks away with a redemption code or download.
 | `/en` | Landing + catalog (English) | Secondary locale, prefixed. |
 | `/[locale]` | Filesystem segment | Source-of-truth shape under `app/[locale]/...`; resolves to the unprefixed URL for `es` and to `/en/...` for `en`. |
 | `/[locale]/explore` | Global catalog | Aggregated view across every active seller's offerings. |
-| `/[locale]/m/[userSlug]` | Seller storefront | A single seller's listings. Slug auto-generated at sign-in (`user-<first-8>`); the seller can rename it from `/settings`. |
-| `/[locale]/m/[userSlug]/c/[offeringSlug]` | Offering detail | Description, what the buyer gets, price (sats + ARS), CTA. `c/` keeps the surface namespaced under the seller. |
+| `/[locale]/[userSlug]` | Seller storefront | A single seller's listings. Slug auto-generated at sign-in (`user-<first-8>`); the seller can rename it from `/settings`. |
+| `/[locale]/[userSlug]/c/[offeringSlug]` | Offering detail | Hero (image + title + price + CTA), rail/delivery badges, long description, instructor block with the seller's bio and a link to their storefront. `c/` keeps the offering slug namespaced under the seller so two sellers can both ship `intro-bitcoin`. |
 | `/[locale]/checkout/[orderId]` | Lightning invoice | QR + copy-to-clipboard, status polling against `/api/orders/[orderId]`. Survives reload. If `users.features_autorenewal` is on for the seller, both pay-buttons (one-shot vs NWC) are visible — buyer self-selects. |
 | `/[locale]/receipt/[orderId]` | Permanent receipt | Redemption code (`type=code`) or short-lived signed download URL (`type=download`). Inline "Conectá tu Nostr para guardar este pedido" prompt. Decision pinned in ADR [0006](decisions/0006-nostr-and-inapp-delivery.md). |
 

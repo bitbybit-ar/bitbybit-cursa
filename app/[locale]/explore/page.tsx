@@ -11,7 +11,7 @@ type Props = {
 // Marketplace discovery (ADR 0012). Renders every active user's
 // offerings in newest-first order so the platform reads as a feed,
 // not a single store. Per-seller landing pages live at
-// /[locale]/m/[slug].
+// /[locale]/[slug] (ADR 0017).
 export const dynamic = "force-dynamic";
 
 export default async function ExplorePage({ params }: Props) {

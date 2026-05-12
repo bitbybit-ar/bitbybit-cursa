@@ -13,7 +13,7 @@ import { writeAuditLog } from "./audit";
  *
  * Every helper takes a `userId` (ADRs 0012, 0016). Slug uniqueness
  * is per-user, so two users can both have an offering at
- * `/m/<their-slug>/c/intro-bitcoin`.
+ * `/<their-slug>/c/intro-bitcoin` (ADR 0017).
  */
 
 export type Offering = typeof offerings.$inferSelect;

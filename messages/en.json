@@ -124,7 +124,7 @@
       "step1Title": "Sign in with Nostr",
       "step1Body": "Your Nostr key is your account. No emails, no long forms.",
       "step2Title": "Set up your store and pick how you get paid",
-      "step2Body": "Claim a slug (cursa.bitbybit.com.ar/m/your-slug) and pick your payout: pesos to your CBU/alias (via Wapu) if you'd rather skip Bitcoin altogether, or sats straight to your Lightning Address if you already live in sats. Then add your first offerings.",
+      "step2Body": "Claim a slug (cursa.bitbybit.com.ar/your-slug) and pick your payout: pesos to your CBU/alias (via Wapu) if you'd rather skip Bitcoin altogether, or sats straight to your Lightning Address if you already live in sats. Then add your first offerings.",
       "step3Title": "Sell and get paid in what you chose",
       "step3Body": "When someone pays you, the rail you picked deposits in your account: pesos to your CBU via Wapu, or sats straight to your wallet. The platform never touches the money."
     },
@@ -174,7 +174,7 @@
       "codesOrDownloadsTitle": "Codes or downloads",
       "codesOrDownloadsBody": "Each offering delivers a redemption code (from a pool you upload) or a direct download. You choose per offering.",
       "multiTenantSelfHostTitle": "Marketplace or self-host",
-      "multiTenantSelfHostBody": "Sell from the marketplace at cursa.bitbybit.com.ar/m/your-slug, or fork the repo and run your own deployment."
+      "multiTenantSelfHostBody": "Sell from the marketplace at cursa.bitbybit.com.ar/your-slug, or fork the repo and run your own deployment."
     }
   },
   "faq": {
@@ -228,7 +228,18 @@
       "download": "Instant download right after payment."
     },
     "buy": "Pay with sats",
-    "buying": "Creating invoice…"
+    "buying": "Creating invoice…",
+    "rail": {
+      "lightning": "Pay in sats over Lightning"
+    },
+    "delivery": {
+      "code": "Delivered as a redemption code",
+      "download": "Direct download on payment"
+    },
+    "instructor": {
+      "heading": "About the instructor",
+      "storefrontCta": "See every course by {name}"
+    }
   },
   "checkout": {
     "title": "Pay for your order",
@@ -560,7 +571,7 @@
     "form": {
       "slug": "Store handle",
       "slugPlaceholder": "ana-piano",
-      "slugHint": "Used in your public URL: cursa.bitbybit.com.ar/m/{your-slug}. Lowercase letters, numbers, and hyphens only.",
+      "slugHint": "Used in your public URL: cursa.bitbybit.com.ar/{your-slug}. Lowercase letters, numbers, and hyphens only.",
       "slugTaken": "That handle is taken. Try another.",
       "slugErrors": {
         "format": "Lowercase letters, numbers, and hyphens only (and no leading or trailing hyphens).",

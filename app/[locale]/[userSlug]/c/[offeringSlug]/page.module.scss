@@ -1,0 +1,206 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+
+.section {
+  padding-top: $spacing-32;
+
+  @include mobile {
+    padding-top: $spacing-16;
+  }
+}
+
+.back {
+  align-self: flex-start;
+  margin-bottom: $spacing-24;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: $spacing-32;
+  width: 100%;
+  margin: 0 0 $spacing-48;
+
+  @media (min-width: 768px) {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: start;
+  }
+}
+
+.heroByline {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-8;
+  width: fit-content;
+  margin: -$spacing-8 0 $spacing-4;
+  color: $color-text-secondary;
+  text-decoration: none;
+  transition: color 0.15s ease;
+
+  &:hover {
+    color: $color-text-primary;
+  }
+}
+
+.heroBylineName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+}
+
+.imageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: $color-bg-3;
+}
+
+.image {
+  object-fit: cover;
+}
+
+.heroBody {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-20;
+}
+
+.title {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-tight;
+  color: $color-text-primary;
+  line-height: $line-height-tight;
+}
+
+.badges {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-8;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-4;
+  padding: $spacing-4 $spacing-12;
+  border-radius: 999px;
+  background-color: $color-bg-2;
+  color: $color-text-secondary;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  border: 1px solid $color-border;
+
+  svg {
+    flex-shrink: 0;
+  }
+}
+
+.badgeRail {
+  color: $color-cta-dark;
+  background-color: $color-primary-soft;
+  border-color: $color-primary-soft;
+}
+
+.badgeDelivery {
+  color: $color-text-primary;
+}
+
+.details {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-12;
+  width: 100%;
+  margin: 0 0 $spacing-48;
+}
+
+.detailsHeading {
+  margin: 0 0 $spacing-4;
+  font-family: $font-family-display;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.description {
+  margin: 0;
+  color: $color-text-primary;
+  line-height: $line-height-base;
+  white-space: pre-line;
+}
+
+.instructor {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: $spacing-20;
+  align-items: start;
+  width: 100%;
+  margin: 0;
+  padding: $spacing-24;
+  border-radius: 16px;
+  background-color: $color-bg-2;
+  border: 1px solid $color-border;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    text-align: center;
+    justify-items: center;
+  }
+}
+
+.instructorAvatar {
+  flex-shrink: 0;
+}
+
+.instructorBody {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.instructorHeading {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.instructorName {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+}
+
+.instructorBio {
+  margin: $spacing-4 0 0;
+  color: $color-text-primary;
+  line-height: $line-height-base;
+}
+
+.instructorLink {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-4;
+  margin-top: $spacing-12;
+  color: $color-primary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  text-decoration: none;
+
+  &:hover {
+    color: $color-primary-hover;
+  }
+}

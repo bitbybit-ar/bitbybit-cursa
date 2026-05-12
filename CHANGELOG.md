@@ -12,6 +12,23 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- **Flattened seller URLs and redesigned the course detail page.**
+  Seller storefronts move from `/m/[userSlug]` to `/[userSlug]` and
+  offering detail pages from `/m/[userSlug]/c/[offeringSlug]` to
+  `/[userSlug]/c/[offeringSlug]`. The detail page gains a richer
+  layout: hero with the image, title, price, and buy CTA; small
+  badges for the payment rail (Lightning) and delivery type (code
+  vs download); a long-description block that splits on blank lines;
+  and an instructor block (avatar + bio + link to the seller's
+  storefront). The seller's `bio` field is now returned by the
+  offering query and rendered on the detail page. Internal `/m/`
+  references in code comments, i18n copy, and the `OfferingCard`
+  href computation are updated. The landing's mock courses
+  (`lib/mock/highlighted-courses.ts`) now back the live offering and
+  storefront queries as a fallback, so the three seed URLs from the
+  landing render real-looking pages before the production catalog is
+  populated. Decision in ADR 0017.
+
 - **Collapsed the `merchants` table into `users`.** After ADR 0014
   every signed-in Nostr account already had a `merchants` row, so
   the merchant/user split was vestigial. End-to-end rename: the

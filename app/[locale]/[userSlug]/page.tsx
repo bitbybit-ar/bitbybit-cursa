@@ -25,7 +25,7 @@ export async function generateMetadata({
     title: data.seller.display_name,
     description:
       data.seller.bio?.slice(0, 160) ?? data.seller.display_name,
-    alternates: alternatesFor(locale, `/m/${userSlug}`),
+    alternates: alternatesFor(locale, `/${userSlug}`),
   };
 }
 

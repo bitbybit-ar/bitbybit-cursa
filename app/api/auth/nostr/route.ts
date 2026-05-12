@@ -96,7 +96,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   // Auto-create the user row at sign-in (ADRs 0014, 0016), seeded
   // from the user's kind:0 metadata when available so the storefront
-  // /m/[slug] doesn't ship placeholder values. Best-effort: if the
+  // /[slug] doesn't ship placeholder values. Best-effort: if the
   // relay set returns nothing in 3s, we fall back to the pubkey-
   // derived placeholder slug + display_name and the user can rename
   // from /settings later. Failures here are non-fatal — sign-in

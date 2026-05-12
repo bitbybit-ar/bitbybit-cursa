@@ -33,8 +33,8 @@ const ALIAS_HAS_LETTER = /[A-Za-z]/;
 const CBU_REGEX = /^\d{22}$/;
 
 /**
- * Slug used in URLs (`/m/[slug]`). Lowercase URL-safe, hyphen-
- * separated. We reject leading/trailing hyphens and consecutive
+ * Slug used in URLs (`/[slug]` since ADR 0017). Lowercase URL-safe,
+ * hyphen-separated. We reject leading/trailing hyphens and consecutive
  * hyphens so the slug renders cleanly in nav copy and
  * breadcrumbs without a separate sanitizer.
  */
