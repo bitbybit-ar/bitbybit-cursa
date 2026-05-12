@@ -408,6 +408,12 @@
     "warningTitle": "Cambios visibles para todos los compradores.",
     "warningBody": "El CBU/alias acá define a dónde se acreditan tus pagos. Verificá los datos antes de guardar.",
     "form": {
+      "profileLegend": "Perfil público",
+      "profileHint": "Lo que ve un comprador cuando entra a tu storefront.",
+      "bannerUrl": "Imagen de banner",
+      "bannerUrlPlaceholder": "https://...",
+      "bannerUrlHint": "Se muestra como fondo arriba de tu avatar en cursa.bitbybit.com.ar/{tu-slug}. Dejala vacía para usar un degradado.",
+      "bannerUrlInvalid": "Ingresá una URL válida o dejala vacía.",
       "payoutLegend": "Datos de cobro",
       "payoutHint": "Elegí cómo querés recibir lo que vendés. Podés cambiar el método más adelante.",
       "railArs": "Cobrar en pesos (CBU/alias)",

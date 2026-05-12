@@ -27,6 +27,8 @@ export const highlightedCourses: OfferingWithSeller[] = [
       slug: "satoshi-aula",
       display_name: "Satoshi Aula",
       avatar_url: "https://github.com/lacrypta.png?size=128",
+      banner_url:
+        "https://images.unsplash.com/photo-1640340434855-6084b1f4901c?w=1600&q=80",
       bio: "Profe de economía y entusiasta de Bitcoin desde 2017. Doy clases en escuelas técnicas y armé estos cursos para que cualquiera pueda entender la red sin asustarse de la jerga.",
     },
   },
@@ -54,6 +56,8 @@ export const highlightedCourses: OfferingWithSeller[] = [
       slug: "carla-luthier",
       display_name: "Carla Luthier",
       avatar_url: "https://github.com/lawalletio.png?size=128",
+      banner_url:
+        "https://images.unsplash.com/photo-1551847812-f33a3e4f8f60?w=1600&q=80",
       bio: "Guitarrista, luthier y docente de música. Toco folklore desde los doce años y enseño guitarra criolla a distancia desde 2019.",
     },
   },
@@ -81,6 +85,8 @@ export const highlightedCourses: OfferingWithSeller[] = [
       slug: "atelier-norte",
       display_name: "Atelier Norte",
       avatar_url: "https://github.com/bitbybit-ar.png?size=128",
+      banner_url:
+        "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=1600&q=80",
       bio: "Taller de arte en Salta. Damos cursos presenciales y online de pintura, dibujo e ilustración para todas las edades.",
     },
   },

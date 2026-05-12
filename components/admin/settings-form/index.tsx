@@ -16,6 +16,7 @@ import styles from "./settings-form.module.scss";
 type PayoutMethod = "cbu_alias" | "lightning_address";
 
 interface SettingsFormProps {
+  initialBannerUrl: string;
   initialCbu: string;
   initialAlias: string;
   initialLightningAddress: string;
@@ -29,6 +30,7 @@ function emptyToNull(value: string): string | null {
 }
 
 export function SettingsForm({
+  initialBannerUrl,
   initialCbu,
   initialAlias,
   initialLightningAddress,
@@ -41,6 +43,7 @@ export function SettingsForm({
   const { showToast } = useToast();
   const { signWithPrompt } = useSignerContext();
 
+  const [bannerUrl, setBannerUrl] = useState(initialBannerUrl);
   const [payoutMethod, setPayoutMethod] =
     useState<PayoutMethod>(initialPayoutMethod);
   const [cbu, setCbu] = useState(initialCbu);
@@ -64,6 +67,15 @@ export function SettingsForm({
       return;
     }
 
+    const nextBannerUrl = emptyToNull(bannerUrl);
+    if (nextBannerUrl !== null) {
+      try {
+        new URL(nextBannerUrl);
+      } catch {
+        showToast(t("bannerUrlInvalid"), "error");
+        return;
+      }
+    }
     const nextCbu = emptyToNull(cbu);
     const nextAlias = emptyToNull(alias);
     const nextLightningAddress = emptyToNull(lightningAddress);
@@ -80,6 +92,7 @@ export function SettingsForm({
       // Pre-serialize once so the bytes the client hashes are the
       // same bytes the server hashes from `req.text()`.
       const serialized = JSON.stringify({
+        banner_url: nextBannerUrl,
         cbu: nextCbu,
         alias: nextAlias,
         lightning_address: nextLightningAddress,
@@ -161,6 +174,29 @@ export function SettingsForm({
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
+      <fieldset className={styles.fieldset}>
+        <legend className={styles.legend}>{t("profileLegend")}</legend>
+        <p className={styles.legendHint}>{t("profileHint")}</p>
+
+        <div className={styles.field}>
+          <label htmlFor="banner_url" className={styles.label}>
+            {t("bannerUrl")}
+          </label>
+          <input
+            id="banner_url"
+            type="url"
+            inputMode="url"
+            className={styles.input}
+            value={bannerUrl}
+            onChange={(e) => setBannerUrl(e.target.value)}
+            placeholder={t("bannerUrlPlaceholder")}
+            autoComplete="off"
+            spellCheck={false}
+          />
+          <span className={styles.fieldHint}>{t("bannerUrlHint")}</span>
+        </div>
+      </fieldset>
+
       <fieldset className={styles.fieldset}>
         <legend className={styles.legend}>{t("payoutLegend")}</legend>
         <p className={styles.legendHint}>{t("payoutHint")}</p>

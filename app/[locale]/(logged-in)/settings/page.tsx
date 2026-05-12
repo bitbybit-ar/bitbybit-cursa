@@ -45,6 +45,7 @@ export default async function SettingsPage({
       </Card>
 
       <SettingsForm
+        initialBannerUrl={user.banner_url ?? ""}
         initialCbu={user.cbu ?? ""}
         initialAlias={user.alias ?? ""}
         initialLightningAddress={user.lightning_address ?? ""}

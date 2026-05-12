@@ -5,6 +5,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { OfferingCard } from "@/components/catalog/offering-card";
+import { Avatar } from "@/components/common/avatar";
 import { listOfferingsForUserSlug } from "@/lib/offerings";
 import { alternatesFor } from "@/lib/seo";
 import styles from "./page.module.scss";
@@ -40,26 +41,36 @@ export default async function SellerStorePage({ params }: Props) {
 
   return (
     <>
-      <Section>
-        <Container column>
-          <header className={styles.hero}>
-            {seller.avatar_url ? (
-              <div className={styles.avatarWrap}>
-                <Image
-                  src={seller.avatar_url}
-                  alt=""
-                  fill
-                  sizes="120px"
-                  className={styles.avatar}
-                />
-              </div>
-            ) : null}
+      <Section className={styles.heroSection}>
+        <div
+          className={styles.hero}
+          data-has-banner={seller.banner_url ? "true" : "false"}
+        >
+          {seller.banner_url ? (
+            <Image
+              src={seller.banner_url}
+              alt=""
+              fill
+              sizes="100vw"
+              className={styles.bannerImage}
+              priority
+            />
+          ) : null}
+          <div className={styles.heroOverlay} />
+          <div className={styles.heroContent}>
+            <Avatar
+              src={seller.avatar_url}
+              alt=""
+              name={seller.display_name}
+              size="lg"
+              className={styles.heroAvatar}
+            />
             <h1 className={styles.title}>{seller.display_name}</h1>
             {seller.bio ? (
               <p className={styles.bio}>{seller.bio}</p>
             ) : null}
-          </header>
-        </Container>
+          </div>
+        </div>
       </Section>
 
       <Section alternate>

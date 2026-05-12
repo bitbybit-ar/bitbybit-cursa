@@ -53,6 +53,7 @@ export const UpdateUserProfileSchema = z
     display_name: z.string().trim().min(2).max(80),
     bio: z.string().trim().max(500).nullable(),
     avatar_url: z.string().trim().url().nullable(),
+    banner_url: z.string().trim().url().nullable(),
     alias: AliasSchema.nullable(),
     cbu: CbuSchema.nullable(),
     lightning_address: LightningAddressSchema.nullable(),
@@ -125,6 +126,7 @@ export function slugifyDisplayName(name: string): string | null {
 export interface InitialUserProfile {
   display_name?: string;
   avatar_url?: string;
+  banner_url?: string;
   bio?: string;
 }
 
@@ -178,6 +180,7 @@ export async function ensureUserForPubkey(
           slug,
           display_name: displayName,
           avatar_url: initial?.avatar_url ?? null,
+          banner_url: initial?.banner_url ?? null,
           bio: initial?.bio ?? null,
         })
         .returning();
@@ -241,6 +244,7 @@ export async function updateUserProfile(
   if (patch.display_name !== undefined) next.display_name = patch.display_name;
   if (patch.bio !== undefined) next.bio = patch.bio;
   if (patch.avatar_url !== undefined) next.avatar_url = patch.avatar_url;
+  if (patch.banner_url !== undefined) next.banner_url = patch.banner_url;
   if (patch.alias !== undefined) next.alias = patch.alias;
   if (patch.cbu !== undefined) next.cbu = patch.cbu;
   if (patch.lightning_address !== undefined) {

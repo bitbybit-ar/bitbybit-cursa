@@ -18,6 +18,7 @@ export interface Kind0Profile {
   name?: string;
   picture?: string;
   about?: string;
+  banner?: string;
 }
 
 const QUERY_TIMEOUT_MS = 3_000;
@@ -32,6 +33,7 @@ function parseKind0(content: string): Kind0Profile {
     if (typeof parsed.name === "string") out.name = parsed.name;
     if (typeof parsed.picture === "string") out.picture = parsed.picture;
     if (typeof parsed.about === "string") out.about = parsed.about;
+    if (typeof parsed.banner === "string") out.banner = parsed.banner;
     return out;
   } catch {
     return {};

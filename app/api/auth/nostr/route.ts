@@ -107,6 +107,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     await ensureUserForPubkey(pubkey, {
       display_name: profile.display_name ?? profile.name,
       avatar_url: profile.picture,
+      banner_url: profile.banner,
       bio: profile.about,
     });
   } catch (err) {

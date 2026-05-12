@@ -408,6 +408,12 @@
     "warningTitle": "Visible to every buyer.",
     "warningBody": "The CBU/alias here decides where your payouts land. Double-check the values before saving.",
     "form": {
+      "profileLegend": "Public profile",
+      "profileHint": "What buyers see when they land on your storefront.",
+      "bannerUrl": "Banner image",
+      "bannerUrlPlaceholder": "https://...",
+      "bannerUrlHint": "Shown as the background above your avatar at cursa.bitbybit.com.ar/{your-slug}. Leave empty to use a gradient.",
+      "bannerUrlInvalid": "Enter a valid URL or leave it empty.",
       "payoutLegend": "Payout",
       "payoutHint": "Pick how you want to be paid. You can switch later.",
       "railArs": "Get paid in pesos (CBU/alias)",

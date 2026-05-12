@@ -74,6 +74,10 @@ export const users = pgTable(
     display_name: varchar("display_name", { length: 80 }).notNull(),
     bio: text("bio"),
     avatar_url: text("avatar_url"),
+    // Wide banner image displayed behind the avatar + name + bio on
+    // the public storefront. Seeded from kind:0 `banner` at sign-in;
+    // editable from /settings. Null when the user has no banner set.
+    banner_url: text("banner_url"),
     cbu: text("cbu"),
     alias: text("alias"),
     // Lightning Address used when payout_method = 'lightning_address'.

@@ -22,6 +22,7 @@ export interface OfferingWithSeller {
     slug: string;
     display_name: string;
     avatar_url: string | null;
+    banner_url: string | null;
     bio: string | null;
   };
 }
@@ -54,6 +55,7 @@ export async function listDiscoveryOfferings(): Promise<
         slug: r.seller.slug,
         display_name: r.seller.display_name,
         avatar_url: r.seller.avatar_url,
+        banner_url: r.seller.banner_url,
         bio: r.seller.bio,
       },
     }));
@@ -98,6 +100,7 @@ export async function listOfferingsForUserSlug(
         slug: seller.slug,
         display_name: seller.display_name,
         avatar_url: seller.avatar_url,
+        banner_url: seller.banner_url,
         bio: seller.bio,
       },
       offerings: rows,
@@ -142,6 +145,7 @@ export async function getOfferingByUserAndSlug(
         slug: row.seller.slug,
         display_name: row.seller.display_name,
         avatar_url: row.seller.avatar_url,
+        banner_url: row.seller.banner_url,
         bio: row.seller.bio,
       },
     };
