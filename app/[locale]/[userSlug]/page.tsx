@@ -73,7 +73,7 @@ export default async function SellerStorePage({ params }: Props) {
         </div>
       </Section>
 
-      <Section alternate>
+      <Section alternate className={styles.offeringsSection}>
         <Container column>
           <h2 className={styles.listHeading}>{t("offeringsHeading")}</h2>
           {offerings.length === 0 ? (

@@ -7,6 +7,14 @@
   padding: 0;
 }
 
+.offeringsSection {
+  padding-top: $spacing-40;
+
+  @include mobile {
+    padding-top: $spacing-24;
+  }
+}
+
 .hero {
   position: relative;
   isolation: isolate;
