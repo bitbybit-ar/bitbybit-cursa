@@ -1,7 +1,7 @@
 # Architecture overview
 
 > **Status:** Active
-> **Last updated:** 2026-05-07
+> **Last updated:** 2026-05-12
 
 ---
 
@@ -9,6 +9,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-12 | What this app is, Routing, Identity model, Creator surfaces (renamed from Merchant admin panel), Stack, Configuration model, Auto-renewal flow, Security, What is intentionally not here, Table of Contents | Replaced single-tenant framing with multi-tenant marketplace; replaced "Wapu only" with the dual-rail model (Wapu ARS + Lightning Address direct sats); removed the `/panel/*` namespace and the `ADMIN_PUBKEYS`-gated admin posture; renamed the panel section to "Creator surfaces" and pointed it at the top-level English routes; updated the Stack image-storage line from Vercel Blob to Blossom; renamed `lib/merchant.ts` → `lib/site.ts` and `merchants` → `users` in the configuration table. | The doc was three pivots behind reality (ADR 0014 opened the marketplace, ADR 0015 added the second rail, ADR 0016 collapsed `merchants` into `users`). Contributors reading this would have built against an architecture that no longer exists. |
 | 2026-05-07 | Stack | Replaced the dead `docs.wapu.app/api-docs/en` reference in the Wapu line with: (a) the actual API base URLs for production and staging, and (b) a pointer to the wapu-cli repo as the public source of the API contract until Wapu publishes formal docs. | The original URL 404s; the wapu-cli repo (github.com/wapu-app/wapu-cli) is currently the only public source of the API contract, and Wapu runs a staging environment at staging.wapu.app for fake-money testing. Future contributors should not waste time on the broken URL. |
 | 2026-05-06 | What this app is, Stack, Routing, Auto-renewal flow, Notifications & delivery, Merchant config, Security, What is intentionally not here, Table of Contents | Replaced the Routing section with a short pointer to `routing.md` (full route map now lives there). Rewrote the Merchant config section: `merchant.yaml` is removed; offerings + CBU/alias + autorenewal flag now live in Postgres and are edited from `/panel`; branding/copy/identity stay in code; `ADMIN_PUBKEYS` lives in env. Updated the auto-renewal flow paragraph: flag is a runtime panel toggle, code is dormant when off. Added Postgres + drizzle and Vercel Blob to the Stack list. Added the panel surface and admin-only API namespace to Security. Removed "no buyer accounts" and "no admin UI" from "What is intentionally not here" (they exist now per ADRs 0007 and 0008). Updated TOC. | ADRs 0007–0010 introduced Postgres, optional Nostr login, the merchant admin panel, offerings + settings in DB, and removed `merchant.yaml`. The overview was the most code-shaped doc in the repo and was lying about all of these. |
 | 2026-05-06 | Notifications & delivery, Payment flow, Auto-renewal flow, Security, Merchant config, What is intentionally not here, Table of Contents | Added the Notifications & delivery section. Removed email from the payment flow diagram, the auto-renewal flow diagram, the security section, the merchant config (`merchant.email` field dropped), and the intentionally-not-here list (added "no email"). Updated TOC. | The decision in ADR 0006 makes the delivery channel in-app receipt + optional Nostr DM. The overview was still describing an email-based model that no longer matches the architecture. |
@@ -23,7 +24,7 @@
 2. [Stack](#stack)
 3. [Routing](#routing)
 4. [Identity model](#identity-model)
-5. [Merchant admin panel](#merchant-admin-panel)
+5. [Creator surfaces](#creator-surfaces)
 6. [SEO surface](#seo-surface)
 7. [Theming](#theming)
 8. [Product primitives](#product-primitives)
@@ -38,29 +39,45 @@
 
 ## What this app is
 
-Cursá is a Next.js storefront app deployed once per merchant. Each
-deployment serves one educator: their catalog, their branding,
-their checkout, their CBU. The repo is intended to be forked or
-templated.
+Cursá is a Next.js multi-tenant marketplace at
+`cursa.bitbybit.com.ar`. Any signed-in Nostr user is implicitly
+a creator; the user row is materialised on first sign-in (`ensureUserForPubkey`)
+and the seller picks a slug and a payout method from
+`/[locale]/settings`. There is no fork, no separate deployment, no
+forced onboarding. Self-hosting survives as the path for anyone
+who wants their own instance, but the hosted marketplace is the
+default. Decision pinned in ADR
+[0014](decisions/0014-marketplace-open-to-all-logged-in-users.md).
 
-A developer forks the repo, sets the brand and copy, and deploys
-it. From then on, the merchant runs everything — offerings,
-payments, settings, students — from a dashboard at
-`/[locale]/panel`. No more file edits.
-
-A buyer visits `cursa.bitbybit.com.ar` (the demo) or
-`tienda.<merchant-domain>` (a forked deployment), browses
-offerings, clicks one, gets a Lightning invoice, pays it, and
-lands on a permanent receipt page that shows their redemption code
-or download link. If they connected a Nostr identity at checkout
-(or signed in with one), an encrypted DM with the same content
-lands in their Nostr client. Buyers may optionally sign in with
-Nostr to see their full order history at `/[locale]/mis-compras`;
+A buyer visits `cursa.bitbybit.com.ar`, browses the global catalog
+or a creator storefront at `/m/<userSlug>`, opens an offering at
+`/m/<userSlug>/c/<offeringSlug>`, gets a Lightning invoice, pays
+it, and lands on a permanent receipt page at
+`/[locale]/receipt/[orderId]` that shows their redemption code or
+download link. If they connected a Nostr identity at checkout (or
+signed in with one), an encrypted DM with the same content lands
+in their Nostr client. Buyers may optionally sign in with Nostr
+to see their full order history at `/[locale]/purchases`;
 purchase never requires it.
 
-Wapu sits between the Lightning invoice and the merchant's bank.
-It accepts the sats, converts to ARS at market rate, and pushes
-pesos to the merchant's CBU or alias.
+Sellers pick one of two payout rails in `/[locale]/settings`,
+stored as `users.payout_method`. Decision pinned in ADR
+[0015](decisions/0015-sats-settlement-rail.md).
+
+- **`wapu_ars`** — Wapu sits between the Lightning invoice and the
+  seller's bank. It accepts the sats, converts to ARS at market
+  rate, and pushes pesos to the seller's CBU or alias. The
+  inclusive on-ramp for sellers who want pesos for daily expenses
+  and don't want to learn Bitcoin.
+- **`lightning`** — The buyer's invoice resolves directly through
+  the seller's Lightning Address (LNURL-pay with LUD-21 `verify`).
+  No converter, no platform-side wallet — the sats land in the
+  seller's wallet of record.
+
+The checkout API dispatches on `users.payout_method`; the Wapu
+webhook only flips orders whose `rail === 'wapu_ars'`. Lightning-rail
+orders are confirmed by polling the seller's `lnurl_verify_url`
+from `/api/orders/[orderId]`.
 
 ## Stack
 
@@ -75,8 +92,10 @@ pesos to the merchant's CBU or alias.
   settings, audit log. Stack matches bitbybit-arena. Schema and
   rationale in ADR
   [0009](decisions/0009-offerings-and-settings-in-database.md).
-- **Vercel Blob** — image storage for offerings, written via
-  `/api/admin/upload`.
+- **Blossom** — image storage for offerings, written browser-direct
+  by a kind:24242 signed event (no server proxy). Servers are
+  configured in `NEXT_PUBLIC_BLOSSOM_SERVERS`. Decision pinned in
+  ADR [0011](decisions/0011-image-storage-via-blossom.md).
 - **Wapu API** — Lightning invoice creation, ARS withdrawal,
   payment status. Production base
   `https://be-prod.wapu.app`; staging base
@@ -89,48 +108,56 @@ pesos to the merchant's CBU or alias.
   (ARS withdrawal as a `fiat_transfer`).
 - **Nostr** — server-side signing for outgoing DMs (`nostr-tools`
   + `@noble/secp256k1`); NIP-07 / nsec / NIP-46 client-side for
-  buyer identity at checkout, buyer login (ADR
-  [0007](decisions/0007-optional-nostr-buyer-login.md)), and
-  admin login + per-mutation re-sign on the panel (ADR
-  [0008](decisions/0008-merchant-admin-dashboard.md)).
+  buyer identity at checkout, buyer/seller login (ADRs
+  [0007](decisions/0007-optional-nostr-buyer-login.md) /
+  [0014](decisions/0014-marketplace-open-to-all-logged-in-users.md)),
+  and per-mutation re-sign at save time on payment-destination
+  fields (CBU / alias / Lightning Address) in `/settings`.
 - **`jose`** — signs the session JWT held in an httpOnly cookie.
 - **Vercel** — Hobby plan plus Vercel Cron when auto-renewal is on.
 
 ## Routing
 
-The full route map — buyer flow, account, subscriber,
-static, panel, API — lives in
-[`routing.md`](routing.md). A short summary:
+The full route map — buyer flow, account, creator, static, API —
+lives in [`routing.md`](routing.md). A short summary:
 
 ```text
-/                                → 307 redirect to /es
-/[locale]                        → landing + catalog
-/[locale]/c/[slug]               → offering detail + buy button
+/                                → landing + catalog (Spanish, no prefix)
+/en                              → landing + catalog (English)
+/[locale]/explore                → global catalog
+/[locale]/m/[userSlug]           → seller storefront
+/[locale]/m/[userSlug]/c/[offeringSlug]
+                                 → offering detail + buy button
 /[locale]/checkout/[orderId]     → invoice + QR + status poll
-/[locale]/gracias/[orderId]      → permanent receipt page
+/[locale]/receipt/[orderId]      → permanent receipt page
+/[locale]/claim/[orderId]        → claim a past anonymous order
 
-/[locale]/iniciar-sesion         → Nostr sign-in (optional)
-/[locale]/mis-compras            → buyer order history (logged in)
+/[locale]/sign-in                → Nostr sign-in (NIP-07/nsec/NIP-46)
 
-/[locale]/panel/...              → merchant admin (gated by
-                                    ADMIN_PUBKEYS env)
+/[locale]/purchases              → buyer order history (logged in)
+/[locale]/my-courses             → seller's offerings (logged in)
+/[locale]/create-course          → new offering form (logged in)
+/[locale]/orders                 → seller's sales history (logged in)
+/[locale]/settings               → payout, slug, autorenewal toggle
 
-/api/wapu/webhook                → Wapu payment events
+/api/wapu/webhook                → Wapu payment events (rail = wapu_ars only)
+/api/orders/[orderId]            → order status (also probes LN verify URL)
 /api/auth/*                      → Nostr session
-/api/admin/*                     → admin-scoped CRUD
-/api/cron/renew                  → daily renewal pulls (when
-                                    features_autorenewal is on)
+/api/my-courses, /api/settings   → seller-scoped CRUD
+/api/notifications               → navbar bell
 ```
 
-See [`routing.md`](routing.md) for the rest, conventions, and
-the rationale for each slug.
+Legacy paths (pre-ADR-0014 `/panel/*` and the ADR-0014-era
+Spanish slugs) 308-redirect via `proxy.ts`. See
+[`routing.md`](routing.md) for the rest, conventions, and the
+rationale for each slug.
 
 ## Identity model
 
 Three buyer identity tiers (ADR
 [0007](decisions/0007-optional-nostr-buyer-login.md)):
 
-1. **Anonymous.** Pay, land on `/gracias/[orderId]`, get the
+1. **Anonymous.** Pay, land on `/receipt/[orderId]`, get the
    code, walk away. The opaque URL is the only access key.
 2. **Anonymous with Nostr identifier.** Buyer pastes an
    `npub1...` or NIP-05 (`name@domain.com`) at checkout; the
@@ -138,36 +165,53 @@ Three buyer identity tiers (ADR
    encrypted DM with the receipt URL. No session.
 3. **Logged-in via Nostr.** NIP-07 / nsec / NIP-46 sign-in
    issues a `jose` JWT in an httpOnly cookie. Orders link to the
-   session pubkey; `/[locale]/mis-compras` lists them; DMs are
-   automatic.
+   session pubkey; `/[locale]/purchases` lists them; DMs are
+   automatic. The same sign-in materialises the user row
+   (`ensureUserForPubkey`) so the same identity also unlocks the
+   creator surfaces.
 
 Auto-renewal subscribers get tier 3 implicitly — the NWC
 connection already exposes their pubkey.
 
-Admins are a separate concept layered on top of tier 3: a
-session pubkey listed in the `ADMIN_PUBKEYS` env var unlocks the
-panel. See [Merchant admin panel](#merchant-admin-panel).
+Platform-level moderation lives in `PLATFORM_ADMIN_PUBKEYS` (env,
+comma-separated) and gates a small set of admin tools. It is not
+the panel gate (the panel doesn't exist anymore); it controls
+inactivation/moderation of users by the BitByBit team. Decision
+pinned in ADR
+[0014](decisions/0014-marketplace-open-to-all-logged-in-users.md).
 
-## Merchant admin panel
+## Creator surfaces
 
-`/[locale]/panel/*` is the merchant's surface for managing the
-business. Decision pinned in ADR
-[0008](decisions/0008-merchant-admin-dashboard.md).
+Any signed-in user can reach the creator surfaces; the user row is
+created lazily on first hit (`requirePanelUser` in
+`lib/admin/require-user.ts`). There is no `/panel/*` namespace
+(removed in ADR
+[0014](decisions/0014-marketplace-open-to-all-logged-in-users.md))
+— creator pages are top-level English routes inside the
+`(logged-in)` route group:
 
-- **Auth.** Nostr session (same module as buyer login); the
-  pubkey must be present in `ADMIN_PUBKEYS` (env, comma-
-  separated). Non-admins receive 404, not 403 — the surface is
-  not advertised.
-- **Read-only in v1**: orders, payments, buyers. Filter, search,
-  sort, paginate, CSV export are all read-side and available.
-  Refunds, resends, and DM-from-the-UI are deferred to v1.1.
+| Route | Purpose |
+|---|---|
+| `/[locale]/my-courses` | List + archive of the user's offerings |
+| `/[locale]/my-courses/[slug]/edit` | Edit offering, archive button lives here |
+| `/[locale]/create-course` | New offering form |
+| `/[locale]/orders` | Sales history, read-only in v1 |
+| `/[locale]/orders/[orderId]` | Sale detail (payment hash, rail, settlement ref, redemption) |
+| `/[locale]/settings` | Payout method (Wapu CBU/alias OR Lightning Address), slug + display name, autorenewal toggle |
+
+- **Auth.** Edge gate in `proxy.ts` requires a signed-in session;
+  anonymous visitors bounce to `/sign-in?next=...`. Server-side,
+  each page's `requirePanelUser` materialises the user row on
+  first hit.
 - **Write in v1**: offerings (full CRUD), settings (CBU, alias,
-  autorenewal toggle). Mutations to payment-destination fields
-  (CBU, alias) require a NIP-07 re-sign at save time, so a
-  stolen session cookie cannot quietly redirect future
-  settlement.
+  Lightning Address, payout method, autorenewal toggle).
+  Mutations to payment-destination fields (CBU, alias, Lightning
+  Address) require a NIP-07 re-sign at save time, so a stolen
+  session cookie cannot quietly redirect future settlement.
+- **Read-only in v1**: orders, payments, buyers. Refunds,
+  resends, and DM-from-the-UI are deferred to v1.1.
 - **Audit log.** Every mutation writes a row to
-  `admin_audit_log`. The settings page surfaces recent entries.
+  `admin_audit_log` (column `user_id` since ADR 0016).
 
 Routes inventory and request shapes live in
 [`routing.md`](routing.md).
@@ -222,25 +266,32 @@ Routes inventory and request shapes live in
 
 ## Product primitives
 
-Every offering in the merchant catalog is one of two types:
+Every offering in a seller's catalog is one of two types:
 
 1. **`code`** — buyer pays, the receipt page shows a redemption
    code (and an optional Nostr DM mirrors the same content). The
-   buyer shows the code to the merchant in person. Used for
+   buyer shows the code to the seller in person. Used for
    single classes, lesson packs, monthly bonos.
 2. **`download`** — buyer pays, the receipt page shows a
    short-lived signed URL pointing at a private file. Used for
    PDF method books, sheet music, recorded course material.
 
-Both share: catalog → Wapu invoice → webhook → receipt page (and
-optional Nostr DM). The receipt content is the only difference.
+Both share: catalog → invoice (Wapu or LNURL-pay) → confirmation
+(Wapu webhook or LUD-21 verify poll) → receipt page (and optional
+Nostr DM). The receipt content is the only difference.
 See [Notifications & delivery](#notifications--delivery) for the
 delivery model in detail.
 
 ## Payment flow
 
+The buyer always pays in sats over Lightning; the path the sats
+take from there depends on which rail the seller picked in
+`/settings`.
+
+### Rail = `wapu_ars` (sats → ARS to seller's CBU)
+
 ```text
-Buyer              Cursá app             Wapu              Merchant bank
+Buyer              Cursá app             Wapu              Seller bank
   │                    │                   │                     │
   │── click "Comprar" ▶│                   │                     │
   │                    │── create invoice ▶│                     │
@@ -253,22 +304,44 @@ Buyer              Cursá app             Wapu              Merchant bank
   │                    │                   │── ARS payout ──────▶│
 ```
 
-The webhook handler is the source of truth for "payment confirmed."
-Polling the checkout page is a UX nicety, not the trigger. Once
-confirmed, the buyer is redirected to their permanent receipt page
-at `/[locale]/gracias/[orderId]`; if they connected a Nostr
-identity at checkout, an encrypted DM with the same content goes
-out from the deployment's npub.
+The Wapu webhook handler is the source of truth for "payment
+confirmed" on this rail.
+
+### Rail = `lightning` (direct sats to seller's Lightning Address)
+
+```text
+Buyer              Cursá app          Seller's LNURL provider
+  │                    │                       │
+  │── click "Comprar" ▶│                       │
+  │                    │── LNURL-pay callback ▶│
+  │                    │◀── invoice + verify ──│
+  │◀── show QR + amt ──│                       │
+  │── pay invoice (LN) ────────────────────────▶  (sats land in seller's wallet)
+  │                    │── poll verify URL ───▶│
+  │                    │◀── settled = true ────│
+  │◀── receipt + code ─│                       │
+  │                    │── (opt) Nostr DM ─────│
+```
+
+The seller's LNURL-pay `verify` URL (LUD-21) is the source of
+truth on this rail; `/api/orders/[orderId]` polls it. The Wapu
+webhook is refused with 404 for any order whose `rail` is not
+`wapu_ars`.
+
+In both cases, polling the checkout page is a UX nicety, not the
+trigger. Once confirmed, the buyer is redirected to their
+permanent receipt page at `/[locale]/receipt/[orderId]`; if they
+connected a Nostr identity at checkout, an encrypted DM with the
+same content goes out from the deployment's npub.
 
 ## Auto-renewal flow (optional)
 
-Gated by `settings.features_autorenewal` (Postgres), toggled by
-the merchant from `/[locale]/panel/configuracion`. The NWC
-client, the cron handler, and the encrypted-secrets storage are
-*deployed but dormant* when the flag is off — the code is
-present in every build, gated by a runtime check on the flag.
-Flipping the toggle takes effect immediately; no redeploy.
-Decision in ADR
+Gated by `users.features_autorenewal` (Postgres), toggled by the
+seller from `/[locale]/settings`. The NWC client, the cron
+handler, and the encrypted-secrets storage are *deployed but
+dormant* when the flag is off — the code is present in every
+build, gated by a runtime check on the flag. Flipping the toggle
+takes effect immediately; no redeploy. Decision in ADR
 [0005](decisions/0005-prepaid-default-autorenewal-optin.md)
 (amended by ADR 0009).
 
@@ -294,9 +367,9 @@ pull failure puts the subscription in a grace window; after N
 retries the subscription is cancelled and a Nostr DM is sent.
 
 There is no buyer-side wallet detection. Both checkout buttons
-("Comprar" and "Autorenovar") are visible when the merchant's
-flag is on; if a buyer's wallet cannot complete the NWC
-connection, the auto-renewal flow simply fails and the buyer
+("Comprar" and "Autorenovar") are visible when the seller's
+autorenewal flag is on; if a buyer's wallet cannot complete the
+NWC connection, the auto-renewal flow simply fails and the buyer
 falls back to the one-shot button.
 
 ## Notifications & delivery
@@ -309,7 +382,7 @@ Nostr DMs**. Decision pinned in ADR
 ### In-app receipt page
 
 Every paid order has a permanent receipt page at
-`/[locale]/gracias/[orderId]` where `orderId` is an opaque,
+`/[locale]/receipt/[orderId]` where `orderId` is an opaque,
 unguessable identifier. It renders the redemption code (for
 `code` offerings) or a short-lived signed download URL (for
 `download` offerings) plus the order summary.
@@ -352,28 +425,35 @@ shape in ADR [0009](decisions/0009-offerings-and-settings-in-database.md).
 
 | Layer | Edited by | Lives in |
 |---|---|---|
-| Branding tokens | the developer who forks | `styles/_theme.scss` |
-| Page copy, FAQ, terms | the developer who forks | `messages/{es,en}.json` |
-| Merchant identity, social links | the developer who forks | `lib/merchant.ts` |
+| Branding tokens | the developer | `styles/_theme.scss` |
+| Page copy, FAQ, terms | the developer | `messages/{es,en}.json` |
+| Site identity, social links | the developer | `lib/site.ts` |
 | Secrets (Wapu key, NSEC, DB URL) | the deployer | env vars |
-| Admin authorisation | the deployer | env var `ADMIN_PUBKEYS` (comma-separated) |
-| Offerings (catalog) | the merchant | Postgres `offerings`, panel `/ofertas` |
-| CBU, alias, autorenewal toggle | the merchant | Postgres `settings`, panel `/configuracion` |
-| Orders, sessions, students | nobody | Postgres, system-managed |
+| Platform-admin authorisation | the deployer | env var `PLATFORM_ADMIN_PUBKEYS` (comma-separated) |
+| Slug, display name, bio | the seller | Postgres `users`, `/[locale]/settings` |
+| Payout method + destination (CBU/alias OR Lightning Address) | the seller | Postgres `users`, `/[locale]/settings` |
+| Offerings (catalog) | the seller | Postgres `offerings`, `/[locale]/my-courses` |
+| Autorenewal toggle | the seller | Postgres `users.features_autorenewal`, `/[locale]/settings` |
+| Orders, sessions, notifications | nobody | Postgres, system-managed |
 
-First-run experience: deploy with empty DB → log into `/panel`
-(as a pubkey listed in `ADMIN_PUBKEYS`) → set CBU/alias and add
-the first offering. Buyers cannot complete a purchase until
-CBU/alias is filled; the panel shows a "complete setup" banner
-to nudge.
+First-run experience: a new visitor signs in with Nostr →
+`ensureUserForPubkey` materialises a placeholder user row keyed
+by pubkey (slug auto-generated as `user-<first-8>`, profile
+seeded from kind:0 metadata) → the user lands on `/my-courses`,
+renames their slug if they want, picks a payout method in
+`/settings`, and creates their first offering. The seller's
+storefront cannot accept buyers until at least one offering is
+published and the payout fields for the chosen rail are filled
+in.
 
 ## Security
 
 - HTTPS via Vercel, HSTS preload set.
 - Wapu API key, NWC encryption key, the deployment's Nostr
   signing key (`NOSTR_NSEC`), the session JWT signing key, the
-  Postgres connection string, and the `ADMIN_PUBKEYS` list all
-  live in Vercel environment variables. Never reach the client.
+  Postgres connection string, and the `PLATFORM_ADMIN_PUBKEYS`
+  list all live in Vercel environment variables. Never reach the
+  client.
 - Wapu webhook signature is verified before any state mutation.
 - NWC connection strings are encrypted at rest with a
   per-deployment key. Loss of that key means subscriptions are
@@ -389,14 +469,19 @@ to nudge.
 - The buyer session is a `jose`-signed JWT held in an httpOnly,
   Secure, SameSite=Lax cookie. It carries the pubkey and an
   expiry; never a private key.
-- The `/panel/*` middleware checks the session pubkey against
-  `ADMIN_PUBKEYS` before rendering. Non-admins see 404. The
-  admin API namespace `/api/admin/*` enforces the same check on
-  every request, not just at page load.
-- Updates to payment-destination fields (CBU, alias) require a
-  NIP-07 re-sign at save time. A stolen session cookie alone
-  cannot redirect future settlement to an attacker's bank.
-- Every panel mutation writes a row to `admin_audit_log` —
+- The edge middleware in `proxy.ts` requires a signed-in session
+  for every creator surface (`/settings`, `/my-courses`,
+  `/create-course`, `/orders`, `/purchases`); anonymous visitors
+  bounce to `/sign-in?next=...`. Server-side, each page's
+  `requirePanelUser` resolves (or lazily creates) the user row.
+  Inactive users (set by `PLATFORM_ADMIN_PUBKEYS` moderation
+  tools) 404 instead of rendering.
+- Updates to payment-destination fields (CBU, alias, Lightning
+  Address) require a NIP-07 re-sign at save time. A stolen
+  session cookie alone cannot redirect future settlement to an
+  attacker's bank or wallet. A new Lightning Address must pass a
+  1-sat LUD-21 probe before it is accepted.
+- Every creator-side mutation writes a row to `admin_audit_log` —
   timestamp, actor pubkey, route, action, payload diff (secrets
   redacted). Read-only forever; there is no UI to delete rows.
 - All external links use `target="_blank" rel="noopener noreferrer"`.
@@ -415,23 +500,24 @@ to nudge.
   the redemption code. Optional Nostr login adds history and
   reliable DM push (ADR
   [0007](decisions/0007-optional-nostr-buyer-login.md)).
-- No multi-tenant. One deployment per merchant. Per-deployment
-  Postgres, per-deployment env, per-deployment admin list.
-- No merchant signup or onboarding flow on the deployed site.
-  Each merchant forks the repo. Onboarding is in the README and
-  the deployer's terminal.
+- No forced onboarding flow. Sign in with Nostr and you have a
+  user row immediately (placeholder slug, profile seeded from
+  kind:0 metadata); rename, fill in payout, and publish at your
+  own pace. Decision pinned in ADR
+  [0014](decisions/0014-marketplace-open-to-all-logged-in-users.md).
 - No CMS for landing content, page titles, branding, or copy.
-  Those are code (SCSS, next-intl JSON, TS modules) — the panel
-  only owns offerings and operational settings.
+  Those are code (SCSS, next-intl JSON, TS modules) — the
+  creator surfaces only own offerings and per-user settings.
 - No scheduling/calendar. Codes are redeemed in person; the
-  merchant's existing booking process is unchanged.
+  seller's existing booking process is unchanged.
 - No stock counts. Codes and downloads are infinite.
 - No refunds, resends, or DM-from-the-UI in v1. Read-only over
-  orders/buyers (ADR
-  [0008](decisions/0008-merchant-admin-dashboard.md)). Deferred
-  to v1.1.
+  orders/buyers. Deferred to v1.1.
 - No buyer-side wallet detection.
-- No second settlement rail. Wapu only.
+- No third payout rail. The two rails (Wapu ARS and direct sats
+  to a Lightning Address) are pinned in ADR
+  [0015](decisions/0015-sats-settlement-rail.md). Adding a third
+  needs a superseding ADR.
 
 If you find yourself reaching for any of the above, check the
 ADRs first — the omission is probably deliberate.

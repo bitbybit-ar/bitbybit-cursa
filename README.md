@@ -1,8 +1,9 @@
 # BitByBit Cursá
 
-Lightning checkout for Argentine educators. Paid in sats, settled
-in pesos. Built for La Crypta Hackathon #3 (Commerce), with
-**Wapu** as the sponsor and payment rail.
+Lightning checkout for teachers and educational creators. Buyers
+always pay in sats; sellers pick how to get paid. Built for La
+Crypta Hackathon #3 (Commerce), with **Wapu** as the sponsor and
+one of the two payout rails.
 
 > Cursá tu próxima clase con sats.
 
@@ -10,9 +11,8 @@ Source for <https://cursa.bitbybit.com.ar>.
 
 ## What it is
 
-A vertical OSS kit for music schools, tutors, language academies,
-yoga studios, and other small educators in Argentina. Sells two
-product primitives:
+An open marketplace where any signed-in Nostr user can sell two
+product primitives to learners:
 
 1. **Redeemable codes** — single class, lesson packs, monthly
    bonos. Buyer gets a code on a permanent receipt page (and an
@@ -22,12 +22,22 @@ product primitives:
    Buyer gets a signed download URL on the same receipt page (and
    the optional Nostr DM).
 
-Buyers pay over Lightning. Wapu converts the sats to ARS and
-settles to the merchant's CBU or alias. No Lightning literacy
-required from the merchant. No email integration — see ADR
+Buyers always pay over Lightning. Sellers pick one of two payout
+rails in Settings (ADR
+[0015](./docs/architecture/decisions/0015-sats-settlement-rail.md)):
+
+- **Wapu (pesos to CBU/alias)** — the inclusive on-ramp. Wapu
+  converts the sats to ARS and pushes pesos to the seller's
+  Argentine bank. For sellers who want to keep their bank routine
+  intact and don't want to learn Bitcoin.
+- **Lightning Address (sats to your wallet)** — direct payouts
+  via LNURL-pay (LUD-21). For sellers who already live in sats and
+  want no converter in the middle.
+
+No email integration — see ADR
 [0006](./docs/architecture/decisions/0006-nostr-and-inapp-delivery.md).
 
-Optional NWC-based auto-renewal can be enabled per merchant;
+Optional NWC-based auto-renewal can be enabled per seller;
 pre-paid one-shots are always on.
 
 ## Stack
