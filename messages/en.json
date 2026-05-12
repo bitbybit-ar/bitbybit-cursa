@@ -1,16 +1,16 @@
 {
   "metadata": {
     "siteName": "BitByBit Cursá",
-    "siteTitle": "BitByBit Cursá — Pay in sats, settle in pesos",
-    "description": "Lightning checkout for Argentine educators. Sell classes and study material in sats, and receive pesos to your CBU.",
-    "keywords": "bitbybit,cursa,lightning checkout,bitcoin,sats,wapu,payments,argentina,education,classes,tutors,academies,la crypta",
-    "ogHeadline": "Pay in sats, settle in pesos",
-    "ogTagline": "Lightning checkout for schools, tutors, and academies in Argentina.",
+    "siteTitle": "BitByBit Cursá — Sats for everyone, pesos for those who need them",
+    "description": "Lightning checkout for teachers and educational creators. Buyers pay in sats; you choose how to get paid — sats to your wallet, or pesos to your CBU.",
+    "keywords": "bitbybit,cursa,lightning checkout,bitcoin,sats,lightning address,wapu,payments,argentina,education,classes,teachers,creators,la crypta",
+    "ogHeadline": "Sats for everyone. Pesos for those who need them.",
+    "ogTagline": "Lightning checkout for teachers and educational creators.",
     "skipToContent": "Skip to content"
   },
   "comingSoon": {
     "tagline": "Buy your next class with sats.",
-    "body": "We're building the Lightning checkout for schools, tutors, and academies. Coming soon.",
+    "body": "We're building the Lightning checkout for teachers and educational creators. Coming soon.",
     "cta": "Follow on GitHub"
   },
   "landing": {
@@ -34,7 +34,7 @@
     },
     "hero": {
       "title": "Buy your next class with <gradient>sats</gradient>.",
-      "subtitle": "Pay for classes, workshops, and study material with your Lightning wallet. The teacher gets paid in sats or pesos, straight to their CBU.",
+      "subtitle": "Pay for classes, workshops, and study material with your Lightning wallet. The teacher chooses how to get paid: sats to their wallet, or pesos to their CBU.",
       "ctaExplore": "Explore courses",
       "ctaPublish": "Publish your course"
     },
@@ -105,10 +105,10 @@
   },
   "howItWorks": {
     "metadataTitle": "How it works",
-    "metadataDescription": "Cursá uses Lightning so the buyer pays in sats and Wapu so the teacher gets paid in pesos to their CBU. Here's how it works, step by step.",
+    "metadataDescription": "Cursá uses Lightning so the buyer pays in sats. The teacher chooses how to get paid: sats straight to their wallet, or pesos to their CBU via Wapu. Here's how it works, step by step.",
     "hero": {
-      "title": "<gradient>Sats</gradient> coming in, <gradient>pesos</gradient> going out.",
-      "subtitle": "Cursá connects people who want to learn with people who want to teach. Lightning for payments, Wapu for payouts to your CBU. The platform stays out of the way."
+      "title": "<gradient>Sats</gradient> for everyone. <gradient>Pesos</gradient> for those who need them.",
+      "subtitle": "Cursá connects people who want to learn with people who want to teach. Lightning for payments; sats or pesos for payouts — the teacher decides. The platform stays out of the way."
     },
     "buyers": {
       "title": "If you're buying a course",
@@ -123,23 +123,25 @@
       "title": "If you teach something",
       "step1Title": "Sign in with Nostr",
       "step1Body": "Your Nostr key is your account. No emails, no long forms.",
-      "step2Title": "Set up your store",
-      "step2Body": "Claim a slug (cursa.bitbybit.com.ar/m/your-slug), paste your CBU or bank alias, and add your first offerings.",
-      "step3Title": "Sell and get paid in pesos",
-      "step3Body": "When someone pays you, Wapu settles the pesos straight into your CBU. The platform never touches the money."
+      "step2Title": "Set up your store and pick how you get paid",
+      "step2Body": "Claim a slug (cursa.bitbybit.com.ar/m/your-slug) and pick your payout: pesos to your CBU/alias (via Wapu) if you'd rather skip Bitcoin altogether, or sats straight to your Lightning Address if you already live in sats. Then add your first offerings.",
+      "step3Title": "Sell and get paid in what you chose",
+      "step3Body": "When someone pays you, the rail you picked deposits in your account: pesos to your CBU via Wapu, or sats straight to your wallet. The platform never touches the money."
     },
     "glossary": {
       "title": "Who's who",
       "lightningTitle": "Lightning",
-      "lightningBody": "The payment layer on top of Bitcoin. Instant, cheap, perfect for the small day-to-day amounts.",
+      "lightningBody": "The payment layer on top of Bitcoin. Instant, cheap, perfect for the small day-to-day amounts. It's always what the buyer pays with, no matter how the teacher gets paid.",
       "wapuTitle": "Wapu",
-      "wapuBody": "The Hackathon sponsor and the rail that converts sats to pesos and sends them to the teacher's CBU.",
+      "wapuBody": "The rail that converts sats to pesos and deposits them in the teacher's CBU or alias. The on-ramp for teachers who want to keep their bank routine — pesos for rent, no need to learn Bitcoin.",
+      "lightningAddressTitle": "Lightning Address",
+      "lightningAddressBody": "An email-style address (you@walletofsatoshi.com) where the teacher receives sats straight to their wallet. For teachers who already live in sats, with no converter in the middle.",
       "nostrTitle": "Nostr",
-      "nostrBody": "An open protocol for identity and messaging. Your key is your account — required for teachers (it's the panel login), optional for buyers."
+      "nostrBody": "An open protocol for identity and messaging. Your key is your account — required for teachers (it's the only way to create and manage your courses), optional for buyers."
     },
     "custody": {
       "title": "Your money, your keys",
-      "body": "Cursá never holds the funds. Wapu routes every payment directly to the teacher's CBU or alias on each purchase. If Cursá disappears tomorrow, the payments still land — the rail is Wapu, not us."
+      "body": "Cursá never holds the funds. Every payment goes straight to the destination the teacher picked — pesos to a CBU via Wapu, or sats to a Lightning Address. If Cursá disappears tomorrow, payments still land: we aren't the rail."
     },
     "cta": {
       "title": "Ready to get started?",
@@ -149,16 +151,16 @@
   },
   "features": {
     "metadataTitle": "Features",
-    "metadataDescription": "What Cursá offers: sats in, pesos out, no custody, optional Nostr login, creator panel, and more.",
+    "metadataDescription": "What Cursá offers: two ways to get paid (sats or pesos), no custody, optional Nostr login, in-app delivery, and more.",
     "hero": {
       "title": "What Cursá offers",
-      "subtitle": "The minimum needed to sell classes in sats without giving up your bank routine."
+      "subtitle": "The minimum needed to sell classes in sats — whether you want to cash out in pesos or stay in sats."
     },
     "items": {
-      "satsInPesosOutTitle": "Sats in, pesos out",
-      "satsInPesosOutBody": "The buyer pays in Lightning, the teacher gets pesos in their CBU via Wapu. Each side uses the currency they know.",
+      "twoRailsTitle": "Two ways to get paid",
+      "twoRailsBody": "The buyer always pays in Lightning. The teacher chooses: pesos to their CBU via Wapu (for those who want to keep their bank routine), or sats straight to their Lightning Address (for those who already live in sats).",
       "noCustodyTitle": "No custody",
-      "noCustodyBody": "Wapu routes each payment directly to the teacher's CBU or alias. The platform never holds the funds.",
+      "noCustodyBody": "Every payment goes straight to the destination the teacher picked — to their CBU via Wapu, or to their Lightning Address. The platform never holds the funds.",
       "anonymousByDefaultTitle": "Anonymous by default",
       "anonymousByDefaultBody": "The buyer arrives, pays, and leaves with a code or download. No forms, no emails, no required accounts.",
       "optionalNostrLoginTitle": "Optional Nostr login",
@@ -166,9 +168,9 @@
       "deliveryInAppTitle": "In-app and DM delivery",
       "deliveryInAppBody": "Permanent receipt at a URL. If there's a Nostr identity, it also arrives via encrypted DM. No email integration.",
       "autorenewalOptInTitle": "Opt-in auto-renewal",
-      "autorenewalOptInBody": "For subscriptions, the teacher can switch on the NWC flow from the panel. Off by default, on when needed.",
-      "creatorPanelTitle": "Creator panel",
-      "creatorPanelBody": "Manage offerings, payout config, and orders. Sign in with your Nostr key.",
+      "autorenewalOptInBody": "For subscriptions, the teacher can switch on the NWC flow from Settings. Off by default, on when needed.",
+      "creatorAccountTitle": "Your teacher account",
+      "creatorAccountBody": "Manage your courses, payout settings, and orders from your account. Sign in with your Nostr key.",
       "codesOrDownloadsTitle": "Codes or downloads",
       "codesOrDownloadsBody": "Each offering delivers a redemption code (from a pool you upload) or a direct download. You choose per offering.",
       "multiTenantSelfHostTitle": "Marketplace or self-host",
@@ -188,9 +190,9 @@
       "walletQ": "Do I need a wallet to buy?",
       "walletA": "Yes, any Lightning wallet works. If you're starting out, we recommend LaWallet — it's Argentine, open, and supports Nostr login.",
       "wapuQ": "What is Wapu?",
-      "wapuA": "Wapu is the sponsor of La Crypta's Hackathon #3 and the rail that converts your sats to pesos and sends them to the teacher's CBU or alias.",
-      "argentinaQ": "Why only Argentina?",
-      "argentinaA": "Because Wapu settles in pesos to Argentine CBUs or bank aliases. When they expand to other countries, we can follow.",
+      "wapuA": "Wapu is the sponsor of La Crypta's Hackathon #3 and one of the two payout rails: it converts the buyer's sats to pesos and sends them to the teacher's CBU or alias. It's the option for teachers who want to keep getting paid in pesos, without touching Bitcoin.",
+      "argentinaQ": "Does it only work in Argentina?",
+      "argentinaA": "The Lightning rail (getting paid in sats to your wallet) works anywhere. The Wapu rail (getting paid in pesos to a CBU) only works in Argentina, because it settles to Argentine bank CBUs or aliases.",
       "anonymousQ": "Do I need to create an account to buy?",
       "anonymousA": "No. Purchase is anonymous by default: you pay, you get the receipt, that's it. The receipt URL is your permanent proof.",
       "deliveryQ": "How do I get what I bought?",
@@ -198,17 +200,17 @@
       "lostReceiptQ": "What if I lose the receipt link?",
       "lostReceiptA": "If your Nostr was connected, you'll find it under \"My orders\". If you bought anonymously, you can sign in with Nostr and claim the order by pasting the order ID on the claim page.",
       "creatorPayoutQ": "How do I get paid as a teacher?",
-      "creatorPayoutA": "Wapu settles pesos straight into the CBU or alias you set in the panel. Each payment lands separately — Cursá never touches the money.",
-      "nostrPanelQ": "What is Nostr and why do I use it to sign into the panel?",
-      "nostrPanelA": "Nostr is an open identity and messaging protocol. Your private key is your account — no central servers, no email. For teachers, it's the only way to sign into the panel.",
+      "creatorPayoutA": "You pick how to get paid in Settings: pesos to a CBU or alias (via Wapu), or sats straight to your Lightning Address. Each payment lands separately at the destination you chose — Cursá never touches the money.",
+      "nostrSignInQ": "What is Nostr and why do I use it to sign in?",
+      "nostrSignInA": "Nostr is an open identity and messaging protocol. Your private key is your account — no central servers, no email. For teachers, it's the only way to create and manage your courses.",
       "feesQ": "Are there fees?",
-      "feesA": "Wapu charges its settlement fee on each CBU payout. The Cursá platform itself doesn't take an additional cut in v1."
+      "feesA": "If you get paid in pesos, Wapu charges its settlement fee on each CBU payout. If you get paid in sats to your Lightning Address, you skip the converter entirely: only the standard Lightning routing fees may apply. The Cursá platform itself doesn't take an additional cut in v1."
     }
   },
   "catalog": {
     "hero": {
       "title": "Buy your next class with sats.",
-      "subtitle": "Pay for classes, workshops, and study material with your Lightning wallet. The teacher gets paid in sats or pesos, straight to their CBU."
+      "subtitle": "Pay for classes, workshops, and study material with your Lightning wallet. The teacher chooses how to get paid: sats to their wallet, or pesos to their CBU."
     },
     "list": {
       "heading": "Available now",
@@ -264,7 +266,7 @@
     },
     "pending": {
       "title": "Your payment is processing",
-      "body": "We're still waiting on Wapu's confirmation. This page will refresh automatically.",
+      "body": "We're waiting on the payout rail to confirm. This page will refresh automatically.",
       "back": "Back to checkout"
     },
     "nostrPrompt": {

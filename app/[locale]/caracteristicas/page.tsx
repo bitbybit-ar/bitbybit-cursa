@@ -28,13 +28,13 @@ export const dynamic = "force-static";
 //   so the 9 polaroids read as a cheerful pinboard, not a uniform grid.
 // - A rotation that alternates so the row reads as pinned tiles.
 const FEATURES = [
-  { key: "satsInPesosOut", icon: CoinIcon, tone: "blue", rotation: "left" },
+  { key: "twoRails", icon: CoinIcon, tone: "blue", rotation: "left" },
   { key: "noCustody", icon: KeyIcon, tone: "gold", rotation: "right" },
   { key: "anonymousByDefault", icon: EyeOffIcon, tone: "pink", rotation: "left" },
   { key: "optionalNostrLogin", icon: UserIcon, tone: "nostr", rotation: "right" },
   { key: "deliveryInApp", icon: BellIcon, tone: "cyan", rotation: "left" },
   { key: "autorenewalOptIn", icon: BadgeIcon, tone: "orange", rotation: "right" },
-  { key: "creatorPanel", icon: SettingsIcon, tone: "blue", rotation: "left" },
+  { key: "creatorAccount", icon: SettingsIcon, tone: "blue", rotation: "left" },
   { key: "codesOrDownloads", icon: BookIcon, tone: "lime", rotation: "right" },
   { key: "multiTenantSelfHost", icon: PaletteIcon, tone: "gold", rotation: "left" },
 ] as const;

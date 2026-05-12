@@ -19,7 +19,7 @@ const QUESTION_KEYS = [
   "delivery",
   "lostReceipt",
   "creatorPayout",
-  "nostrPanel",
+  "nostrSignIn",
   "fees",
 ] as const;
 
