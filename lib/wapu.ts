@@ -70,7 +70,7 @@ export interface DirectPaymentFunding {
   payment_hash: string;
   /** Amount the buyer will be charged, in sats. */
   amount_sats: number;
-  /** Amount Wapu will settle to the merchant, in whole pesos. */
+  /** Amount Wapu will settle to the seller, in whole pesos. */
   amount_ars: number;
   /** Unix seconds. */
   expires_at: number;
@@ -83,7 +83,7 @@ export interface WapuTentativeState {
   status: WapuTentativeStatus;
   payment_hash: string;
   paid_at: number | null;
-  /** Wapu's reference for the ARS settlement to the merchant's CBU. */
+  /** Wapu's reference for the ARS settlement to the seller's CBU. */
   settlement_ref: string | null;
 }
 

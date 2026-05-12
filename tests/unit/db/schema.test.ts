@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { getTableConfig } from "drizzle-orm/pg-core";
 import {
-  merchants,
+  users,
   offerings,
   orders,
   adminAuditLog,
@@ -24,11 +24,11 @@ describe("db/schema enums", () => {
   });
 });
 
-describe("db/schema merchants", () => {
-  const config = getTableConfig(merchants);
+describe("db/schema users", () => {
+  const config = getTableConfig(users);
 
   it("uses snake_case table name", () => {
-    expect(config.name).toBe("merchants");
+    expect(config.name).toBe("users");
   });
 
   it("requires pubkey, slug, and display_name", () => {
@@ -56,7 +56,7 @@ describe("db/schema merchants", () => {
     expect(flag?.notNull).toBe(true);
   });
 
-  it("makes cbu and alias nullable so a fresh claim can render the panel", () => {
+  it("makes cbu and alias nullable so a fresh row can render the panel", () => {
     for (const name of ["cbu", "alias"]) {
       const col = config.columns.find((c) => c.name === name);
       expect(col?.notNull, `${name} should be nullable`).toBe(false);
@@ -71,11 +71,9 @@ describe("db/schema offerings", () => {
     expect(config.name).toBe("offerings");
   });
 
-  it("requires merchant_id (per ADR 0012)", () => {
-    const merchantId = config.columns.find(
-      (c) => c.name === "merchant_id"
-    );
-    expect(merchantId?.notNull).toBe(true);
+  it("requires user_id (per ADRs 0012, 0016)", () => {
+    const userId = config.columns.find((c) => c.name === "user_id");
+    expect(userId?.notNull).toBe(true);
   });
 
   it("makes archived_at nullable for soft-delete", () => {
@@ -95,9 +93,9 @@ describe("db/schema offerings", () => {
     expect(priceSats?.notNull).toBe(false);
   });
 
-  it("references merchants via merchant_id", () => {
+  it("references users via user_id", () => {
     const fk = config.foreignKeys.find((f) =>
-      f.reference().columns.some((c) => c.name === "merchant_id")
+      f.reference().columns.some((c) => c.name === "user_id")
     );
     expect(fk).toBeDefined();
   });
@@ -111,10 +109,10 @@ describe("db/schema orders", () => {
     expect(pubkey?.notNull).toBe(false);
   });
 
-  it("requires offering_id, merchant_id, and the amounts", () => {
+  it("requires offering_id, user_id, and the amounts", () => {
     for (const name of [
       "offering_id",
-      "merchant_id",
+      "user_id",
       "amount_ars",
       "amount_sats",
     ]) {
@@ -135,9 +133,9 @@ describe("db/schema orders", () => {
     expect(fk).toBeDefined();
   });
 
-  it("references merchants via merchant_id", () => {
+  it("references users via user_id", () => {
     const fk = config.foreignKeys.find((f) =>
-      f.reference().columns.some((c) => c.name === "merchant_id")
+      f.reference().columns.some((c) => c.name === "user_id")
     );
     expect(fk).toBeDefined();
   });
@@ -162,8 +160,8 @@ describe("db/schema admin_audit_log", () => {
     }
   });
 
-  it("makes merchant_id nullable for platform-level audit rows", () => {
-    const m = config.columns.find((c) => c.name === "merchant_id");
+  it("makes user_id nullable for platform-level audit rows", () => {
+    const m = config.columns.find((c) => c.name === "user_id");
     expect(m?.notNull).toBe(false);
   });
 

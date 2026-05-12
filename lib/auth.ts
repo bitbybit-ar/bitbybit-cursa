@@ -13,19 +13,17 @@ const SESSION_DURATION = `${SESSION_DURATION_DAYS}d`;
  *
  * Notice what is *not* here:
  *
- * - There is no user id, display name, or avatar — Cursá has no
- *   `users` table; the pubkey IS the identity (ADR 0007).
- * - There is no `merchant_id` — that lookup happens at every
- *   request via `lib/admin/merchants.getMerchantByPubkey`. Same
- *   reasoning as the platform-admin check below: deactivating a
- *   merchant must revoke their panel access immediately, without
- *   waiting for the JWT to expire. ADR 0012.
+ * - There is no user id, display name, or avatar embedded in the
+ *   JWT — the pubkey IS the identity (ADR 0007). The `users` row
+ *   (ADR 0016) is looked up at request time via
+ *   `lib/admin/users.getUserByPubkey`, so deactivating a user
+ *   revokes their access immediately without waiting for the JWT
+ *   to expire.
  * - There is no `platform_admin` flag — platform-admin status is
  *   computed at every request by checking the pubkey against
  *   `PLATFORM_ADMIN_PUBKEYS` (env). If a platform admin's key is
- *   removed from the env list, every existing session
- *   immediately loses moderation access without needing to be
- *   re-issued.
+ *   removed from the env list, every existing session immediately
+ *   loses moderation access without needing to be re-issued.
  */
 export interface AuthSession {
   pubkey: string;
@@ -85,7 +83,7 @@ export async function verifySessionToken(
  * Computed at request time, never serialised into the JWT. See the
  * comment on AuthSession for why. Marketplace-mode replacement for
  * the old `sessionIsAdmin` — the platform-admin role is a separate
- * moderation surface, not the per-merchant panel.
+ * moderation surface, not the per-user panel.
  */
 export function sessionIsPlatformAdmin(
   session: AuthSession | null

@@ -1,17 +1,20 @@
 import type { Locale } from "@/lib/schemas/auth";
 
 /**
- * Hardcoded merchant identity. Edited by the developer who forks
- * the repo, never by the merchant via the panel. Decision in ADR
- * 0010 — branding/identity stay in code; offerings + payment
- * destination + autorenewal toggle live in Postgres and are
- * panel-editable.
+ * Hardcoded site identity. Edited by the developer who forks the
+ * repo, never edited at runtime. Decision in ADR 0010 — branding/
+ * identity stay in code; offerings + payment destination +
+ * autorenewal toggle live in Postgres and are panel-editable.
+ *
+ * Renamed from `MERCHANT` in ADR 0016 to reflect that this is the
+ * deployment-wide brand identity, not a per-user row in the
+ * (now-renamed) `users` table.
  *
  * Update the values below for each fork. The shape is intentionally
  * narrow: anything that grows beyond identity probably belongs in
  * `messages/{es,en}.json` (copy) or `styles/_theme.scss` (visuals).
  */
-export interface MerchantIdentity {
+export interface SiteIdentity {
   /** Human-readable name shown in titles and OG tags. */
   name: string;
   /** Public host (no scheme, no path). Used for canonical hints. */
@@ -27,7 +30,7 @@ export interface MerchantIdentity {
   };
 }
 
-export const MERCHANT: MerchantIdentity = {
+export const SITE: SiteIdentity = {
   name: "BitByBit Cursá",
   domain: "cursa.bitbybit.com.ar",
   default_locale: "es",

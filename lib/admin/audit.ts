@@ -6,19 +6,19 @@ import { adminAuditLog } from "@/lib/db/schema";
  * mandates that *every* mutation through `/api/settings/*` writes a
  * row before returning success — the log is the only durable
  * trail for "who changed what when" and is consulted both during
- * incident response and routine merchant-support questions.
+ * incident response and routine creator-support questions.
  *
- * `merchant_id` (ADR 0012) scopes each row so the platform-admin
- * moderation surface can filter the log by merchant. Nullable
- * for forward-compat with platform-level mutations that do not
- * belong to any one merchant.
+ * `user_id` (ADR 0012, renamed in 0016) scopes each row so the
+ * platform-admin moderation surface can filter the log by user.
+ * Nullable for forward-compat with platform-level mutations that
+ * do not belong to any one user.
  *
  * Secrets MUST be redacted by the caller before they reach this
  * function. Never put a CBU, email, NSEC, or API key into
  * `payload_diff`.
  */
 export async function writeAuditLog(opts: {
-  merchant_id?: string | null;
+  user_id?: string | null;
   actor_pubkey: string;
   route: string;
   action: string;
@@ -26,7 +26,7 @@ export async function writeAuditLog(opts: {
 }): Promise<void> {
   const db = getDb();
   await db.insert(adminAuditLog).values({
-    merchant_id: opts.merchant_id ?? null,
+    user_id: opts.user_id ?? null,
     actor_pubkey: opts.actor_pubkey,
     route: opts.route,
     action: opts.action,

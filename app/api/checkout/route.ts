@@ -52,7 +52,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     });
   } catch (err) {
     if (err instanceof OrderCreateError) {
-      // The merchant configuration errors (missing payout, inactive)
+      // The seller configuration errors (missing payout, inactive)
       // are platform-side states the buyer cannot fix. The
       // offering_* errors are what they expect when they hit a stale
       // URL.

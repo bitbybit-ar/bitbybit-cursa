@@ -119,7 +119,7 @@
       "step3Title": "Get what you bought",
       "step3Body": "A redemption code or a direct download, depending on the offering. The receipt is a permanent URL — save it. If you connected your Nostr, it also arrives by DM."
     },
-    "merchants": {
+    "creators": {
       "title": "If you teach something",
       "step1Title": "Sign in with Nostr",
       "step1Body": "Your Nostr key is your account. No emails, no long forms.",
@@ -149,7 +149,7 @@
   },
   "features": {
     "metadataTitle": "Features",
-    "metadataDescription": "What Cursá offers: sats in, pesos out, no custody, optional Nostr login, merchant panel, and more.",
+    "metadataDescription": "What Cursá offers: sats in, pesos out, no custody, optional Nostr login, creator panel, and more.",
     "hero": {
       "title": "What Cursá offers",
       "subtitle": "The minimum needed to sell classes in sats without giving up your bank routine."
@@ -167,8 +167,8 @@
       "deliveryInAppBody": "Permanent receipt at a URL. If there's a Nostr identity, it also arrives via encrypted DM. No email integration.",
       "autorenewalOptInTitle": "Opt-in auto-renewal",
       "autorenewalOptInBody": "For subscriptions, the teacher can switch on the NWC flow from the panel. Off by default, on when needed.",
-      "merchantPanelTitle": "Merchant panel",
-      "merchantPanelBody": "Manage offerings, payout config, orders, and students. Sign in with your Nostr key.",
+      "creatorPanelTitle": "Creator panel",
+      "creatorPanelBody": "Manage offerings, payout config, and orders. Sign in with your Nostr key.",
       "codesOrDownloadsTitle": "Codes or downloads",
       "codesOrDownloadsBody": "Each offering delivers a redemption code (from a pool you upload) or a direct download. You choose per offering.",
       "multiTenantSelfHostTitle": "Marketplace or self-host",
@@ -197,8 +197,8 @@
       "deliveryA": "If the offering is a redemption code, you see it on the receipt. If it's a download, you click the button and the file downloads. If you connected Nostr at checkout, it also arrives via encrypted DM.",
       "lostReceiptQ": "What if I lose the receipt link?",
       "lostReceiptA": "If your Nostr was connected, you'll find it under \"My orders\". If you bought anonymously, you can sign in with Nostr and claim the order by pasting the order ID on the claim page.",
-      "merchantPayoutQ": "How do I get paid as a teacher?",
-      "merchantPayoutA": "Wapu settles pesos straight into the CBU or alias you set in the panel. Each payment lands separately — Cursá never touches the money.",
+      "creatorPayoutQ": "How do I get paid as a teacher?",
+      "creatorPayoutA": "Wapu settles pesos straight into the CBU or alias you set in the panel. Each payment lands separately — Cursá never touches the money.",
       "nostrPanelQ": "What is Nostr and why do I use it to sign into the panel?",
       "nostrPanelA": "Nostr is an open identity and messaging protocol. Your private key is your account — no central servers, no email. For teachers, it's the only way to sign into the panel.",
       "feesQ": "Are there fees?",

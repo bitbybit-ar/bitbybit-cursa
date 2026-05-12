@@ -2,7 +2,7 @@ import type { MetadataRoute } from "next";
 import { routing } from "@/i18n/routing";
 import { getBaseUrl } from "@/lib/env";
 
-// Static, indexable routes that exist for every locale. Per-merchant
+// Static, indexable routes that exist for every locale. Per-seller
 // storefronts and per-offering pages are not enumerated here — they
 // live in Postgres and would require a DB call from the sitemap.
 const STATIC_PATHS = [

@@ -5,12 +5,12 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { OfferingCard } from "@/components/catalog/offering-card";
-import { listOfferingsForMerchantSlug } from "@/lib/offerings";
+import { listOfferingsForUserSlug } from "@/lib/offerings";
 import { alternatesFor } from "@/lib/seo";
 import styles from "./page.module.scss";
 
 type Props = {
-  params: Promise<{ locale: string; merchantSlug: string }>;
+  params: Promise<{ locale: string; userSlug: string }>;
 };
 
 export const dynamic = "force-dynamic";
@@ -18,23 +18,23 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata({
   params,
 }: Props): Promise<Metadata> {
-  const { locale, merchantSlug } = await params;
-  const data = await listOfferingsForMerchantSlug(merchantSlug);
+  const { locale, userSlug } = await params;
+  const data = await listOfferingsForUserSlug(userSlug);
   if (!data) return {};
   return {
-    title: data.merchant.display_name,
+    title: data.seller.display_name,
     description:
-      data.merchant.bio?.slice(0, 160) ?? data.merchant.display_name,
-    alternates: alternatesFor(locale, `/m/${merchantSlug}`),
+      data.seller.bio?.slice(0, 160) ?? data.seller.display_name,
+    alternates: alternatesFor(locale, `/m/${userSlug}`),
   };
 }
 
-export default async function MerchantStorePage({ params }: Props) {
-  const { locale, merchantSlug } = await params;
+export default async function SellerStorePage({ params }: Props) {
+  const { locale, userSlug } = await params;
   setRequestLocale(locale);
-  const data = await listOfferingsForMerchantSlug(merchantSlug);
+  const data = await listOfferingsForUserSlug(userSlug);
   if (!data) notFound();
-  const { merchant, offerings } = data;
+  const { seller, offerings } = data;
 
   const t = await getTranslations("storefront");
 
@@ -43,10 +43,10 @@ export default async function MerchantStorePage({ params }: Props) {
       <Section>
         <Container column>
           <header className={styles.hero}>
-            {merchant.avatar_url ? (
+            {seller.avatar_url ? (
               <div className={styles.avatarWrap}>
                 <Image
-                  src={merchant.avatar_url}
+                  src={seller.avatar_url}
                   alt=""
                   fill
                   sizes="120px"
@@ -54,9 +54,9 @@ export default async function MerchantStorePage({ params }: Props) {
                 />
               </div>
             ) : null}
-            <h1 className={styles.title}>{merchant.display_name}</h1>
-            {merchant.bio ? (
-              <p className={styles.bio}>{merchant.bio}</p>
+            <h1 className={styles.title}>{seller.display_name}</h1>
+            {seller.bio ? (
+              <p className={styles.bio}>{seller.bio}</p>
             ) : null}
           </header>
         </Container>
@@ -73,11 +73,11 @@ export default async function MerchantStorePage({ params }: Props) {
                 <OfferingCard
                   key={offering.id}
                   offering={offering}
-                  merchant={{
-                    slug: merchant.slug,
-                    display_name: merchant.display_name,
+                  seller={{
+                    slug: seller.slug,
+                    display_name: seller.display_name,
                   }}
-                  hideMerchant
+                  hideSeller
                 />
               ))}
             </div>

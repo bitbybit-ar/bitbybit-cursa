@@ -1,6 +1,6 @@
 import { and, eq, desc, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
-import { orders, offerings, merchants } from "@/lib/db/schema";
+import { orders, offerings, users } from "@/lib/db/schema";
 import {
   getWapuClient,
   type DirectPaymentFunding,
@@ -9,7 +9,7 @@ import {
   getLightningClient,
   LightningMintError,
 } from "@/lib/lightning";
-import { pickPayoutAlias } from "@/lib/admin/merchants";
+import { pickPayoutAlias } from "@/lib/admin/users";
 
 export interface CreateOrderInput {
   offering_id: string;
@@ -41,9 +41,9 @@ export interface CreateOrderResult {
 export type CreateOrderError =
   | "offering_not_found"
   | "offering_archived"
-  | "merchant_inactive"
-  | "merchant_payout_missing"
-  | "merchant_lightning_address_missing"
+  | "seller_inactive"
+  | "seller_payout_missing"
+  | "seller_lightning_address_missing"
   | "lightning_mint_failed";
 
 export class OrderCreateError extends Error {
@@ -68,12 +68,12 @@ const FALLBACK_SATS_PER_ARS = 4;
  *
  * Two rails (ADR 0015):
  *
- *   - merchant.payout_method = 'cbu_alias' (default) → Wapu mints a
- *     BOLT11 against the merchant's bank alias/CBU and settles ARS
- *     to the merchant after the buyer pays.
- *   - merchant.payout_method = 'lightning_address' → lib/lightning
- *     resolves the merchant's LN address, mints a BOLT11 directly,
- *     and the merchant's wallet receives the sats. No Wapu, no ARS.
+ *   - seller.payout_method = 'cbu_alias' (default) → Wapu mints a
+ *     BOLT11 against the seller's bank alias/CBU and settles ARS
+ *     to the seller after the buyer pays.
+ *   - seller.payout_method = 'lightning_address' → lib/lightning
+ *     resolves the seller's LN address, mints a BOLT11 directly,
+ *     and the seller's wallet receives the sats. No Wapu, no ARS.
  *     The order's `lnurl_verify_url` powers the status poller.
  *
  * Failed checkouts delete the pending row before throwing so we do
@@ -85,21 +85,21 @@ export async function createOrder(
   const db = getDb();
 
   const [row] = await db
-    .select({ offering: offerings, merchant: merchants })
+    .select({ offering: offerings, seller: users })
     .from(offerings)
-    .innerJoin(merchants, eq(offerings.merchant_id, merchants.id))
+    .innerJoin(users, eq(offerings.user_id, users.id))
     .where(eq(offerings.id, input.offering_id))
     .limit(1);
 
   if (!row) throw new OrderCreateError("offering_not_found");
-  const { offering, merchant } = row;
+  const { offering, seller } = row;
   if (offering.archived_at !== null) {
     throw new OrderCreateError("offering_archived");
   }
-  if (!merchant.active) throw new OrderCreateError("merchant_inactive");
+  if (!seller.active) throw new OrderCreateError("seller_inactive");
 
   // Insert the order first so we have an external_id to give upstream.
-  // Stamp the rail at insert time from the merchant's current
+  // Stamp the rail at insert time from the seller's current
   // payout_method — flipping the rail later does not retroactively
   // rewrite an in-flight order.
   const [pendingRow] = await db
@@ -107,31 +107,31 @@ export async function createOrder(
     .values({
       pubkey: input.pubkey,
       offering_id: offering.id,
-      merchant_id: merchant.id,
+      user_id: seller.id,
       amount_ars: offering.price_ars,
       amount_sats: 0,
       rail:
-        merchant.payout_method === "lightning_address"
+        seller.payout_method === "lightning_address"
           ? "direct_lightning"
           : "wapu_ars",
     })
     .returning();
 
   try {
-    if (merchant.payout_method === "lightning_address") {
+    if (seller.payout_method === "lightning_address") {
       const funding = await fundDirectLightningOrder({
         order_id: pendingRow.id,
         offering_title: offering.title,
         offering_price_ars: offering.price_ars,
         offering_price_sats: offering.price_sats,
-        lightning_address: merchant.lightning_address,
+        lightning_address: seller.lightning_address,
       });
       return { order_id: pendingRow.id, funding };
     }
     const funding = await fundWapuOrder({
       order_id: pendingRow.id,
       offering_price_ars: offering.price_ars,
-      merchant,
+      seller,
     });
     return { order_id: pendingRow.id, funding };
   } catch (err) {
@@ -143,17 +143,17 @@ export async function createOrder(
 async function fundWapuOrder(opts: {
   order_id: string;
   offering_price_ars: number;
-  merchant: typeof merchants.$inferSelect;
+  seller: typeof users.$inferSelect;
 }): Promise<OrderFunding> {
   const db = getDb();
-  const payoutAlias = pickPayoutAlias(opts.merchant);
-  if (!payoutAlias) throw new OrderCreateError("merchant_payout_missing");
+  const payoutAlias = pickPayoutAlias(opts.seller);
+  if (!payoutAlias) throw new OrderCreateError("seller_payout_missing");
 
   const wapu = getWapuClient();
   const tentative = await wapu.createDirectPayment({
     amount_ars: opts.offering_price_ars,
     alias: payoutAlias,
-    receiver_name: opts.merchant.display_name,
+    receiver_name: opts.seller.display_name,
     external_id: opts.order_id,
   });
   const funding: DirectPaymentFunding = await wapu.issueDirectPaymentFunding(
@@ -189,7 +189,7 @@ async function fundDirectLightningOrder(opts: {
 }): Promise<OrderFunding> {
   const db = getDb();
   if (!opts.lightning_address) {
-    throw new OrderCreateError("merchant_lightning_address_missing");
+    throw new OrderCreateError("seller_lightning_address_missing");
   }
   const amount_sats =
     opts.offering_price_sats ??

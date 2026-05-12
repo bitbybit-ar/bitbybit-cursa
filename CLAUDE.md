@@ -7,7 +7,7 @@ the BitByBit Cursá project. Read it before editing the repo.
 
 - Next.js 16 (App Router) project at `cursa.bitbybit.com.ar`.
 - Lightning checkout for Argentine educators. Sats in via the Lightning
-  Network, ARS out to the merchant's CBU/alias via **Wapu**.
+  Network, ARS out to the seller's CBU/alias via **Wapu**.
 - Built for La Crypta Hackathon #3 (Commerce). Wapu is the sponsor and
   the payment rail.
 - next-intl (es default, en secondary). next-themes for light/dark.
@@ -100,19 +100,20 @@ repo's copy is intentionally identical and should stay in sync.
   for non-secret display values.
 - **Verify Wapu webhook signatures.** Every incoming webhook must be
   authenticated before any state change.
-- **Two settlement rails, picked per merchant.** Wapu is still the
+- **Two settlement rails, picked per user.** Wapu is still the
   only ARS rail (sats→ARS via Lightning, push to CBU/alias). The
-  second rail receives sats directly to a merchant's Lightning
-  Address via LNURL-pay; the merchant chooses one in `/settings`.
-  The checkout API dispatches on `merchants.payout_method`. Do not
+  second rail receives sats directly to a seller's Lightning
+  Address via LNURL-pay; the seller chooses one in `/settings`.
+  Stored on the user row.
+  The checkout API dispatches on `users.payout_method`. Do not
   introduce a third rail. Decision in ADR
   `docs/architecture/decisions/0015-sats-settlement-rail.md`
   (superseding the rail-count clause of ADR
   `docs/architecture/decisions/0002-settlement-via-wapu.md`).
-- **LN settlement requires LUD-21.** The merchant's LN-address
+- **LN settlement requires LUD-21.** The seller's LN-address
   provider must return a `verify` URL on its LNURL-pay callback;
   without it we have no server-side way to confirm payment. The
-  settings PATCH mints a 1-sat probe invoice when a merchant
+  settings PATCH mints a 1-sat probe invoice when a seller
   sets/changes their LN address and rejects providers that do not
   advertise LUD-21.
 - **Wapu webhook only flips Wapu-rail orders.** A webhook delivery
@@ -131,13 +132,13 @@ repo's copy is intentionally identical and should stay in sync.
   stands.
 - **No `merchant.yaml`.** There is no YAML configuration file in
   the repo. Branding is in `styles/_theme.scss`, copy is in
-  `messages/{es,en}.json`, merchant identity is in
-  `lib/merchant.ts`, secrets and `ADMIN_PUBKEYS` are in env
+  `messages/{es,en}.json`, site identity is in
+  `lib/site.ts`, secrets and `ADMIN_PUBKEYS` are in env
   vars, and operational state (offerings, settings) is in
   Postgres. Decision in ADR
   `docs/architecture/decisions/0010-no-yaml-config.md`.
-- **Auto-renewal is opt-in per merchant.** The flag lives in
-  `merchants.features_autorenewal` (Postgres), toggled from
+- **Auto-renewal is opt-in per user.** The flag lives in
+  `users.features_autorenewal` (Postgres), toggled from
   `/[locale]/settings`. When off, the NWC client, cron handler,
   and encrypted-secrets storage are *deployed but dormant* — gated
   by a runtime check on the flag. Decision in ADR
@@ -146,8 +147,8 @@ repo's copy is intentionally identical and should stay in sync.
 - **Creator surfaces are open to every signed-in user.** Any
   Nostr-authenticated session can reach `/[locale]/my-courses`,
   `/[locale]/create-course`, `/[locale]/settings`, and
-  `/[locale]/orders`. The merchant row is auto-created at sign-in
-  (`ensureMerchantForPubkey` from `/api/auth/nostr`) seeded from
+  `/[locale]/orders`. The user row is auto-created at sign-in
+  (`ensureUserForPubkey` from `/api/auth/nostr`) seeded from
   the user's Nostr kind:0 metadata (display_name → slug + display
   name, picture → avatar, about → bio); the user can rename their
   slug from `/settings` later. There is no slug-claim gate, no
@@ -157,7 +158,9 @@ repo's copy is intentionally identical and should stay in sync.
   alias, Lightning Address, payout_method) require a NIP-07
   re-sign at save time. Decision in ADR
   `docs/architecture/decisions/0014-marketplace-open-to-all-logged-in-users.md`,
-  superseding ADRs 0008 and 0012.
+  superseding ADRs 0008 and 0012. The `merchants` table was
+  renamed `users` end-to-end in ADR 0016 (column `merchant_id`
+  → `user_id` on offerings/orders/admin_audit_log).
 - **All logged-in routes are English under a `(logged-in)` route
   group.** `/settings`, `/my-courses`, `/create-course`,
   `/orders`, `/purchases`. Public routes follow the same English
@@ -166,10 +169,10 @@ repo's copy is intentionally identical and should stay in sync.
   their existing names. Legacy paths (pre-ADR-0014 `/panel/*` and
   the ADR-0014-era Spanish slugs) 308-redirect to the new URLs via
   `proxy.ts`. Reserved-slug list in `lib/admin/ar-bank-id.ts`
-  blocks merchants from claiming any of these.
+  blocks users from claiming any of these.
 - **Notifications are a Postgres table polled by the navbar
   bell.** Wapu's `paid` webhook emits `order.paid` to the buyer
-  (when signed in) and `sale.received` to the merchant. Helpers
+  (when signed in) and `sale.received` to the seller. Helpers
   live in `lib/notifications.ts`; the API surface is
   `/api/notifications` (GET/PATCH/POST).
 - **Buyer-side avatar uses kind:0 metadata.** The
@@ -185,7 +188,7 @@ repo's copy is intentionally identical and should stay in sync.
   `NOSTR_NSEC` lives in env vars and is consumed by API routes or
   server-only modules. Never ship it to the client.
 - **No buyer-side wallet detection.** Buyers came to a sats checkout
-  to pay sats. The merchant's auto-renewal flag is the only real
+  to pay sats. The seller's auto-renewal flag is the only real
   toggle; both checkout buttons are visible when it is on, and the
   buyer self-selects.
 - Every user-facing string goes through next-intl. Add the key to

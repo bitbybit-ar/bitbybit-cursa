@@ -4,14 +4,14 @@ import { bech32 } from "@scure/base";
 /**
  * Direct-Lightning settlement-rail seam (ADR 0015).
  *
- * The buyer flow talks to the merchant's Lightning Address through
+ * The buyer flow talks to the seller's Lightning Address through
  * the LightningClient interface defined below. Two implementations
  * live in this file:
  *
  *   - MockLightningClient: deterministic, in-process, no network. Used
  *     in dev and tests so the whole buyer flow runs end-to-end without
  *     resolving real LNURL-pay endpoints.
- *   - RealLightningClient: hits the merchant's `<domain>/.well-known/
+ *   - RealLightningClient: hits the seller's `<domain>/.well-known/
  *     lnurlp/<local-part>` endpoint, the LNURL-pay callback, and the
  *     LUD-21 verify URL.
  *
@@ -21,8 +21,8 @@ import { bech32 } from "@scure/base";
  * LUD-21 (`verify` URL) is required. We refuse to mint an invoice
  * against a Lightning Address whose LNURL-pay endpoint does not
  * advertise LUD-21, because without `verify` we have no server-side
- * way to confirm the BOLT11 was paid — the merchant's wallet is the
- * only thing that knows, and the merchant did not give us NWC
+ * way to confirm the BOLT11 was paid — the seller's wallet is the
+ * only thing that knows, and the seller did not give us NWC
  * credentials. Almost every modern provider (WoS, Strike, Alby Hub,
  * LNbits, ZBD, Primal) supports LUD-21.
  */
@@ -106,11 +106,11 @@ export function parseLightningAddress(
  * an outside-controlled value (LNURL-pay metadata callback URL,
  * LUD-21 verify URL). Two concerns:
  *
- *   1. The merchant pastes their LN address; everything fetched
+ *   1. The seller pastes their LN address; everything fetched
  *      downstream of that string is partially attacker-controlled
- *      (the merchant's chosen LN provider can return arbitrary
+ *      (the seller's chosen LN provider can return arbitrary
  *      callback / verify URLs in its responses).
- *   2. A merchant could deliberately or accidentally point at an
+ *   2. A seller could deliberately or accidentally point at an
  *      internal service (loopback, RFC1918, link-local, cloud
  *      metadata). The body shape mismatch would make the response
  *      unusable, but the GET still happens, leaking timing or
@@ -126,10 +126,10 @@ export function parseLightningAddress(
  *
  * NOT defended: DNS rebinding (a public domain that resolves to a
  * private IP at fetch time). For Cursá's threat model this is
- * acceptable — the merchant controls their own LN provider; if
+ * acceptable — the seller controls their own LN provider; if
  * they point Cursá at a malicious provider that DNS-rebinds, they
  * can extract data from their own deployment but cannot reach
- * other merchants or shared platform services. Hardening to fully
+ * other sellers or shared platform services. Hardening to fully
  * defeat rebinding requires resolving the hostname ourselves and
  * fetching by IP, which we defer.
  */
@@ -270,7 +270,7 @@ interface MockMintRecord {
  *   - `bogus@example.invalid` — throws
  *
  * `markPaid(verify_url)` is the test-only helper that simulates the
- * merchant's wallet receiving the funds — call it from a test before
+ * seller's wallet receiving the funds — call it from a test before
  * polling.
  */
 export class MockLightningClient implements LightningClient {
@@ -354,7 +354,7 @@ export class MockLightningClient implements LightningClient {
 
   /**
    * Test/dev-only helper: mark a previously minted invoice as paid by
-   * the merchant's wallet. The next `pollVerify(verify_url)` returns
+   * the seller's wallet. The next `pollVerify(verify_url)` returns
    * `{ settled: true }`.
    */
   markPaid(verify_url: string): void {
@@ -379,7 +379,7 @@ class RealLightningClient implements LightningClient {
     }
     const url = `https://${parsed.domain}/.well-known/lnurlp/${parsed.localPart}`;
     // SSRF guard before the first hop. The domain came from user
-    // input (the merchant's pasted LN address), so it could resolve
+    // input (the seller's pasted LN address), so it could resolve
     // a literal private host like `127.0.0.1.nip.io` even though
     // parseLightningAddress accepted the shape.
     assertSafePublicHttpsUrl(url);
@@ -472,7 +472,7 @@ class RealLightningClient implements LightningClient {
       amount_sats,
       // Most providers return invoices that expire ~10 min from issue.
       // We do not parse the BOLT11 expiry; the buyer page polls until
-      // the merchant's verify URL flips and we do not auto-remint.
+      // the seller's verify URL flips and we do not auto-remint.
       expires_at: Math.floor(Date.now() / 1000) + 600,
       verify_url: r.verify,
     };

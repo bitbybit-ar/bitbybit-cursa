@@ -1,6 +1,7 @@
 /**
- * Validators for the Argentine identifiers a merchant types into the
- * panel: bank alias, CBU, and the marketplace's URL slug.
+ * Validators for the Argentine identifiers a user types into the
+ * panel (when they sell): bank alias, CBU, and the marketplace's
+ * URL slug.
  *
  * Sources for the alias rule:
  *   - BCRA: https://www.bcra.gob.ar/MediosPago/Alias-CBU.asp
@@ -37,19 +38,19 @@ const CBU_REGEX = /^\d{22}$/;
  * hyphens so the slug renders cleanly in nav copy and
  * breadcrumbs without a separate sanitizer.
  */
-const MERCHANT_SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-const MERCHANT_SLUG_MIN = 3;
-const MERCHANT_SLUG_MAX = 40;
+const USER_SLUG_REGEX = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+const USER_SLUG_MIN = 3;
+const USER_SLUG_MAX = 40;
 
 export type AliasError = "format" | "length" | "no_letter";
 export type CbuError = "format";
 export type SlugError = "format" | "length" | "reserved";
 
 /**
- * Slugs the merchant cannot claim. Public so callers that GENERATE
- * candidate slugs (e.g. lib/admin/merchants.ts when seeding from
+ * Slugs a user cannot claim. Public so callers that GENERATE
+ * candidate slugs (e.g. lib/admin/users.ts when seeding from
  * kind:0 metadata) can avoid producing one that the validator
- * would later reject. A duplicated copy in the merchants module
+ * would later reject. A duplicated copy in the users module
  * would drift on every URL rename — single source of truth here.
  */
 export const RESERVED_SLUGS = new Set([
@@ -103,24 +104,24 @@ export function checkCbu(input: string): CbuError | null {
   return null;
 }
 
-export function checkMerchantSlug(input: string): SlugError | null {
+export function checkUserSlug(input: string): SlugError | null {
   const trimmed = input.trim().toLowerCase();
   if (
-    trimmed.length < MERCHANT_SLUG_MIN ||
-    trimmed.length > MERCHANT_SLUG_MAX
+    trimmed.length < USER_SLUG_MIN ||
+    trimmed.length > USER_SLUG_MAX
   ) {
     return "length";
   }
-  if (!MERCHANT_SLUG_REGEX.test(trimmed)) return "format";
+  if (!USER_SLUG_REGEX.test(trimmed)) return "format";
   if (RESERVED_SLUGS.has(trimmed)) return "reserved";
   return null;
 }
 
 /**
- * Zod schemas for the three identifiers, used by the merchant
- * onboarding/profile API routes. Each refines on the relevant
- * `check*` so the failure code rides through Zod's `issues` array
- * and is surface-able to the form via the existing toast pattern.
+ * Zod schemas for the three identifiers, used by the settings API
+ * routes. Each refines on the relevant `check*` so the failure
+ * code rides through Zod's `issues` array and is surface-able to
+ * the form via the existing toast pattern.
  */
 export const AliasSchema = z
   .string()
@@ -134,15 +135,15 @@ export const CbuSchema = z
   .transform((v) => v.trim())
   .refine((v) => checkCbu(v) === null, { message: "cbu_invalid" });
 
-export const MerchantSlugSchema = z
+export const UserSlugSchema = z
   .string()
   .transform((v) => v.trim().toLowerCase())
-  .refine((v) => checkMerchantSlug(v) === null, {
+  .refine((v) => checkUserSlug(v) === null, {
     message: "slug_invalid",
   });
 
 /**
- * The merchant's payout destination. They store either an alias
+ * The seller's payout destination. They store either an alias
  * OR a CBU; we do not need both. The schema accepts either shape
  * and tags the kind so callers (Wapu integration) can decide
  * which they actually got.

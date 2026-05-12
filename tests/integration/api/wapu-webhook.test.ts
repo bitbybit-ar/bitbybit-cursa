@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { NextRequest } from "next/server";
 import { sql } from "drizzle-orm";
-import { testDb, cleanDb, seedMerchant } from "../setup";
+import { testDb, cleanDb, seedUser } from "../setup";
 import { offerings } from "@/lib/db/schema";
 import { createOrder, getOrder } from "@/lib/orders";
 import {
@@ -36,11 +36,11 @@ beforeEach(async () => {
 });
 
 async function seedOrder() {
-  const merchant = await seedMerchant();
+  const user = await seedUser();
   const [offering] = await testDb
     .insert(offerings)
     .values({
-      merchant_id: merchant.id,
+      user_id: user.id,
       slug: "test-offering",
       type: "code",
       title: "Test",
@@ -181,7 +181,7 @@ describe("POST /api/wapu/webhook — rejections", () => {
 // settlement track.
 describe("POST /api/wapu/webhook — rail guard (direct_lightning)", () => {
   it("404s when the order's rail is direct_lightning, leaving the row pending", async () => {
-    const merchant = await seedMerchant({
+    const user = await seedUser({
       // Switch rail to LN; createOrder will stamp the new order
       // with rail=direct_lightning.
       payout_method: "lightning_address",
@@ -192,7 +192,7 @@ describe("POST /api/wapu/webhook — rail guard (direct_lightning)", () => {
     const [offering] = await testDb
       .insert(offerings)
       .values({
-        merchant_id: merchant.id,
+        user_id: user.id,
         slug: "ln-offering",
         type: "code",
         title: "LN Course",
@@ -228,7 +228,7 @@ describe("POST /api/wapu/webhook — rail guard (direct_lightning)", () => {
     expect(await res.text()).toBe("");
 
     // Order must still be pending. A bug here would mean Wapu can
-    // mark sats-rail orders paid without the merchant's wallet
+    // mark sats-rail orders paid without the seller's wallet
     // ever receiving the funds.
     const after = await getOrder(result.order_id);
     expect(after?.status).toBe("pending");

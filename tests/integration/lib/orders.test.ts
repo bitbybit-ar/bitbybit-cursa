@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, beforeAll, beforeEach } from "vitest";
 import { sql, eq } from "drizzle-orm";
-import { testDb, cleanDb, seedMerchant } from "../setup";
+import { testDb, cleanDb, seedUser } from "../setup";
 import { offerings, orders } from "@/lib/db/schema";
 import {
   createOrder,
@@ -32,27 +32,27 @@ beforeAll(async () => {
 
 beforeEach(async () => {
   await cleanDb();
-  // The seedMerchant helper is per-test; the cached id from the
+  // The seedUser helper is per-test; the cached id from the
   // previous test points at a row that cleanDb just truncated.
-  testMerchantId = "";
+  testUserId = "";
 });
 
-let testMerchantId: string;
+let testUserId: string;
 
-async function ensureTestMerchant() {
-  if (!testMerchantId) {
-    const m = await seedMerchant();
-    testMerchantId = m.id;
+async function ensureTestUser() {
+  if (!testUserId) {
+    const m = await seedUser();
+    testUserId = m.id;
   }
-  return testMerchantId;
+  return testUserId;
 }
 
 async function seedOffering(slug = "bono-4-clases") {
-  const merchantId = await ensureTestMerchant();
+  const userId = await ensureTestUser();
   const [row] = await testDb
     .insert(offerings)
     .values({
-      merchant_id: merchantId,
+      user_id: userId,
       slug,
       type: "code",
       title: "Bono 4 clases",
@@ -115,26 +115,26 @@ describe("orders/createOrder", () => {
   });
 });
 
-// Sats settlement rail (ADR 0015). When the merchant's
+// Sats settlement rail (ADR 0015). When the seller's
 // payout_method is 'lightning_address', createOrder mints via the
 // LightningClient instead of Wapu, stamps rail=direct_lightning,
 // and persists the LUD-21 verify URL.
 describe("orders/createOrder — direct_lightning rail", () => {
-  it("dispatches to lib/lightning when merchant.payout_method is lightning_address", async () => {
+  it("dispatches to lib/lightning when user.payout_method is lightning_address", async () => {
     _setLightningClientForTests(new MockLightningClient());
 
-    // Seed an LN-rail merchant (separate slug + pubkey from the
-    // default seedMerchant so we don't collide with prior tests in
+    // Seed an LN-rail user (separate slug + pubkey from the
+    // default seedUser so we don't collide with prior tests in
     // this describe block).
-    const merchant = await seedMerchant({
+    const user = await seedUser({
       pubkey: "a".repeat(64),
-      slug: "ln-merchant",
+      slug: "ln-seller",
       payout_method: "lightning_address",
       lightning_address: "alice@strike.me",
       alias: null,
       cbu: null,
     });
-    testMerchantId = merchant.id;
+    testUserId = user.id;
     const offering = await seedOffering("ln-only");
 
     const result = await createOrder({
@@ -152,9 +152,9 @@ describe("orders/createOrder — direct_lightning rail", () => {
     expect(row?.wapu_settlement_ref).toBeNull();
   });
 
-  it("rejects with merchant_lightning_address_missing when sats rail is set but the address is null", async () => {
+  it("rejects with seller_lightning_address_missing when sats rail is set but the address is null", async () => {
     _setLightningClientForTests(new MockLightningClient());
-    const merchant = await seedMerchant({
+    const user = await seedUser({
       pubkey: "b".repeat(64),
       slug: "ln-no-address",
       payout_method: "lightning_address",
@@ -162,17 +162,17 @@ describe("orders/createOrder — direct_lightning rail", () => {
       alias: null,
       cbu: null,
     });
-    testMerchantId = merchant.id;
+    testUserId = user.id;
     const offering = await seedOffering("orphan");
 
     await expect(
       createOrder({ offering_id: offering.id, pubkey: null })
-    ).rejects.toMatchObject({ code: "merchant_lightning_address_missing" });
+    ).rejects.toMatchObject({ code: "seller_lightning_address_missing" });
   });
 
   it("surfaces a LightningMintError as lightning_mint_failed (e.g. provider with no LUD-21)", async () => {
     _setLightningClientForTests(new MockLightningClient());
-    const merchant = await seedMerchant({
+    const user = await seedUser({
       pubkey: "c".repeat(64),
       slug: "ln-bad-provider",
       payout_method: "lightning_address",
@@ -181,7 +181,7 @@ describe("orders/createOrder — direct_lightning rail", () => {
       alias: null,
       cbu: null,
     });
-    testMerchantId = merchant.id;
+    testUserId = user.id;
     const offering = await seedOffering("nolud21");
 
     await expect(
@@ -193,7 +193,7 @@ describe("orders/createOrder — direct_lightning rail", () => {
     const remaining = await testDb
       .select()
       .from(orders)
-      .where(eq(orders.merchant_id, merchant.id));
+      .where(eq(orders.user_id, user.id));
     expect(remaining).toHaveLength(0);
   });
 });
@@ -353,11 +353,11 @@ describe("orders/claimOrderForBuyer", () => {
 
 describe("orders/drawAndAssignCode", () => {
   async function seedCodeOfferingWithPool(codes: string[]) {
-    const merchantId = await ensureTestMerchant();
+    const userId = await ensureTestUser();
     const [row] = await testDb
       .insert(offerings)
       .values({
-        merchant_id: merchantId,
+        user_id: userId,
         slug: `pool-${codes.length}-${Date.now()}`,
         type: "code",
         title: "Pool offering",
@@ -370,11 +370,11 @@ describe("orders/drawAndAssignCode", () => {
   }
 
   async function seedDownloadOffering() {
-    const merchantId = await ensureTestMerchant();
+    const userId = await ensureTestUser();
     const [row] = await testDb
       .insert(offerings)
       .values({
-        merchant_id: merchantId,
+        user_id: userId,
         slug: `download-${Date.now()}`,
         type: "download",
         title: "PDF",

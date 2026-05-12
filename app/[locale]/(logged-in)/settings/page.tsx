@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Card } from "@/components/ui/card";
 import { SettingsForm } from "@/components/admin/settings-form";
-import { requireUserMerchant } from "@/lib/admin/panel-context";
+import { requirePanelUser } from "@/lib/admin/panel-context";
 import styles from "./page.module.scss";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +28,7 @@ export default async function SettingsPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
-  const { merchant } = await requireUserMerchant();
+  const { user } = await requirePanelUser();
 
   const t = await getTranslations("settings");
 
@@ -45,11 +45,11 @@ export default async function SettingsPage({
       </Card>
 
       <SettingsForm
-        initialCbu={merchant.cbu ?? ""}
-        initialAlias={merchant.alias ?? ""}
-        initialLightningAddress={merchant.lightning_address ?? ""}
-        initialPayoutMethod={merchant.payout_method}
-        initialAutorenewal={merchant.features_autorenewal}
+        initialCbu={user.cbu ?? ""}
+        initialAlias={user.alias ?? ""}
+        initialLightningAddress={user.lightning_address ?? ""}
+        initialPayoutMethod={user.payout_method}
+        initialAutorenewal={user.features_autorenewal}
       />
     </>
   );

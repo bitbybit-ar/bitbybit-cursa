@@ -18,7 +18,7 @@ const QUESTION_KEYS = [
   "anonymous",
   "delivery",
   "lostReceipt",
-  "merchantPayout",
+  "creatorPayout",
   "nostrPanel",
   "fees",
 ] as const;

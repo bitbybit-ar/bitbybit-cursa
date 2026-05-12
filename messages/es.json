@@ -119,7 +119,7 @@
       "step3Title": "Recibís tu compra",
       "step3Body": "Un código de canje o una descarga directa, según la oferta. El recibo es una URL permanente — guardala. Si conectás tu Nostr, también te llega por DM."
     },
-    "merchants": {
+    "creators": {
       "title": "Si enseñás algo",
       "step1Title": "Iniciás sesión con Nostr",
       "step1Body": "Tu llave Nostr es tu cuenta. Sin emails, sin formularios largos.",
@@ -167,8 +167,8 @@
       "deliveryInAppBody": "Recibo permanente en una URL. Si hay identidad Nostr, también llega por DM cifrado. No hay integración con email.",
       "autorenewalOptInTitle": "Auto-renovación opt-in",
       "autorenewalOptInBody": "Para suscripciones, el profe puede prender el flujo NWC desde su panel. Apagado por default, prendido cuando lo necesite.",
-      "merchantPanelTitle": "Panel del profe",
-      "merchantPanelBody": "ABM de ofertas, configuración de cobro, vista de pedidos y estudiantes. Login con tu llave Nostr.",
+      "creatorPanelTitle": "Panel del profe",
+      "creatorPanelBody": "ABM de ofertas, configuración de cobro y vista de pedidos. Login con tu llave Nostr.",
       "codesOrDownloadsTitle": "Códigos o descargas",
       "codesOrDownloadsBody": "Cada oferta entrega un código de canje (de un pool que vos cargás) o una descarga directa. Vos elegís por oferta.",
       "multiTenantSelfHostTitle": "Marketplace o self-host",
@@ -197,8 +197,8 @@
       "deliveryA": "Si la oferta es un código de canje, lo ves en el recibo. Si es una descarga, hacés click y se descarga. Si conectaste Nostr al pagar, también te llega por DM cifrado.",
       "lostReceiptQ": "¿Y si pierdo el link del recibo?",
       "lostReceiptA": "Si tu Nostr estaba conectado, lo encontrás en \"Mis compras\". Si compraste como anónimo, podés iniciar sesión con Nostr y reclamar el pedido pegando el ID en la página de reclamo.",
-      "merchantPayoutQ": "¿Cómo cobro como profe?",
-      "merchantPayoutA": "Wapu liquida pesos directo al CBU o alias que cargaste en el panel. Cada pago se acredita por separado — Cursá nunca toca el dinero.",
+      "creatorPayoutQ": "¿Cómo cobro como profe?",
+      "creatorPayoutA": "Wapu liquida pesos directo al CBU o alias que cargaste en el panel. Cada pago se acredita por separado — Cursá nunca toca el dinero.",
       "nostrPanelQ": "¿Qué es Nostr y por qué lo uso para entrar al panel?",
       "nostrPanelA": "Nostr es un protocolo abierto de identidad y mensajería. Tu llave privada es tu cuenta — sin servidores centrales, sin emails. Para los profes es la única forma de entrar al panel.",
       "feesQ": "¿Cobran comisión?",

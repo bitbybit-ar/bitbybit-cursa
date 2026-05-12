@@ -1,18 +1,18 @@
 import { and, asc, desc, eq, isNull } from "drizzle-orm";
 import { getDb } from "@/lib/db";
-import { offerings, merchants } from "@/lib/db/schema";
+import { offerings, users } from "@/lib/db/schema";
 
 export type Offering = typeof offerings.$inferSelect;
 
 /**
- * The shape used by buyer-flow renders that need the merchant
- * card alongside the offering (discovery home, merchant
- * storefront, offering detail header). Keeps the join centralised
- * so consumers do not duplicate the active-merchant filter.
+ * The shape used by buyer-flow renders that need the seller card
+ * alongside the offering (discovery home, seller storefront,
+ * offering detail header). Keeps the join centralised so consumers
+ * do not duplicate the active-user filter.
  */
-export interface OfferingWithMerchant {
+export interface OfferingWithSeller {
   offering: Offering;
-  merchant: {
+  seller: {
     id: string;
     slug: string;
     display_name: string;
@@ -21,89 +21,82 @@ export interface OfferingWithMerchant {
 }
 
 /**
- * Discovery home — every active merchant's active offerings,
- * newest first. Consumers (ADR 0012's `/[locale]` and
- * `/[locale]/m/[slug]`) render the merchant card alongside each
- * offering so the buyer knows whose store they are looking at.
+ * Discovery home — every active user's active offerings, newest
+ * first. Consumers (ADR 0012's `/[locale]` and `/[locale]/m/[slug]`)
+ * render the seller card alongside each offering so the buyer
+ * knows whose store they are looking at.
  */
 export async function listDiscoveryOfferings(): Promise<
-  OfferingWithMerchant[]
+  OfferingWithSeller[]
 > {
   const db = getDb();
   const rows = await db
-    .select({ offering: offerings, merchant: merchants })
+    .select({ offering: offerings, seller: users })
     .from(offerings)
-    .innerJoin(merchants, eq(offerings.merchant_id, merchants.id))
-    .where(
-      and(eq(merchants.active, true), isNull(offerings.archived_at))
-    )
+    .innerJoin(users, eq(offerings.user_id, users.id))
+    .where(and(eq(users.active, true), isNull(offerings.archived_at)))
     .orderBy(desc(offerings.created_at));
   return rows.map((r) => ({
     offering: r.offering,
-    merchant: {
-      id: r.merchant.id,
-      slug: r.merchant.slug,
-      display_name: r.merchant.display_name,
-      avatar_url: r.merchant.avatar_url,
+    seller: {
+      id: r.seller.id,
+      slug: r.seller.slug,
+      display_name: r.seller.display_name,
+      avatar_url: r.seller.avatar_url,
     },
   }));
 }
 
 /**
- * Single merchant's public storefront listing — active rows in
- * insertion order so the merchant's first listing stays at the
- * top until they archive it.
+ * Single user's public storefront listing — active rows in
+ * insertion order so the seller's first listing stays at the top
+ * until they archive it.
  */
-export async function listOfferingsForMerchantSlug(
-  merchantSlug: string
+export async function listOfferingsForUserSlug(
+  userSlug: string
 ): Promise<{
-  merchant: typeof merchants.$inferSelect;
+  seller: typeof users.$inferSelect;
   offerings: Offering[];
 } | null> {
   const db = getDb();
-  const [merchant] = await db
+  const [seller] = await db
     .select()
-    .from(merchants)
-    .where(
-      and(eq(merchants.slug, merchantSlug), eq(merchants.active, true))
-    )
+    .from(users)
+    .where(and(eq(users.slug, userSlug), eq(users.active, true)))
     .limit(1);
-  if (!merchant) return null;
+  if (!seller) return null;
 
   const rows = await db
     .select()
     .from(offerings)
     .where(
-      and(
-        eq(offerings.merchant_id, merchant.id),
-        isNull(offerings.archived_at)
-      )
+      and(eq(offerings.user_id, seller.id), isNull(offerings.archived_at))
     )
     .orderBy(asc(offerings.created_at));
 
-  return { merchant, offerings: rows };
+  return { seller, offerings: rows };
 }
 
 /**
- * Detail read for `/[locale]/m/[merchantSlug]/c/[offeringSlug]`.
- * Returns null when either the merchant or offering is missing,
- * archived, or deactivated, so the route can 404 without a
- * separate active/archived check.
+ * Detail read for `/[locale]/m/[userSlug]/c/[offeringSlug]`.
+ * Returns null when either the user or offering is missing,
+ * archived, or deactivated, so the route can 404 without a separate
+ * active/archived check.
  */
-export async function getOfferingByMerchantAndSlug(
-  merchantSlug: string,
+export async function getOfferingByUserAndSlug(
+  userSlug: string,
   offeringSlug: string
-): Promise<OfferingWithMerchant | null> {
+): Promise<OfferingWithSeller | null> {
   const db = getDb();
   const [row] = await db
-    .select({ offering: offerings, merchant: merchants })
+    .select({ offering: offerings, seller: users })
     .from(offerings)
-    .innerJoin(merchants, eq(offerings.merchant_id, merchants.id))
+    .innerJoin(users, eq(offerings.user_id, users.id))
     .where(
       and(
-        eq(merchants.slug, merchantSlug),
+        eq(users.slug, userSlug),
         eq(offerings.slug, offeringSlug),
-        eq(merchants.active, true),
+        eq(users.active, true),
         isNull(offerings.archived_at)
       )
     )
@@ -111,11 +104,11 @@ export async function getOfferingByMerchantAndSlug(
   if (!row) return null;
   return {
     offering: row.offering,
-    merchant: {
-      id: row.merchant.id,
-      slug: row.merchant.slug,
-      display_name: row.merchant.display_name,
-      avatar_url: row.merchant.avatar_url,
+    seller: {
+      id: row.seller.id,
+      slug: row.seller.slug,
+      display_name: row.seller.display_name,
+      avatar_url: row.seller.avatar_url,
     },
   };
 }

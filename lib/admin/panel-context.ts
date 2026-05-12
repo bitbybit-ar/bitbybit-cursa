@@ -1,36 +1,27 @@
 import "server-only";
 import { notFound } from "next/navigation";
 import { getSession, type AuthSession } from "@/lib/auth";
-import {
-  ensureMerchantForPubkey,
-  type Merchant,
-} from "@/lib/admin/merchants";
+import { ensureUserForPubkey, type User } from "@/lib/admin/users";
 
 /**
- * Page-side counterpart of `requireMerchant` (the API helper). Used
- * by every creator-facing page (My courses, Settings, My sales, My
- * students) to scope queries to the user's merchant row.
+ * Page-side counterpart of `requireUser` (the API helper). Used by
+ * every creator-facing page (My courses, Settings, Orders) to scope
+ * queries to the caller's user row.
  *
- * Per ADR 0014, "merchant" is no longer a gate — it's just the
- * server-side row that owns offerings/orders for this pubkey. Any
- * signed-in user gets one lazily; deactivated merchants 404.
+ * Per ADRs 0014 + 0016, the user row is just the server-side row
+ * that owns offerings/orders for this pubkey. Any signed-in user
+ * gets one lazily; deactivated users 404.
  *
  * Anonymous visitors are bounced upstream by the edge proxy; the
  * `notFound()` here is defence-in-depth.
  */
-export async function requireUserMerchant(): Promise<{
+export async function requirePanelUser(): Promise<{
   session: AuthSession;
-  merchant: Merchant;
+  user: User;
 }> {
   const session = await getSession();
   if (!session) notFound();
-  const merchant = await ensureMerchantForPubkey(session.pubkey);
-  if (!merchant.active) notFound();
-  return { session, merchant };
-}
-
-/** @deprecated Use `requireUserMerchant`. */
-export async function requirePanelMerchant(): Promise<Merchant> {
-  const { merchant } = await requireUserMerchant();
-  return merchant;
+  const user = await ensureUserForPubkey(session.pubkey);
+  if (!user.active) notFound();
+  return { session, user };
 }

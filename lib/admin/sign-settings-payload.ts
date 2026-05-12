@@ -1,5 +1,5 @@
 /**
- * Canonical signed-payload helpers for the merchant settings PATCH.
+ * Canonical signed-payload helpers for the settings PATCH.
  *
  * ADR 0008 requires payment-destination changes (CBU, alias) to be
  * confirmed by a NIP-07 re-sign. Client and server must agree on the

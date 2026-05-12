@@ -17,11 +17,10 @@ export const dynamic = "force-dynamic";
  *      render its own header + body without re-stacking the same
  *      wrappers.
  *
- * Each page still calls `requireUserMerchant()` (or equivalent) to
- * scope its DB queries to the user's merchant row — the layout
- * intentionally does not propagate that down via context to keep
- * the data path uniform with the API routes (which read the
- * merchant via `requireMerchant()` on each call).
+ * Each page still calls `requirePanelUser()` (or `requireUser()`
+ * on the API side) to scope its DB queries to the user's row —
+ * the layout intentionally does not propagate that down via
+ * context to keep the data path uniform with the API routes.
  */
 export default async function LoggedInLayout({
   children,

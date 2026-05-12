@@ -1,12 +1,12 @@
-import type { OfferingWithMerchant } from "@/lib/offerings";
+import type { OfferingWithSeller } from "@/lib/offerings";
 
 const NOW = new Date("2026-05-08T12:00:00Z");
 
-export const highlightedCourses: OfferingWithMerchant[] = [
+export const highlightedCourses: OfferingWithSeller[] = [
   {
     offering: {
       id: "00000000-0000-0000-0000-000000000001",
-      merchant_id: "10000000-0000-0000-0000-000000000001",
+      user_id: "10000000-0000-0000-0000-000000000001",
       slug: "intro-a-bitcoin",
       type: "download",
       title: "Introducción a Bitcoin",
@@ -22,7 +22,7 @@ export const highlightedCourses: OfferingWithMerchant[] = [
       created_at: NOW,
       updated_at: NOW,
     },
-    merchant: {
+    seller: {
       id: "10000000-0000-0000-0000-000000000001",
       slug: "satoshi-aula",
       display_name: "Satoshi Aula",
@@ -32,7 +32,7 @@ export const highlightedCourses: OfferingWithMerchant[] = [
   {
     offering: {
       id: "00000000-0000-0000-0000-000000000002",
-      merchant_id: "10000000-0000-0000-0000-000000000002",
+      user_id: "10000000-0000-0000-0000-000000000002",
       slug: "guitarra-folklore-argentino",
       type: "download",
       title: "Guitarra: folklore argentino",
@@ -48,7 +48,7 @@ export const highlightedCourses: OfferingWithMerchant[] = [
       created_at: NOW,
       updated_at: NOW,
     },
-    merchant: {
+    seller: {
       id: "10000000-0000-0000-0000-000000000002",
       slug: "carla-luthier",
       display_name: "Carla Luthier",
@@ -58,7 +58,7 @@ export const highlightedCourses: OfferingWithMerchant[] = [
   {
     offering: {
       id: "00000000-0000-0000-0000-000000000003",
-      merchant_id: "10000000-0000-0000-0000-000000000003",
+      user_id: "10000000-0000-0000-0000-000000000003",
       slug: "pintura-acrilica-paisajes",
       type: "code",
       title: "Pintura acrílica: paisajes",
@@ -74,7 +74,7 @@ export const highlightedCourses: OfferingWithMerchant[] = [
       created_at: NOW,
       updated_at: NOW,
     },
-    merchant: {
+    seller: {
       id: "10000000-0000-0000-0000-000000000003",
       slug: "atelier-norte",
       display_name: "Atelier Norte",

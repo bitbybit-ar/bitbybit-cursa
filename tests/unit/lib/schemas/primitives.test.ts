@@ -46,7 +46,7 @@ describe("LightningAddressSchema", () => {
       expect(result.success, `expected reject: ${c}`).toBe(false);
       if (!result.success) {
         // The refinement message is `lightning_address_invalid` so the
-        // settings PATCH route can map it to the merchant-facing toast.
+        // settings PATCH route can map it to the user-facing toast.
         const messages = result.error.issues.map((i) => i.message);
         expect(messages).toContain("lightning_address_invalid");
       }

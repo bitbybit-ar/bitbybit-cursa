@@ -6,7 +6,7 @@
  * Wraps the Blossom client (`lib/blossom/client`) with a small UI
  * that picks a file, runs client-side type/size checks, asks the
  * existing signer to authenticate the upload, and reports progress.
- * A paste-URL fallback survives so a merchant who already self-hosts
+ * A paste-URL fallback survives so a user who already self-hosts
  * is not forced through Blossom.
  *
  * The component is fully controlled — it stores `value` (the

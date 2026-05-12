@@ -10,6 +10,28 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- **Collapsed the `merchants` table into `users`.** After ADR 0014
+  every signed-in Nostr account already had a `merchants` row, so
+  the merchant/user split was vestigial. End-to-end rename: the
+  Postgres table moves to `users`; FK columns `merchant_id` →
+  `user_id` on `offerings`, `orders`, and `admin_audit_log`; helpers
+  in `lib/admin/users.ts` replace `lib/admin/merchants.ts`
+  (`getUserByPubkey`, `ensureUserForPubkey`, `updateUserProfile`,
+  `claimUser`, `requireUser` / `requirePanelUser`); session JSON's
+  `merchant: { ... }` key → `user: { ... }`; URL param
+  `/m/[merchantSlug]` → `/m/[userSlug]` (the public path
+  `/m/<slug>` is unchanged); error codes `merchant_inactive` /
+  `merchant_payout_missing` / `merchant_lightning_address_missing`
+  → `seller_*`. The platform-identity file `lib/merchant.ts` is
+  renamed to `lib/site.ts` (constant `MERCHANT` → `SITE`) since it
+  describes the deployment, not a user row. User-visible Spanish
+  copy is unchanged ("profe"); English landing pages replace
+  "Merchant panel" with "Creator panel". Migration
+  `0005_collapse_merchants_into_users.sql` is a pure structural
+  rename, no data backfill. Decision in ADR 0016.
+
 ### Added
 
 - **Sats settlement rail.** Merchants can now choose between getting

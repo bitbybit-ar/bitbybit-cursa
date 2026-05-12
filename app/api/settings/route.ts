@@ -1,19 +1,19 @@
 import { type NextRequest, NextResponse } from "next/server";
 import {
-  UpdateMerchantProfileSchema,
-  updateMerchantProfile,
-} from "@/lib/admin/merchants";
-import { requireMerchant } from "@/lib/admin/require-merchant";
+  UpdateUserProfileSchema,
+  updateUserProfile,
+} from "@/lib/admin/users";
+import { requireUser } from "@/lib/admin/require-user";
 import { parseNostrAuthHeader } from "@/lib/nostr/http-auth";
 import { validateNip98AuthEvent } from "@/lib/nostr/verify";
 import { hashSettingsBody } from "@/lib/admin/sign-settings-payload";
 import { getLightningClient, LightningMintError } from "@/lib/lightning";
 
 /**
- * Update the current merchant's profile (CBU, alias, Lightning
- * Address, payout method, autorenewal toggle). Marketplace edition
- * (ADR 0012) — the deployment-wide `settings` singleton is gone;
- * this route writes to the caller's `merchants` row.
+ * Update the current user's profile (CBU, alias, Lightning Address,
+ * payout method, autorenewal toggle). Marketplace edition (ADRs
+ * 0012, 0016) — the deployment-wide `settings` singleton is gone;
+ * this route writes to the caller's `users` row.
  *
  * ADR 0008's NIP-07 re-sign requirement carries over to all
  * payment-destination fields. Per ADR 0015, that now includes
@@ -22,7 +22,7 @@ import { getLightningClient, LightningMintError } from "@/lib/lightning";
  * `payload` tag binds to the request body's sha256 and whose
  * pubkey equals the session pubkey.
  *
- * When the merchant sets/changes their `lightning_address` and the
+ * When the user sets/changes their `lightning_address` and the
  * sats rail is selected (or about to be), we mint a 1-sat probe
  * invoice via lib/lightning to confirm the upstream provider
  * advertises LUD-21 (the `verify` URL on its callback response).
@@ -30,7 +30,7 @@ import { getLightningClient, LightningMintError } from "@/lib/lightning";
  * server-side way to confirm settlement otherwise.
  */
 export async function PATCH(req: NextRequest): Promise<NextResponse> {
-  const auth = await requireMerchant();
+  const auth = await requireUser();
   if (!auth.ok) return auth.response;
 
   // Read raw bytes first so the hash matches what the client signed.
@@ -48,7 +48,7 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "invalid_json" }, { status: 400 });
   }
 
-  const parsed = UpdateMerchantProfileSchema.safeParse(body);
+  const parsed = UpdateUserProfileSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
       { error: "invalid_body", issues: parsed.error.issues },
@@ -57,31 +57,31 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
   }
 
   const cbuChanged =
-    parsed.data.cbu !== undefined && parsed.data.cbu !== auth.merchant.cbu;
+    parsed.data.cbu !== undefined && parsed.data.cbu !== auth.user.cbu;
   const aliasChanged =
     parsed.data.alias !== undefined &&
-    parsed.data.alias !== auth.merchant.alias;
+    parsed.data.alias !== auth.user.alias;
   const lightningAddressChanged =
     parsed.data.lightning_address !== undefined &&
-    parsed.data.lightning_address !== auth.merchant.lightning_address;
+    parsed.data.lightning_address !== auth.user.lightning_address;
   const payoutMethodChanged =
     parsed.data.payout_method !== undefined &&
-    parsed.data.payout_method !== auth.merchant.payout_method;
+    parsed.data.payout_method !== auth.user.payout_method;
   const requiresReSign =
     cbuChanged ||
     aliasChanged ||
     lightningAddressChanged ||
     payoutMethodChanged;
 
-  // LUD-21 sanity check (ADR 0015). When a merchant sets/changes
-  // their LN address and the sats rail will be active after this
-  // PATCH, mint a 1-sat probe invoice to confirm the provider
-  // advertises LUD-21. Refuse the save with a friendly error if
-  // not — at checkout time we'd have no way to verify settlement.
+  // LUD-21 sanity check (ADR 0015). When a user sets/changes their
+  // LN address and the sats rail will be active after this PATCH,
+  // mint a 1-sat probe invoice to confirm the provider advertises
+  // LUD-21. Refuse the save with a friendly error if not — at
+  // checkout time we'd have no way to verify settlement.
   const nextLightningAddress =
-    parsed.data.lightning_address ?? auth.merchant.lightning_address;
+    parsed.data.lightning_address ?? auth.user.lightning_address;
   const willUseSatsRail =
-    (parsed.data.payout_method ?? auth.merchant.payout_method) ===
+    (parsed.data.payout_method ?? auth.user.payout_method) ===
     "lightning_address";
   if (
     lightningAddressChanged &&
@@ -145,14 +145,14 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
     signedEventId = validation.event.id;
   }
 
-  const updated = await updateMerchantProfile(
-    auth.merchant.id,
+  const updated = await updateUserProfile(
+    auth.user.id,
     parsed.data,
     auth.session.pubkey,
     { signedEventId }
   );
   return NextResponse.json({
-    merchant: {
+    user: {
       cbu: updated.cbu,
       alias: updated.alias,
       lightning_address: updated.lightning_address,

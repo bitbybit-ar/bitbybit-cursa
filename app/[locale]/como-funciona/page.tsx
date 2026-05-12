@@ -38,10 +38,10 @@ export default async function HowItWorksPage({ params }: Props) {
     { title: t("buyers.step3Title"), body: t("buyers.step3Body") },
   ];
 
-  const merchantSteps = [
-    { title: t("merchants.step1Title"), body: t("merchants.step1Body") },
-    { title: t("merchants.step2Title"), body: t("merchants.step2Body") },
-    { title: t("merchants.step3Title"), body: t("merchants.step3Body") },
+  const creatorSteps = [
+    { title: t("creators.step1Title"), body: t("creators.step1Body") },
+    { title: t("creators.step2Title"), body: t("creators.step2Body") },
+    { title: t("creators.step3Title"), body: t("creators.step3Body") },
   ];
 
   // Glossary cards. Each gets an icon themed to its concept and a
@@ -107,9 +107,9 @@ export default async function HowItWorksPage({ params }: Props) {
       </Section>
 
       <Section>
-        <h2 className={styles.sectionTitle}>{t("merchants.title")}</h2>
+        <h2 className={styles.sectionTitle}>{t("creators.title")}</h2>
         <ol className={styles.steps}>
-          {merchantSteps.map((step, i) => (
+          {creatorSteps.map((step, i) => (
             <li key={step.title}>
               <Card variant="hover" className={styles.stepCard}>
                 <span className={styles.stepNumber} aria-hidden="true">
