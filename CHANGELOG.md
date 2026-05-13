@@ -12,6 +12,13 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- **Restyled the "Cursats" wordmark.** Navbar and footer now render
+  the brand as uppercase **CURSATS**, split into a near-black `CUR`
+  half and a `SATS` half painted with the same three brand hues used
+  by `LogoBlocks` (blue → lime → pink) via `background-clip: text`.
+  Weight bumps from bold (700) to extrabold (800) so the wordmark
+  pulls more visual weight next to the block stack.
+
 - **Rebranded the product from "Cursá" to "Cursats".** A portmanteau
   of the voseo verb *cursá* and *sats* — the wordmark now names what
   the platform settles in instead of hiding it behind a tagline. The

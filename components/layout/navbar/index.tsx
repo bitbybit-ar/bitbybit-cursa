@@ -80,7 +80,10 @@ export function Navbar() {
         <div className={styles.inner}>
           <Link href="/" className={styles.logo} aria-label="Cursats">
             <LogoBlocks />
-            <span className={styles.logoText}>Cursats</span>
+            <span className={styles.logoText}>
+              <span className={styles.logoTextPrimary}>CUR</span>
+              <span className={styles.logoTextGradient}>SATS</span>
+            </span>
           </Link>
 
           <div className={styles.links}>

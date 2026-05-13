@@ -12,7 +12,10 @@ export function Footer() {
       <div className={styles.inner}>
         <div className={styles.brand}>
           <LogoBlocks />
-          <span className={styles.brandText}>Cursats</span>
+          <span className={styles.brandText}>
+            <span className={styles.brandTextPrimary}>CUR</span>
+            <span className={styles.brandTextGradient}>SATS</span>
+          </span>
         </div>
 
         <nav className={styles.links} aria-label={t("ariaLabel")}>
