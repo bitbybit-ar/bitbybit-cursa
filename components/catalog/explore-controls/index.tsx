@@ -10,7 +10,7 @@ import {
   type OfferingTypeFilter,
   type SortKey,
 } from "@/lib/explore-params";
-import styles from "./controls.module.scss";
+import styles from "./explore-controls.module.scss";
 
 interface ControlsProps {
   current: ExploreParams;

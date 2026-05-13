@@ -1,5 +1,5 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Section } from "@/components/ui/section";
+import { Container } from "@/components/ui/container";
 import { OfferingCard } from "@/components/catalog/offering-card";
 import { listDiscoveryOfferingsPaged } from "@/lib/offerings";
 import {
@@ -8,8 +8,8 @@ import {
   hasActiveFilters,
   parseExploreParams,
 } from "@/lib/explore-params";
-import { Controls } from "./_components/controls";
-import { Pager } from "./_components/pager";
+import { Controls } from "@/components/catalog/explore-controls";
+import { Pager } from "@/components/catalog/explore-pager";
 import styles from "./page.module.scss";
 
 type Props = {
@@ -44,7 +44,7 @@ export default async function ExplorePage({ params, searchParams }: Props) {
   const emptyKey = isFiltered ? "list.noMatches" : "list.empty";
 
   return (
-    <Section>
+    <Container>
       <h1 className={styles.heading}>{t("list.heading")}</h1>
       <Controls current={parsed} />
       <p className={styles.results}>{t("list.results", { count: total })}</p>
@@ -79,6 +79,6 @@ export default async function ExplorePage({ params, searchParams }: Props) {
           )}
         </>
       )}
-    </Section>
+    </Container>
   );
 }

@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Link } from "@/i18n/routing";
-import styles from "./pager.module.scss";
+import styles from "./explore-pager.module.scss";
 
 interface PagerProps {
   page: number;
