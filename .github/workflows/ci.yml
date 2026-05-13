@@ -1,0 +1,80 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Serialize CI across all PRs. The integration test suite runs against a
+# single shared Neon test database; when two runs happen concurrently,
+# each one's `cleanDb()` TRUNCATE can wipe the other one's just-seeded
+# rows and fail subsequent FK-constrained inserts. Queueing runs under
+# a single workflow-level group forces them to run back-to-back instead
+# of racing. `cancel-in-progress: false` queues rather than cancelling
+# so no PR loses its CI result when a newer run arrives.
+concurrency:
+  group: ci-shared-test-db
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    name: Typecheck, Lint, Test & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Persist Next.js's build cache across CI runs. Without this,
+      # `next build` logs "No build cache found" on every run and
+      # recompiles + retraces from scratch. Cache key follows the
+      # snippet from https://nextjs.org/docs/messages/no-cache —
+      # invalidate on lockfile + source file changes, with a
+      # lockfile-only fallback so a one-file edit still hits the
+      # previous cache.
+      - name: Cache Next.js build
+        uses: actions/cache@v4
+        with:
+          path: ${{ github.workspace }}/.next/cache
+          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+          restore-keys: |
+            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+
+      - name: Typecheck
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit tests
+        run: npm run test:unit
+
+      # Apply any pending drizzle migrations to the test database so
+      # integration tests see the latest schema. Without this, a PR
+      # that rebases over a merged migration will fail against the
+      # frozen test DB schema.
+      - name: Migrate test DB
+        run: npm run db:migrate
+        env:
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+
+      - name: Integration tests
+        run: npm run test:integration
+        env:
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+          AUTH_SECRET: ${{ secrets.TEST_AUTH_SECRET }}
+
+      - name: Build
+        run: npm run build
+        env:
+          DATABASE_URL: ${{ secrets.TEST_DATABASE_URL }}
+          AUTH_SECRET: ${{ secrets.TEST_AUTH_SECRET }}
+          NEXT_PUBLIC_BASE_URL: http://localhost:3000
