@@ -10,6 +10,19 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **`/explore` discovery surface.** The page gains a free-text search
+  (title, description, teacher name), a filter by offering type
+  (redemption code / download), four sort options (newest, oldest,
+  price low → high, price high → low), and offset pagination (12 per
+  page with Prev/Next and "Page X of Y"). The controls share the
+  ceramic dropdown + search-input styling ported from the Arena
+  project's explore surface; filter changes update the URL
+  immediately (no Apply button) so result URLs stay shareable. The
+  navbar and mobile-menu "Explore courses" entry now links to
+  `/explore` directly instead of jumping to the landing-page anchor.
+
 ### Changed
 
 - **Restyled the "Cursats" wordmark.** Navbar and footer now render

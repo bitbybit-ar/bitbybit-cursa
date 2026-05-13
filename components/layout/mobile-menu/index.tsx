@@ -29,7 +29,7 @@ interface MobileMenuProps {
 // jumps to a section on the landing page; `link` is a locale-aware
 // route that works from anywhere.
 const SECTIONS = [
-  { id: "explore", kind: "anchor", target: "#cursos-destacados" },
+  { id: "explore", kind: "link", target: "/explore" },
   { id: "howItWorks", kind: "link", target: "/como-funciona" },
   { id: "features", kind: "link", target: "/caracteristicas" },
 ] as const;
