@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, isNull, or, sql, type SQL } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { offerings, users } from "@/lib/db/schema";
 import {
@@ -6,6 +6,7 @@ import {
   findMockStorefront,
   highlightedCourses,
 } from "@/lib/mock/highlighted-courses";
+import type { OfferingTypeFilter, SortKey } from "@/lib/explore-params";
 
 export type Offering = typeof offerings.$inferSelect;
 
@@ -28,40 +29,135 @@ export interface OfferingWithSeller {
 }
 
 /**
- * Discovery home — every active user's active offerings, newest
- * first. Consumers (ADR 0012's `/[locale]` and `/[locale]/[slug]`)
- * render the seller card alongside each offering so the buyer
- * knows whose store they are looking at.
+ * Discovery home with search/filter/sort/pagination. The page reads
+ * `searchParams` and hands them here normalized; this function applies
+ * them, returning the slice for the requested page plus the total row
+ * count so the caller can render a pager.
+ *
+ * In demo mode (no `DATABASE_URL` or empty catalog), the mock
+ * `highlightedCourses` set is filtered and sorted in-memory.
  */
-export async function listDiscoveryOfferings(): Promise<
-  OfferingWithSeller[]
-> {
-  // Fallback to the landing's mock catalog whenever the live catalog
-  // is empty *or* DATABASE_URL isn't configured (hackathon demo
-  // mode). DB rows win whenever they exist.
+export interface DiscoveryQuery {
+  q?: string;
+  type?: OfferingTypeFilter;
+  sort?: SortKey;
+  page?: number;
+  pageSize?: number;
+}
+
+export async function listDiscoveryOfferingsPaged(
+  opts: DiscoveryQuery = {}
+): Promise<{ rows: OfferingWithSeller[]; total: number }> {
+  const sort: SortKey = opts.sort ?? "newest";
+  const page = Math.max(1, opts.page ?? 1);
+  const pageSize = Math.max(1, opts.pageSize ?? 12);
+  const offset = (page - 1) * pageSize;
+  const q = opts.q?.trim();
+
   try {
     const db = getDb();
-    const rows = await db
-      .select({ offering: offerings, seller: users })
-      .from(offerings)
-      .innerJoin(users, eq(offerings.user_id, users.id))
-      .where(and(eq(users.active, true), isNull(offerings.archived_at)))
-      .orderBy(desc(offerings.created_at));
-    if (rows.length === 0) return highlightedCourses;
-    return rows.map((r) => ({
-      offering: r.offering,
-      seller: {
-        id: r.seller.id,
-        slug: r.seller.slug,
-        display_name: r.seller.display_name,
-        avatar_url: r.seller.avatar_url,
-        banner_url: r.seller.banner_url,
-        bio: r.seller.bio,
-      },
-    }));
+    const conditions: SQL[] = [
+      eq(users.active, true),
+      isNull(offerings.archived_at),
+    ];
+    if (opts.type) conditions.push(eq(offerings.type, opts.type));
+    if (q) {
+      // Escape LIKE metacharacters so a `%` in user input matches
+      // literally instead of acting as a wildcard.
+      const pattern = `%${q.replace(/[\\%_]/g, (m) => `\\${m}`)}%`;
+      const search = or(
+        ilike(offerings.title, pattern),
+        ilike(offerings.description, pattern),
+        ilike(users.display_name, pattern)
+      );
+      if (search) conditions.push(search);
+    }
+    const whereClause = and(...conditions);
+
+    const orderBy =
+      sort === "oldest"
+        ? asc(offerings.created_at)
+        : sort === "price_asc"
+          ? asc(offerings.price_ars)
+          : sort === "price_desc"
+            ? desc(offerings.price_ars)
+            : desc(offerings.created_at);
+
+    const [rowsRaw, totalRaw] = await Promise.all([
+      db
+        .select({ offering: offerings, seller: users })
+        .from(offerings)
+        .innerJoin(users, eq(offerings.user_id, users.id))
+        .where(whereClause)
+        .orderBy(orderBy)
+        .limit(pageSize)
+        .offset(offset),
+      db
+        .select({ value: sql<number>`count(*)::int` })
+        .from(offerings)
+        .innerJoin(users, eq(offerings.user_id, users.id))
+        .where(whereClause),
+    ]);
+
+    if (rowsRaw.length === 0 && totalRaw[0].value === 0) {
+      return filterMocks(highlightedCourses, opts);
+    }
+
+    return {
+      rows: rowsRaw.map((r) => ({
+        offering: r.offering,
+        seller: {
+          id: r.seller.id,
+          slug: r.seller.slug,
+          display_name: r.seller.display_name,
+          avatar_url: r.seller.avatar_url,
+          banner_url: r.seller.banner_url,
+          bio: r.seller.bio,
+        },
+      })),
+      total: totalRaw[0].value,
+    };
   } catch {
-    return highlightedCourses;
+    return filterMocks(highlightedCourses, opts);
   }
+}
+
+function filterMocks(
+  mocks: OfferingWithSeller[],
+  opts: DiscoveryQuery
+): { rows: OfferingWithSeller[]; total: number } {
+  const sort: SortKey = opts.sort ?? "newest";
+  const page = Math.max(1, opts.page ?? 1);
+  const pageSize = Math.max(1, opts.pageSize ?? 12);
+  const q = opts.q?.trim().toLowerCase();
+
+  let filtered = mocks.filter((row) => {
+    if (opts.type && row.offering.type !== opts.type) return false;
+    if (q) {
+      const haystack = [
+        row.offering.title,
+        row.offering.description,
+        row.seller.display_name,
+      ]
+        .join("\n")
+        .toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+
+  filtered = [...filtered].sort((a, b) => {
+    if (sort === "price_asc") return a.offering.price_ars - b.offering.price_ars;
+    if (sort === "price_desc")
+      return b.offering.price_ars - a.offering.price_ars;
+    const aTime = new Date(a.offering.created_at).getTime();
+    const bTime = new Date(b.offering.created_at).getTime();
+    return sort === "oldest" ? aTime - bTime : bTime - aTime;
+  });
+
+  const total = filtered.length;
+  const offset = (page - 1) * pageSize;
+  return { rows: filtered.slice(offset, offset + pageSize), total };
 }
 
 /**

@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Container } from "@/components/ui/container";
 import { Section } from "@/components/ui/section";
 import { OfferingCard } from "@/components/catalog/offering-card";
 import { Avatar } from "@/components/common/avatar";
@@ -74,26 +73,24 @@ export default async function SellerStorePage({ params }: Props) {
       </Section>
 
       <Section alternate className={styles.offeringsSection}>
-        <Container column>
-          <h2 className={styles.listHeading}>{t("offeringsHeading")}</h2>
-          {offerings.length === 0 ? (
-            <p className={styles.empty}>{t("empty")}</p>
-          ) : (
-            <div className={styles.grid}>
-              {offerings.map((offering) => (
-                <OfferingCard
-                  key={offering.id}
-                  offering={offering}
-                  seller={{
-                    slug: seller.slug,
-                    display_name: seller.display_name,
-                  }}
-                  hideSeller
-                />
-              ))}
-            </div>
-          )}
-        </Container>
+        <h2 className={styles.listHeading}>{t("offeringsHeading")}</h2>
+        {offerings.length === 0 ? (
+          <p className={styles.empty}>{t("empty")}</p>
+        ) : (
+          <div className={styles.grid}>
+            {offerings.map((offering) => (
+              <OfferingCard
+                key={offering.id}
+                offering={offering}
+                seller={{
+                  slug: seller.slug,
+                  display_name: seller.display_name,
+                }}
+                hideSeller
+              />
+            ))}
+          </div>
+        )}
       </Section>
     </>
   );

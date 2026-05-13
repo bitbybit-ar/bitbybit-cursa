@@ -1,39 +1,57 @@
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Section } from "@/components/ui/section";
+import { Container } from "@/components/ui/container";
 import { OfferingCard } from "@/components/catalog/offering-card";
-import { listDiscoveryOfferings } from "@/lib/offerings";
+import { listDiscoveryOfferingsPaged } from "@/lib/offerings";
+import {
+  PAGE_SIZE,
+  buildExploreHref,
+  hasActiveFilters,
+  parseExploreParams,
+} from "@/lib/explore-params";
+import { Controls } from "@/components/catalog/explore-controls";
+import { Pager } from "@/components/catalog/explore-pager";
 import styles from "./page.module.scss";
 
 type Props = {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
 // Marketplace discovery (ADR 0012). Renders every active user's
-// offerings in newest-first order so the platform reads as a feed,
-// not a single store. Per-seller landing pages live at
-// /[locale]/[slug] (ADR 0017).
+// offerings, with search, filters, sort, and pagination driven by
+// the querystring so the page stays a server component and links
+// stay shareable. Per-seller landing pages live at /[locale]/[slug]
+// (ADR 0017).
 export const dynamic = "force-dynamic";
 
-export default async function ExplorePage({ params }: Props) {
+export default async function ExplorePage({ params, searchParams }: Props) {
   const { locale } = await params;
   setRequestLocale(locale);
+  const sp = await searchParams;
+  const parsed = parseExploreParams(sp);
   const t = await getTranslations("catalog");
-  const rows = await listDiscoveryOfferings();
+
+  const { rows, total } = await listDiscoveryOfferingsPaged({
+    q: parsed.q || undefined,
+    type: parsed.type ?? undefined,
+    sort: parsed.sort,
+    page: parsed.page,
+    pageSize: PAGE_SIZE,
+  });
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const isFiltered = hasActiveFilters(parsed);
+  const emptyKey = isFiltered ? "list.noMatches" : "list.empty";
 
   return (
-    <>
-      <Section>
-        <header className={styles.hero}>
-          <h1 className={styles.heroTitle}>{t("hero.title")}</h1>
-          <p className={styles.heroSubtitle}>{t("hero.subtitle")}</p>
-        </header>
-      </Section>
-
-      <Section alternate>
-        <h2 className={styles.listHeading}>{t("list.heading")}</h2>
-        {rows.length === 0 ? (
-          <p className={styles.empty}>{t("list.empty")}</p>
-        ) : (
+    <Container>
+      <h1 className={styles.heading}>{t("list.heading")}</h1>
+      <Controls current={parsed} />
+      <p className={styles.results}>{t("list.results", { count: total })}</p>
+      {rows.length === 0 ? (
+        <p className={styles.empty}>{t(emptyKey)}</p>
+      ) : (
+        <>
           <div className={styles.grid}>
             {rows.map(({ offering, seller }) => (
               <OfferingCard
@@ -43,8 +61,24 @@ export default async function ExplorePage({ params }: Props) {
               />
             ))}
           </div>
-        )}
-      </Section>
-    </>
+          {total > PAGE_SIZE && (
+            <Pager
+              page={parsed.page}
+              totalPages={totalPages}
+              prevHref={
+                parsed.page > 1
+                  ? buildExploreHref(parsed, { page: parsed.page - 1 })
+                  : null
+              }
+              nextHref={
+                parsed.page < totalPages
+                  ? buildExploreHref(parsed, { page: parsed.page + 1 })
+                  : null
+              }
+            />
+          )}
+        </>
+      )}
+    </Container>
   );
 }

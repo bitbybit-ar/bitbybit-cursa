@@ -1,0 +1,46 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-16;
+  margin-top: $spacing-32;
+  font-size: $font-size-sm;
+}
+
+.link {
+  padding: $spacing-8 $spacing-16;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-semibold;
+  transition: border-color 0.15s ease;
+
+  &:hover {
+    border-color: $color-primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $focus-ring;
+    outline-offset: 2px;
+  }
+}
+
+.disabled {
+  padding: $spacing-8 $spacing-16;
+  background: $color-bg-2;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  color: $color-text-secondary;
+  font-weight: $font-weight-semibold;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.position {
+  color: $color-text-secondary;
+}

@@ -1,0 +1,168 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/common-mixins" as *;
+@use "@/styles/z-index" as *;
+
+.dropdown {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-8;
+  width: 100%;
+  padding: $spacing-12 $spacing-16;
+  border-radius: $border-radius-md;
+  border: 1px solid $color-border;
+  background-color: $color-surface;
+  background-image: linear-gradient(
+    180deg,
+    $ceramic-highlight-soft 0%,
+    transparent 60%
+  );
+  box-shadow:
+    0 2px 6px $card-shadow,
+    inset 0 1px 0 $ceramic-highlight,
+    inset 0 -2px 4px $ceramic-inner-shadow;
+  color: $color-text-primary;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  outline: none;
+  text-align: left;
+  @include transition(all, 0.2s);
+
+  &:hover:not(:disabled) {
+    border-color: alpha($color-primary, 40%);
+  }
+
+  &:focus-visible {
+    border-color: $color-primary;
+    box-shadow:
+      0 2px 6px $card-shadow,
+      inset 0 1px 0 $ceramic-highlight,
+      inset 0 -2px 4px $ceramic-inner-shadow,
+      0 0 0 2px alpha($color-primary, 20%);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.triggerOpen {
+  border-color: $color-primary;
+}
+
+.triggerLabel {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chevron {
+  display: inline-flex;
+  align-items: center;
+  color: $color-text-secondary;
+  transition: transform 0.2s ease;
+
+  .triggerOpen & {
+    transform: rotate(180deg);
+    color: $color-primary;
+  }
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + #{$spacing-8});
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: $spacing-4;
+  list-style: none;
+  background-color: $color-surface;
+  background-image: linear-gradient(
+    180deg,
+    $ceramic-highlight-soft 0%,
+    transparent 60%
+  );
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  box-shadow:
+    0 12px 32px $card-shadow-hover,
+    inset 0 1px 0 $ceramic-highlight,
+    inset 0 -2px 4px $ceramic-inner-shadow;
+  z-index: $z-index-dropdown;
+  max-height: 280px;
+  overflow-y: auto;
+  animation: dropdownFadeIn 0.15s ease-out;
+}
+
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-8;
+  width: 100%;
+  padding: $spacing-8 $spacing-12;
+  background: transparent;
+  border: none;
+  border-radius: $border-radius-sm;
+  color: $color-text-primary;
+  font-family: $font-body;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  text-align: left;
+  cursor: pointer;
+  @include transition(background-color, 0.15s);
+
+  &:hover {
+    background: alpha($color-primary, 10%);
+  }
+
+  &:focus-visible {
+    outline: 2px solid $color-primary;
+    outline-offset: -2px;
+  }
+}
+
+.itemSelected {
+  background: alpha($color-primary, 14%);
+  color: $color-primary;
+
+  &:hover {
+    background: alpha($color-primary, 20%);
+  }
+}
+
+.itemLabel {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemCheck {
+  display: inline-flex;
+  align-items: center;
+  color: $color-primary;
+}

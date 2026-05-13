@@ -29,7 +29,7 @@ import styles from "./navbar.module.scss";
 // locale-aware route that works from anywhere. Keep this list in sync
 // with the matching one in MobileMenu.
 const SECTIONS = [
-  { id: "explore", kind: "anchor", target: "#cursos-destacados" },
+  { id: "explore", kind: "link", target: "/explore" },
   { id: "howItWorks", kind: "link", target: "/como-funciona" },
   { id: "features", kind: "link", target: "/caracteristicas" },
 ] as const;

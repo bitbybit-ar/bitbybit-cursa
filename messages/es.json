@@ -213,15 +213,35 @@
       "subtitle": "Comprá clases, talleres y materiales con tu wallet Lightning. El profe elige cómo cobrar: sats en su wallet, o pesos en su CBU."
     },
     "list": {
-      "heading": "Disponibles ahora",
-      "empty": "Todavía no hay clases ni materiales publicados. Volvé en un rato."
+      "heading": "Explorá cursos",
+      "empty": "Todavía no hay clases ni materiales publicados. Volvé en un rato.",
+      "noMatches": "Ningún curso coincide con tus filtros. Probá quitando alguno.",
+      "results": "{count, plural, =0 {Sin resultados} one {1 curso} other {# cursos}}"
     },
     "card": {
       "view": "Ver detalle"
+    },
+    "controls": {
+      "search": "Buscar",
+      "searchPlaceholder": "Título, descripción o profe",
+      "type": "Tipo",
+      "typeAny": "Todos los tipos",
+      "typeCode": "Código de canje",
+      "typeDownload": "Descarga",
+      "sort": "Ordenar",
+      "sortNewest": "Más nuevos",
+      "sortOldest": "Más viejos",
+      "sortPriceAsc": "Precio: menor a mayor",
+      "sortPriceDesc": "Precio: mayor a menor"
+    },
+    "pager": {
+      "ariaLabel": "Paginación",
+      "prev": "Anterior",
+      "next": "Siguiente",
+      "position": "Página {page} de {total}"
     }
   },
   "offering": {
-    "back": "Volver al catálogo",
     "details": "Qué incluye",
     "type": {
       "code": "Recibís un código de canje al pagar.",

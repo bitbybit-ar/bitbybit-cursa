@@ -213,15 +213,35 @@
       "subtitle": "Pay for classes, workshops, and study material with your Lightning wallet. The teacher chooses how to get paid: sats to their wallet, or pesos to their CBU."
     },
     "list": {
-      "heading": "Available now",
-      "empty": "No classes or materials published yet. Check back soon."
+      "heading": "Explore courses",
+      "empty": "No classes or materials published yet. Check back soon.",
+      "noMatches": "No courses match your filters. Try clearing one of them.",
+      "results": "{count, plural, =0 {No results} one {1 course} other {# courses}}"
     },
     "card": {
       "view": "View details"
+    },
+    "controls": {
+      "search": "Search",
+      "searchPlaceholder": "Title, description, or teacher",
+      "type": "Type",
+      "typeAny": "All types",
+      "typeCode": "Redemption code",
+      "typeDownload": "Download",
+      "sort": "Sort",
+      "sortNewest": "Newest",
+      "sortOldest": "Oldest",
+      "sortPriceAsc": "Price: low to high",
+      "sortPriceDesc": "Price: high to low"
+    },
+    "pager": {
+      "ariaLabel": "Pagination",
+      "prev": "Previous",
+      "next": "Next",
+      "position": "Page {page} of {total}"
     }
   },
   "offering": {
-    "back": "Back to catalog",
     "details": "What you get",
     "type": {
       "code": "You receive a redemption code as soon as you pay.",

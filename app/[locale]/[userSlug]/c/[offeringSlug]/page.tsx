@@ -4,11 +4,9 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { Container } from "@/components/ui/container";
-import { Section } from "@/components/ui/section";
 import { PriceTag } from "@/components/catalog/price-tag";
 import { BuyButton } from "@/components/checkout/buy-button";
 import { Avatar } from "@/components/common/avatar";
-import { BackLink } from "@/components/common/back-link";
 import {
   ArrowRightIcon,
   BoltIcon,
@@ -63,15 +61,8 @@ export default async function OfferingPage({ params }: Props) {
     .filter(Boolean);
 
   return (
-    <Section className={styles.section}>
-      <Container column>
-        <BackLink
-          fallbackHref="/explore"
-          ariaLabel={t("back")}
-          className={styles.back}
-        />
-
-        <article className={styles.hero}>
+    <Container>
+      <article className={styles.hero}>
           {offering.image_url ? (
             <div className={styles.imageWrap}>
               <Image
@@ -161,7 +152,6 @@ export default async function OfferingPage({ params }: Props) {
             </Link>
           </div>
         </aside>
-      </Container>
-    </Section>
+    </Container>
   );
 }

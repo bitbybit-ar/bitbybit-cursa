@@ -3,19 +3,6 @@
 @use "@/styles/typography" as *;
 @use "@/styles/media-mixins" as *;
 
-.section {
-  padding-top: $spacing-32;
-
-  @include mobile {
-    padding-top: $spacing-16;
-  }
-}
-
-.back {
-  align-self: flex-start;
-  margin-bottom: $spacing-24;
-}
-
 .hero {
   display: grid;
   grid-template-columns: 1fr;
