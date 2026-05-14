@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Link } from "@/i18n/routing";
 import { ArrowLeftIcon } from "@/components/icons";
-import { OfferingForm } from "@/components/admin/offering-form";
+import { OfferingForm } from "@/components/courses/offering-form";
+import { CodePoolPanel } from "@/components/courses/code-pool-panel";
 import { getOfferingForAdmin } from "@/lib/admin/offerings";
 import { requirePanelUser } from "@/lib/admin/panel-context";
 import styles from "./page.module.scss";
@@ -57,6 +58,13 @@ export default async function EditOfferingPage({
       </p>
 
       <OfferingForm offering={offering} />
+      {offering.type === "code" ? (
+        <CodePoolPanel
+          offeringId={offering.id}
+          offeringSlug={offering.slug}
+          initialRemaining={offering.code_pool?.length ?? 0}
+        />
+      ) : null}
       </>
     );
 }

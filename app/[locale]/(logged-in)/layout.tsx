@@ -1,7 +1,6 @@
 import { notFound } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { Container } from "@/components/ui/container";
-import { Section } from "@/components/ui/section";
 import { getSession } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
@@ -13,9 +12,11 @@ export const dynamic = "force-dynamic";
  *   1. Defense-in-depth auth gate. The edge proxy already bounces
  *      unauthenticated visitors to /sign-in; this layout 404s as a
  *      backstop in case the proxy is misconfigured.
- *   2. Common visual chrome (Section + Container) so each page can
- *      render its own header + body without re-stacking the same
- *      wrappers.
+ *   2. Common page chrome (Container) so each page can render its
+ *      own header + body without re-stacking the same wrapper.
+ *      Pages may add their own <Section>s inside Container when
+ *      they want visible section banding — the layout does not
+ *      assume one.
  *
  * Each page still calls `requirePanelUser()` (or `requireUser()`
  * on the API side) to scope its DB queries to the user's row —
@@ -35,9 +36,5 @@ export default async function LoggedInLayout({
   const session = await getSession();
   if (!session) notFound();
 
-  return (
-    <Section>
-      <Container column>{children}</Container>
-    </Section>
-  );
+  return <Container column>{children}</Container>;
 }

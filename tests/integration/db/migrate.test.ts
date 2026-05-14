@@ -81,7 +81,8 @@ describe("db/migrate — offerings", () => {
         type: "code",
         title: "Bono 4 clases",
         description: "Cuatro clases de piano, válidas por 30 días.",
-        price_ars: 28000,
+        price_amount: 28000,
+        price_currency: "ars" as const,
       })
       .returning();
 
@@ -99,7 +100,8 @@ describe("db/migrate — offerings", () => {
       type: "code",
       title: "First",
       description: "First.",
-      price_ars: 1000,
+      price_amount: 1000,
+        price_currency: "ars" as const,
     });
 
     await expect(
@@ -109,7 +111,8 @@ describe("db/migrate — offerings", () => {
         type: "code",
         title: "Second",
         description: "Second.",
-        price_ars: 2000,
+        price_amount: 2000,
+        price_currency: "ars" as const,
       })
     ).rejects.toThrow();
   });
@@ -129,7 +132,8 @@ describe("db/migrate — offerings", () => {
       type: "code",
       title: "From A",
       description: "From A.",
-      price_ars: 1000,
+      price_amount: 1000,
+        price_currency: "ars" as const,
     });
     await testDb.insert(offerings).values({
       user_id: b.id,
@@ -137,7 +141,8 @@ describe("db/migrate — offerings", () => {
       type: "code",
       title: "From B",
       description: "From B.",
-      price_ars: 1000,
+      price_amount: 1000,
+        price_currency: "ars" as const,
     });
   });
 });
@@ -153,7 +158,8 @@ describe("db/migrate — orders", () => {
         type: "code",
         title: "Anon",
         description: "Anon.",
-        price_ars: 1000,
+        price_amount: 1000,
+        price_currency: "ars" as const,
       })
       .returning();
 

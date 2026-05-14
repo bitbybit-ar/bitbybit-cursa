@@ -86,7 +86,8 @@ export default async function PanelOfferingsPage({
                       <span className={styles.dot}>·</span>
                       {t(`type.${row.type}`)}
                       <span className={styles.dot}>·</span>
-                      ARS {arsFormatter.format(row.price_ars)}
+                      {row.price_currency === "ars" ? "ARS" : "sats"}{" "}
+                      {arsFormatter.format(row.price_amount)}
                     </span>
                   </div>
                   <ArrowRightIcon size={16} />

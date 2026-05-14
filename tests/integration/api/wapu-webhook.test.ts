@@ -45,7 +45,8 @@ async function seedOrder() {
       type: "code",
       title: "Test",
       description: "Test.",
-      price_ars: 1000,
+      price_amount: 1000,
+        price_currency: "ars" as const,
     })
     .returning();
   const result = await createOrder({
@@ -197,7 +198,8 @@ describe("POST /api/wapu/webhook — rail guard (direct_lightning)", () => {
         type: "code",
         title: "LN Course",
         description: "via lightning",
-        price_ars: 1000,
+        price_amount: 1000,
+        price_currency: "ars" as const,
       })
       .returning();
     const result = await createOrder({

@@ -12,8 +12,8 @@ export const highlightedCourses: OfferingWithSeller[] = [
       title: "Introducción a Bitcoin",
       description:
         "Un curso de cinco clases para entender cómo funciona Bitcoin desde cero, sin matemática avanzada.\n\nVas a aprender qué es una wallet, cómo se firma una transacción, por qué la red es resistente a la censura y cómo encaja Lightning encima de la cadena base.\n\nIncluye un PDF con ejercicios y enlaces a recursos en español para seguir profundizando después de la última clase.",
-      price_ars: 12000,
-      price_sats: null,
+      price_amount: 12000,
+      price_currency: "ars",
       image_url:
         "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=720&q=80",
       code_pool: [],
@@ -41,8 +41,8 @@ export const highlightedCourses: OfferingWithSeller[] = [
       title: "Guitarra: folklore argentino",
       description:
         "Aprendé a tocar zambas, chacareras y vidalas en guitarra criolla. Material descargable y partituras incluidas.\n\nDoce videos progresivos, desde afinación y postura hasta el rasguido de chacarera doble. Pensado para principiantes con ganas de tocar antes que estudiar teoría.\n\nAl pagar recibís un ZIP con los videos en alta calidad, partituras en PDF y pistas de acompañamiento para practicar.",
-      price_ars: 9500,
-      price_sats: null,
+      price_amount: 9500,
+      price_currency: "ars",
       image_url:
         "https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=720&q=80",
       code_pool: [],
@@ -70,8 +70,8 @@ export const highlightedCourses: OfferingWithSeller[] = [
       title: "Pintura acrílica: paisajes",
       description:
         "Workshop online de cuatro encuentros para principiantes. Recibís un código de acceso y materiales en PDF.\n\nVamos a pintar un paisaje distinto en cada clase, trabajando capas, mezclas y composición. No hace falta experiencia previa, solo ganas y los materiales básicos.\n\nLos encuentros son los sábados por Zoom y quedan grabados por una semana. El código que recibís al pagar te habilita el acceso a las clases y al canal de consultas.",
-      price_ars: 18000,
-      price_sats: null,
+      price_amount: 18000,
+      price_currency: "ars",
       image_url:
         "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=720&q=80",
       code_pool: [],

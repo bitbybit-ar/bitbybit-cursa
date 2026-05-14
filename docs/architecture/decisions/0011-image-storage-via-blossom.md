@@ -3,7 +3,7 @@
 - **Date**: 2026-05-08
 - **Status**: Accepted
 - **Deciders**: BitByBit team
-- **Last updated**: 2026-05-08
+- **Last updated**: 2026-05-13
 
 ---
 
@@ -11,6 +11,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-13 | Consequences | Update the component path from `components/admin/image-upload/` to `components/ui/image-upload/`. | The `components/admin/` directory was renamed to reflect ADR 0014 (every signed-in user is a creator, not an admin); the generic image uploader moved to `components/ui/`. |
 | 2026-05-08 | — | Initial version. | Pin the image-storage strategy before the offering-form upload UI lands so the choice does not get retrofitted under deadline pressure, and so `image_url` rows do not get locked to a provider we wanted to avoid. |
 
 ---
@@ -71,7 +72,7 @@ Concrete shape:
   to every server in the configured list in parallel. It resolves
   on the first success and surfaces partial failures so the UI can
   show "uploaded to N of M mirrors".
-- A new `components/admin/image-upload/` client component renders
+- A new `components/ui/image-upload/` client component renders
   a file picker + paste-URL fallback. The paste fallback survives
   so a merchant who already self-hosts is not forced through
   Blossom.

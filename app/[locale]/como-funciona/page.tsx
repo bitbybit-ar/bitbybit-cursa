@@ -164,7 +164,7 @@ export default async function HowItWorksPage({ params }: Props) {
               {t("cta.explore")}
             </Button>
             <Button
-              href="/sign-in?next=/create-course"
+              href="/create-course"
               variant="primary"
               size="lg"
               className={`${styles.cta} ${styles.ctaSoft}`}

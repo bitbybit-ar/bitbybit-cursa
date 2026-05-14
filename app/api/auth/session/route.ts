@@ -1,10 +1,25 @@
 import { NextResponse } from "next/server";
-import { getSession, sessionIsPlatformAdmin } from "@/lib/auth";
+import {
+  readSessionCookieAndVerify,
+  sessionIsPlatformAdmin,
+  SESSION_COOKIE_NAME,
+} from "@/lib/auth";
 import { getUserByPubkey } from "@/lib/admin/users";
 
 export async function GET(): Promise<NextResponse> {
-  const session = await getSession();
-  if (!session) return NextResponse.json({ session: null });
+  const { hasCookie, session } = await readSessionCookieAndVerify();
+  if (!session) {
+    const res = NextResponse.json({ session: null });
+    // Drop a stale cookie so the browser doesn't keep sending a
+    // dead JWT on every request until its natural maxAge expires.
+    // `hasCookie && !session` only happens when the cookie exists
+    // but verifySessionToken rejected it (signature mismatch, exp
+    // past, malformed payload).
+    if (hasCookie) {
+      res.cookies.delete(SESSION_COOKIE_NAME);
+    }
+    return res;
+  }
   const user = await getUserByPubkey(session.pubkey);
   return NextResponse.json({
     session: {

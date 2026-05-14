@@ -73,8 +73,8 @@ export default async function CheckoutPage({ params }: Props) {
             <div className={styles.amount}>
               <span className={styles.amountLabel}>{t("amount")}</span>
               <PriceTag
-                priceArs={order.amount_ars}
-                priceSats={order.amount_sats}
+                priceAmount={order.amount_sats}
+                priceCurrency="sats"
                 size="lg"
               />
             </div>

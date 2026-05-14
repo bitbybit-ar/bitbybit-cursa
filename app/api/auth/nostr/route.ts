@@ -4,7 +4,7 @@ import { validateNip98AuthEvent } from "@/lib/nostr/verify";
 import { parseNostrAuthHeader } from "@/lib/nostr/http-auth";
 import { createSession, SESSION_COOKIE_NAME } from "@/lib/auth";
 import { LocaleSchema, SignerTypeSchema, type Locale, type SignerType } from "@/lib/schemas/auth";
-import { SESSION_DURATION_DAYS } from "@/lib/auth-constants";
+import { SESSION_INACTIVITY_MINUTES } from "@/lib/auth-constants";
 import { fetchKind0Profile } from "@/lib/nostr/profile";
 import { ensureUserForPubkey } from "@/lib/admin/users";
 
@@ -132,7 +132,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
-    maxAge: SESSION_DURATION_DAYS * 24 * 60 * 60,
+    maxAge: SESSION_INACTIVITY_MINUTES * 60,
     path: "/",
   });
 

@@ -57,7 +57,10 @@ async function seedOffering(slug = "bono-4-clases") {
       type: "code",
       title: "Bono 4 clases",
       description: "Cuatro clases.",
-      price_ars: 28000,
+      price_amount: 28000,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
     })
     .returning();
   return row;
@@ -362,7 +365,10 @@ describe("orders/drawAndAssignCode", () => {
         type: "code",
         title: "Pool offering",
         description: "Has a pool.",
-        price_ars: 1000,
+        price_amount: 1000,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
         code_pool: codes,
       })
       .returning();
@@ -379,7 +385,10 @@ describe("orders/drawAndAssignCode", () => {
         type: "download",
         title: "PDF",
         description: "A download.",
-        price_ars: 500,
+        price_amount: 500,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
         download_url: "https://example.com/pdf",
       })
       .returning();

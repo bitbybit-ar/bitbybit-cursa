@@ -8,10 +8,41 @@ import { getBaseUrl } from "@/lib/env";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/lib/contexts/theme-context";
 import { SignerProviderClient } from "@/components/auth/signer-provider-client";
+import type { SessionUser } from "@/lib/contexts/signer-context";
+import { getSession, sessionIsPlatformAdmin } from "@/lib/auth";
+import { getUserByPubkey } from "@/lib/admin/users";
 import { ToastProvider } from "@/components/ui/toast";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import "@/styles/globals.scss";
+
+/**
+ * Build the SessionUser shape the SignerProvider expects from the
+ * request cookie. Mirrors the `/api/auth/session` route's payload so
+ * the navbar and the API agree on the same picture of the session.
+ * Returns `null` when the cookie is missing or the JWT no longer
+ * verifies — letting the provider boot with `session: null` instead
+ * of a stale truthy value.
+ */
+async function resolveInitialSession(): Promise<SessionUser | null> {
+  const session = await getSession();
+  if (!session) return null;
+  const user = await getUserByPubkey(session.pubkey);
+  return {
+    pubkey: session.pubkey,
+    locale: session.locale,
+    signer_type: session.signer_type,
+    user:
+      user && user.active
+        ? {
+            id: user.id,
+            slug: user.slug,
+            display_name: user.display_name,
+          }
+        : null,
+    platform_admin: sessionIsPlatformAdmin(session),
+  };
+}
 
 const nunito = Nunito({
   subsets: ["latin"],
@@ -96,6 +127,7 @@ export default async function LocaleLayout({
   const messages = await getMessages();
   const t = await getTranslations({ locale, namespace: "metadata" });
   const baseUrl = getBaseUrl();
+  const initialSession = await resolveInitialSession();
 
   const orgJsonLd = {
     "@context": "https://schema.org",
@@ -146,7 +178,7 @@ export default async function LocaleLayout({
       <body suppressHydrationWarning>
         <NextIntlClientProvider messages={messages}>
           <ThemeProvider>
-            <SignerProviderClient>
+            <SignerProviderClient initialSession={initialSession}>
               <ToastProvider>
                 <a href="#main" className="skip-link">
                   {t("skipToContent")}
