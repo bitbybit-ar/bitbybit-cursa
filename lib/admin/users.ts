@@ -48,6 +48,14 @@ export const ClaimUserSchema = z.object({
 
 export type ClaimUserInput = z.infer<typeof ClaimUserSchema>;
 
+/**
+ * Per-kind notification opt-outs (ADR 0021). Keys are notification
+ * kinds (e.g. "order.paid", "sale.received" — see
+ * `lib/schemas/notifications.ts`). Missing key or `true` = enabled;
+ * `false` skips the insert.
+ */
+export const NotificationPrefsSchema = z.record(z.string(), z.boolean());
+
 export const UpdateUserProfileSchema = z
   .object({
     display_name: z.string().trim().min(2).max(80),
@@ -59,6 +67,8 @@ export const UpdateUserProfileSchema = z
     lightning_address: LightningAddressSchema.nullable(),
     payout_method: z.enum(["cbu_alias", "lightning_address"]),
     features_autorenewal: z.boolean(),
+    locale: z.enum(["es", "en"]),
+    notification_prefs: NotificationPrefsSchema,
   })
   .partial();
 
@@ -228,6 +238,59 @@ export async function claimUser(
   return row;
 }
 
+/**
+ * Soft-delete a user (ADR 0021). Scrubs PII fields, stamps
+ * `deleted_at`, marks `active = false`. The row stays so
+ * foreign-key references (offerings, orders, audit log) remain
+ * valid; the buyer flows already filter by `users.active` and
+ * `offerings.archived_at`, so a deleted user's offerings will
+ * disappear from discovery without needing to delete the rows.
+ *
+ * After this returns, the caller must also clear the session
+ * cookie — that's the API route's job, not this helper's. Future
+ * sign-in attempts with the same pubkey are blocked by the
+ * `deleted_at IS NOT NULL` check we add to `ensureUserForPubkey`
+ * — TODO: actually add that check; for now, a soft-deleted user
+ * cannot sign in because their `active` is false.
+ */
+export async function softDeleteUser(
+  id: string,
+  actorPubkey: string,
+  meta: { signedEventId?: string } = {},
+): Promise<void> {
+  const db = getDb();
+  const now = new Date();
+  const shortId = id.slice(0, 8);
+  await db
+    .update(users)
+    .set({
+      display_name: `[deleted ${shortId}]`,
+      bio: null,
+      avatar_url: null,
+      banner_url: null,
+      cbu: null,
+      alias: null,
+      lightning_address: null,
+      notification_prefs: {},
+      active: false,
+      deleted_at: now,
+      updated_at: now,
+    })
+    .where(eq(users.id, id));
+
+  const payload_diff: Record<string, unknown> = { action: "soft_delete" };
+  if (meta.signedEventId) {
+    payload_diff.signed = { event_id: meta.signedEventId, kind: 27235 };
+  }
+  await writeAuditLog({
+    user_id: id,
+    actor_pubkey: actorPubkey,
+    route: "/api/settings",
+    action: "delete",
+    payload_diff,
+  });
+}
+
 export async function updateUserProfile(
   id: string,
   patch: UpdateUserProfileInput,
@@ -255,6 +318,17 @@ export async function updateUserProfile(
   }
   if (patch.features_autorenewal !== undefined) {
     next.features_autorenewal = patch.features_autorenewal;
+  }
+  if (patch.locale !== undefined) next.locale = patch.locale;
+  // Merge notification_prefs on top of the existing row instead of
+  // overwriting — clients send partial patches (just the kind they
+  // toggled). A full replace would lose any other opt-outs the
+  // user set in a previous save.
+  if (patch.notification_prefs !== undefined) {
+    next.notification_prefs = {
+      ...(before.notification_prefs ?? {}),
+      ...patch.notification_prefs,
+    };
   }
 
   const [row] = await db

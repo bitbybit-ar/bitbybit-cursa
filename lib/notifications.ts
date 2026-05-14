@@ -1,7 +1,7 @@
 import "server-only";
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { getDb } from "@/lib/db";
-import { notifications } from "@/lib/db/schema";
+import { notifications, users } from "@/lib/db/schema";
 import type { NotificationKind } from "@/lib/schemas/notifications";
 
 export type NotificationRow = typeof notifications.$inferSelect;
@@ -12,8 +12,29 @@ interface EmitInput {
   payload?: Record<string, unknown>;
 }
 
+/**
+ * Insert a notification row for `recipient_pubkey`, unless that
+ * user has explicitly opted out of this `kind` via
+ * `users.notification_prefs` (ADR 0021).
+ *
+ * The lookup is by-pubkey; the user row may not exist yet (the
+ * `notifications` table has no FK on purpose so anonymous-buyer
+ * notifications can land before a user row materialises). Missing
+ * user → fall through to insert; the recipient can collect the
+ * notification once they sign in. Explicit `false` in
+ * `notification_prefs[kind]` → silently skip. Any other value
+ * (missing key, `true`, or invalid type) → insert.
+ */
 export async function emitNotification(input: EmitInput): Promise<void> {
   const db = getDb();
+
+  const [recipient] = await db
+    .select({ prefs: users.notification_prefs })
+    .from(users)
+    .where(eq(users.pubkey, input.recipient_pubkey))
+    .limit(1);
+  if (recipient?.prefs?.[input.kind] === false) return;
+
   await db.insert(notifications).values({
     recipient_pubkey: input.recipient_pubkey,
     kind: input.kind,

@@ -44,14 +44,15 @@ export async function hashSettingsBody(serialized: string): Promise<string> {
  */
 export function buildSettingsAuthEvent(
   url: string,
-  payloadHashHex: string
+  payloadHashHex: string,
+  options: { method?: "PATCH" | "DELETE" } = {},
 ): UnsignedNostrEvent {
   return {
     kind: NIP98_KIND,
     created_at: Math.floor(Date.now() / 1000),
     tags: [
       ["u", url],
-      ["method", "PATCH"],
+      ["method", options.method ?? "PATCH"],
       ["payload", payloadHashHex],
       ["cursats_action", ACTION_TAG_VALUE],
     ],

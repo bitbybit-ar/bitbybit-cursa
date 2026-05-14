@@ -484,13 +484,57 @@
       "notifications": "Notificaciones",
       "danger": "Zona de peligro"
     },
-    "placeholder": {
-      "preferencesTitle": "Preferencias",
-      "preferencesBody": "Acá vas a poder elegir tu tema (claro / oscuro) y tu idioma por defecto. Al iniciar sesión esos valores quedan seleccionados; los toggles de la barra superior se siguen usando para cambiarlos temporalmente durante la sesión. Próximamente.",
-      "notificationsTitle": "Notificaciones",
-      "notificationsBody": "Pronto vas a poder elegir qué notificaciones recibís cuando alguien compra un curso tuyo o cuando se te asigna un código. Por ahora avisamos todo desde la campanita de la barra superior.",
-      "dangerTitle": "Zona de peligro",
-      "dangerBody": "Eliminar tu cuenta de Cursats es una acción permanente; preferimos no exponer un botón antes de tener los flujos de respaldo en su lugar. Si necesitás dar de baja la cuenta ahora, escribinos."
+    "preferences": {
+      "title": "Preferencias",
+      "hint": "Elegí tu idioma por defecto. El tema (claro / oscuro) se guarda en tu navegador desde el toggle de la barra superior.",
+      "language": "Idioma por defecto",
+      "languageEs": "Español",
+      "languageEn": "English",
+      "languageHint": "Se aplica la próxima vez que inicies sesión. Podés cambiarlo temporalmente desde la barra superior cuando quieras.",
+      "themeLabel": "Tema",
+      "themeHint": "El cambio de tema vive en la barra superior y se guarda por dispositivo, no en tu cuenta.",
+      "save": "Guardar preferencias",
+      "saving": "Guardando…",
+      "saved": "Preferencias guardadas.",
+      "saveFailed": "No pudimos guardar las preferencias. Probá de nuevo."
+    },
+    "notifications": {
+      "title": "Notificaciones",
+      "hint": "Elegí qué eventos te avisamos desde la campanita. Apagar uno deja de generarlo; no se borra el historial anterior.",
+      "kind": {
+        "order.paid": {
+          "title": "Avisame cuando se confirme un pago mío",
+          "hint": "Cuando comprás un curso, te avisamos al confirmarse el pago en Lightning."
+        },
+        "sale.received": {
+          "title": "Avisame cuando me compren un curso",
+          "hint": "Cuando alguien compra uno de tus cursos, te avisamos para que veas el pago en \"Pedidos\"."
+        }
+      },
+      "save": "Guardar notificaciones",
+      "saving": "Guardando…",
+      "saved": "Notificaciones guardadas.",
+      "saveFailed": "No pudimos guardar las preferencias. Probá de nuevo."
+    },
+    "danger": {
+      "title": "Zona de peligro",
+      "hint": "Acciones permanentes sobre tu cuenta. Pensalo bien antes de continuar.",
+      "deleteAccount": "Eliminar mi cuenta",
+      "deleteAccountHint": "Limpiamos tus datos de perfil y damos de baja tu cuenta. Tu historial de pedidos queda asociado a tu pubkey, pero ya no podés iniciar sesión con esta cuenta.",
+      "deleteAccountCta": "Eliminar cuenta",
+      "modalTitle": "¿Eliminar tu cuenta?",
+      "modalBody": "Esto es permanente. Al confirmar:",
+      "modalBullets": {
+        "profile": "Tu nombre, bio, foto y datos de cobro se borran de Cursats.",
+        "offerings": "Tus cursos dejan de aparecer en el catálogo y en tu storefront.",
+        "history": "Los pedidos y firmas en Nostr existentes no se borran — son inmutables. Pero ya no podés iniciar sesión con esta identidad."
+      },
+      "modalCancel": "Cancelar",
+      "modalConfirm": "Sí, eliminar cuenta",
+      "modalConfirming": "Eliminando…",
+      "deleted": "Cuenta eliminada.",
+      "deleteFailed": "No pudimos eliminar la cuenta. Probá de nuevo.",
+      "signCancelled": "Cancelaste la firma. Probá de nuevo cuando estés listo."
     },
     "form": {
       "syncFromRelays": "Sincronizar desde Nostr",

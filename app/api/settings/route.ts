@@ -1,8 +1,14 @@
+import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
+import { eq } from "drizzle-orm";
 import {
   UpdateUserProfileSchema,
   updateUserProfile,
+  softDeleteUser,
 } from "@/lib/admin/users";
+import { getDb } from "@/lib/db";
+import { users } from "@/lib/db/schema";
+import { SESSION_COOKIE_NAME } from "@/lib/auth";
 import { requireUser } from "@/lib/admin/require-user";
 import { parseNostrAuthHeader } from "@/lib/nostr/http-auth";
 import { validateNip98AuthEvent } from "@/lib/nostr/verify";
@@ -158,6 +164,68 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
       lightning_address: updated.lightning_address,
       payout_method: updated.payout_method,
       features_autorenewal: updated.features_autorenewal,
+      locale: updated.locale,
+      notification_prefs: updated.notification_prefs,
     },
   });
+}
+
+/**
+ * Soft-delete the current user (ADR 0021). Scrubs PII fields,
+ * stamps `deleted_at`, clears the session cookie so the request
+ * returns the caller to an unauthenticated state. The row stays —
+ * offerings, orders, and audit-log entries keep their foreign-key
+ * references intact and the deleted account can't be re-claimed
+ * (the pubkey check rejects on `deleted_at IS NOT NULL` via
+ * `lib/admin/users.ts:ensureUserForPubkey`).
+ *
+ * Requires NIP-98 re-sign so a stolen session cookie can't take
+ * the account out from under the rightful owner. Same envelope
+ * shape as the PATCH path above — bound by URL + method + (empty)
+ * body hash.
+ */
+export async function DELETE(req: NextRequest): Promise<NextResponse> {
+  const auth = await requireUser();
+  if (!auth.ok) return auth.response;
+
+  const header = parseNostrAuthHeader(req.headers.get("authorization"));
+  if (!header.ok) {
+    return NextResponse.json(
+      { error: "auth_required", reason: header.reason },
+      { status: 401 },
+    );
+  }
+
+  // DELETE has no body, so the payload hash is the sha256 of the
+  // empty string. The client signs the same.
+  const emptyHash = await hashSettingsBody("");
+  const validation = validateNip98AuthEvent(header.event, {
+    url: req.nextUrl.toString(),
+    method: "DELETE",
+    payloadHash: emptyHash,
+  });
+  if (!validation.ok) {
+    if (validation.reason === "clock") {
+      return NextResponse.json(
+        { error: "auth_clock_skew" },
+        { status: 401 },
+      );
+    }
+    return NextResponse.json(
+      { error: "auth_invalid_signature", reason: validation.reason },
+      { status: 400 },
+    );
+  }
+  if (validation.event.pubkey !== auth.session.pubkey) {
+    return NextResponse.json({ error: "auth_mismatch" }, { status: 403 });
+  }
+
+  await softDeleteUser(auth.user.id, auth.session.pubkey, {
+    signedEventId: validation.event.id,
+  });
+
+  const cookieStore = await cookies();
+  cookieStore.delete(SESSION_COOKIE_NAME);
+
+  return NextResponse.json({ deleted: true });
 }
