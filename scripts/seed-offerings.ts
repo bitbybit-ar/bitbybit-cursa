@@ -43,8 +43,10 @@ const SAMPLE_OFFERINGS = [
       "secundario. Coordinás el horario por mensaje y recibís un " +
       "código de canje al pagar. Ideal para repasar antes de un " +
       "examen o desbloquear un tema puntual.",
-    price_ars: 8000,
+    price_amount: 8000,
+    price_currency: "ars" as const,
     image_url: null,
+    code_pool: ["DEMO-A1B2", "DEMO-C3D4"],
   },
   {
     slug: "taller-introduccion-bitcoin",
@@ -54,8 +56,10 @@ const SAMPLE_OFFERINGS = [
       "Taller grupal de 90 minutos sobre los fundamentos de " +
       "Bitcoin y Lightning. Online, los miércoles 19hs. Tu código " +
       "de canje te da acceso al próximo cupo disponible.",
-    price_ars: 5000,
+    price_amount: 5000,
+    price_currency: "ars" as const,
     image_url: null,
+    code_pool: ["DEMO-E5F6", "DEMO-G7H8"],
   },
   {
     slug: "guia-pdf-finanzas-personales",
@@ -65,7 +69,8 @@ const SAMPLE_OFFERINGS = [
       "Cuadernillo de 32 páginas con planillas, ejemplos y un " +
       "checklist para ordenar tus ingresos y gastos como docente. " +
       "Descarga inmediata después de pagar.",
-    price_ars: 2500,
+    price_amount: 2500,
+    price_currency: "ars" as const,
     image_url: null,
     download_url: "https://example.com/guia-finanzas.pdf",
   },

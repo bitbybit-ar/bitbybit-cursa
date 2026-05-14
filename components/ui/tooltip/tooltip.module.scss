@@ -7,6 +7,8 @@
   align-items: center;
   position: relative;
 
+  // Only paints when the wrapper itself is the tab stop
+  // (focusableWrapper=true). No-op for the default variant.
   &:focus-visible {
     outline: 2px solid $color-primary;
     outline-offset: 2px;
@@ -14,6 +16,9 @@
   }
 }
 
+// Used when the tooltip wraps a block-level child (e.g. a fullWidth
+// Button). The popover positioning still works because the wrapper
+// keeps position: relative.
 .wrapperBlock {
   display: block;
   width: 100%;

@@ -48,9 +48,17 @@ beforeEach(() => {
 });
 
 describe("blossom/readBlossomServers", () => {
-  it("returns an empty list for undefined or empty input", () => {
-    expect(readBlossomServers(undefined)).toEqual([]);
-    expect(readBlossomServers("")).toEqual([]);
+  it("falls back to the default public servers for undefined or empty input", () => {
+    // Empty / unset → DEFAULT_BLOSSOM_SERVERS so the offering form
+    // works without forcing every contributor to copy a value out
+    // of .env.example. Operators who care override via the env var.
+    const defaults = ["https://blossom.primal.net", "https://cdn.satellite.earth"];
+    expect(readBlossomServers(undefined)).toEqual(defaults);
+    expect(readBlossomServers("")).toEqual(defaults);
+    // Whitespace-only and a comma-list of empty entries should both
+    // be treated as "no override" and fall back to the defaults too.
+    expect(readBlossomServers("   ")).toEqual(defaults);
+    expect(readBlossomServers(", ,")).toEqual(defaults);
   });
 
   it("trims whitespace and drops empty entries", () => {

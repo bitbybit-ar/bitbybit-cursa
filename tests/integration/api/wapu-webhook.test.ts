@@ -45,7 +45,12 @@ async function seedOrder() {
       type: "code",
       title: "Test",
       description: "Test.",
-      price_ars: 1000,
+      price_amount: 1000,
+      price_currency: "ars" as const,
+      // Non-empty pool so createOrder's sold-out guard (ADR 0019
+      // follow-on) doesn't refuse the checkout before the test
+      // can exercise the webhook path.
+      code_pool: ["WEBHOOK-CODE-1"],
     })
     .returning();
   const result = await createOrder({
@@ -197,7 +202,9 @@ describe("POST /api/wapu/webhook — rail guard (direct_lightning)", () => {
         type: "code",
         title: "LN Course",
         description: "via lightning",
-        price_ars: 1000,
+        price_amount: 1000,
+        price_currency: "ars" as const,
+        code_pool: ["LN-CODE-1"],
       })
       .returning();
     const result = await createOrder({

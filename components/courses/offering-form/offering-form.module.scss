@@ -2,12 +2,48 @@
 @use "@/styles/spacing" as *;
 @use "@/styles/typography" as *;
 @use "@/styles/media-mixins" as *;
+@use "@/styles/common-mixins" as *;
 
 .form {
   display: flex;
   flex-direction: column;
+  gap: $spacing-32;
+  width: 100%;
+  max-width: 960px;
+}
+
+.section {
+  @include ceramic-card;
+  display: flex;
+  flex-direction: column;
   gap: $spacing-20;
-  max-width: 640px;
+  padding: $spacing-24;
+
+  @include mobile {
+    padding: $spacing-16;
+    gap: $spacing-16;
+  }
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  letter-spacing: $letter-spacing-tight;
+}
+
+.sectionHint {
+  margin: 0;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
 }
 
 .field {
@@ -17,20 +53,39 @@
 }
 
 .fieldset {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: $spacing-12;
-  border: 1px solid $color-border;
-  border-radius: $border-radius-md;
-  padding: $spacing-16;
-  background: $color-bg-2;
+  border: 0;
+  padding: 0;
+  margin: 0;
+
+  // The legend (radio-group label) sits across both columns so the
+  // grid below it pairs the two options side-by-side at the same
+  // baseline.
+  > legend {
+    grid-column: 1 / -1;
+  }
+
+  // The "type locked" hint and any other full-width helper text
+  // inside the fieldset span both columns too — without this the
+  // grid would try to slot them into a single cell.
+  > p {
+    grid-column: 1 / -1;
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $spacing-8;
+  }
 }
 
 .legend {
-  font-size: $font-size-xs;
+  font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
-  padding: 0 $spacing-4;
+  padding: 0;
+  margin-bottom: $spacing-4;
 }
 
 .radio {
@@ -39,10 +94,23 @@
   gap: $spacing-12;
   cursor: pointer;
   font-size: $font-size-sm;
+  padding: $spacing-16;
+  background: $color-bg;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  height: 100%;
+
+  &:hover {
+    border-color: $color-text-secondary;
+  }
 
   input[type="radio"] {
     accent-color: $color-primary;
     margin-top: $spacing-2;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
   }
 
   > span {
@@ -55,6 +123,11 @@
     color: $color-text-primary;
     font-weight: $font-weight-semibold;
   }
+}
+
+.radioSelected {
+  border-color: $color-primary;
+  background: alpha($color-primary, 6%);
 }
 
 .radioHint {
@@ -82,8 +155,8 @@
 .input,
 .textarea {
   width: 100%;
-  padding: $spacing-8 $spacing-12;
-  background: $color-surface;
+  padding: $spacing-12 $spacing-12;
+  background: $color-bg;
   border: 1px solid $color-border;
   border-radius: $border-radius-md;
   font-family: $font-family-base;
@@ -94,6 +167,10 @@
 
   &::placeholder {
     color: $color-text-secondary;
+  }
+
+  &:hover {
+    border-color: $color-text-secondary;
   }
 
   &:focus-visible {
@@ -129,6 +206,13 @@
 .actions {
   display: flex;
   gap: $spacing-12;
-  padding-top: $spacing-16;
-  border-top: 1px solid $color-border;
+  padding-top: $spacing-8;
+
+  @include mobile {
+    flex-direction: column-reverse;
+
+    > * {
+      width: 100%;
+    }
+  }
 }

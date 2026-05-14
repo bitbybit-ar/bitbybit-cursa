@@ -8,12 +8,12 @@ import { PUBLIC_RELAYS } from "./relays";
  * signer type (NIP-07 extension, in-memory nsec, NIP-46 bunker)
  * without caring which one is active. The relay broadcast itself is
  * fire-and-forget — one relay accepting the event is enough for the
- * UI to consider the publish "done"; later relays catch up via
- * gossip between themselves.
+ * UI to consider the share "published"; later relays get a chance
+ * to pick up the event from each other.
  */
 export async function publishSignedEvent(
   signedEvent: NostrEvent,
-  relayUrls?: readonly string[],
+  relayUrls?: string[],
 ): Promise<void> {
   const urls = relayUrls ?? PUBLIC_RELAYS;
   await publishToRelays(signedEvent, urls);
@@ -31,7 +31,7 @@ async function publishToRelays(
         try {
           const ws = new WebSocket(url);
           // 5-second per-relay deadline. Slow relays don't hold the
-          // publishing UI hostage.
+          // share modal hostage.
           const deadline = setTimeout(() => {
             try {
               ws.close();
@@ -67,8 +67,8 @@ async function publishToRelays(
       }),
   );
 
-  // Don't block on every relay returning. 3 seconds of any
-  // response is plenty for the UI to move on.
+  // Don't block on every relay returning. 3 seconds of any response
+  // is plenty for the modal to close.
   await Promise.race([
     Promise.all(promises),
     new Promise<void>((resolve) => setTimeout(resolve, 3000)),

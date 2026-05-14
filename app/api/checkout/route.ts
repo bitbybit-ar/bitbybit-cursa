@@ -56,10 +56,23 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       // are platform-side states the buyer cannot fix. The
       // offering_* errors are what they expect when they hit a stale
       // URL.
-      const status =
-        err.code === "offering_not_found" || err.code === "offering_archived"
-          ? 404
-          : 503;
+      // 404 for "this URL no longer points at anything buyable"
+      // (gone or never existed). 409 for "this offering exists but
+      // can't be sold right now" (sold out — fixable by the seller
+      // minting more codes). 503 for "the seller's payout config is
+      // wrong" — buyer can't fix that either, but it's a server-
+      // side state, not the buyer's stale URL.
+      let status: number;
+      if (
+        err.code === "offering_not_found" ||
+        err.code === "offering_archived"
+      ) {
+        status = 404;
+      } else if (err.code === "offering_sold_out") {
+        status = 409;
+      } else {
+        status = 503;
+      }
       return NextResponse.json(
         { error: "offering_unavailable", reason: err.code },
         { status }

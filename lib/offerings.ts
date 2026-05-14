@@ -1,6 +1,7 @@
 import { and, asc, desc, eq, ilike, isNull, or, sql, type SQL } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { offerings, users } from "@/lib/db/schema";
+import { convertPrice, getSatsPerArs } from "@/lib/exchange-rate";
 import {
   findMockOfferingByUserAndSlug,
   findMockStorefront,
@@ -74,13 +75,19 @@ export async function listDiscoveryOfferingsPaged(
     }
     const whereClause = and(...conditions);
 
+    // Normalise to ARS in SQL so price sorts behave the same whether
+    // the seller chose ARS or sats. The rate is locked at query time
+    // — a rate move mid-page won't reshuffle pagination.
+    const rate = await getSatsPerArs();
+    const priceArsEquiv = sql<number>`CASE WHEN ${offerings.price_currency} = 'ars' THEN ${offerings.price_amount} ELSE (${offerings.price_amount}::float / ${rate})::int END`;
+
     const orderBy =
       sort === "oldest"
         ? asc(offerings.created_at)
         : sort === "price_asc"
-          ? asc(offerings.price_ars)
+          ? asc(priceArsEquiv)
           : sort === "price_desc"
-            ? desc(offerings.price_ars)
+            ? desc(priceArsEquiv)
             : desc(offerings.created_at);
 
     const [rowsRaw, totalRaw] = await Promise.all([
@@ -122,10 +129,10 @@ export async function listDiscoveryOfferingsPaged(
   }
 }
 
-function filterMocks(
+async function filterMocks(
   mocks: OfferingWithSeller[],
   opts: DiscoveryQuery
-): { rows: OfferingWithSeller[]; total: number } {
+): Promise<{ rows: OfferingWithSeller[]; total: number }> {
   const sort: SortKey = opts.sort ?? "newest";
   const page = Math.max(1, opts.page ?? 1);
   const pageSize = Math.max(1, opts.pageSize ?? 12);
@@ -146,10 +153,24 @@ function filterMocks(
     return true;
   });
 
+  // Same ARS-normalisation as the SQL path so mock and live results
+  // sort consistently when DATABASE_URL is missing.
+  const arsEquivCache = new Map<string, number>();
+  await Promise.all(
+    filtered.map(async (row) => {
+      const ars =
+        row.offering.price_currency === "ars"
+          ? row.offering.price_amount
+          : await convertPrice(row.offering.price_amount, "sats", "ars");
+      arsEquivCache.set(row.offering.id, ars);
+    }),
+  );
+
   filtered = [...filtered].sort((a, b) => {
-    if (sort === "price_asc") return a.offering.price_ars - b.offering.price_ars;
+    if (sort === "price_asc")
+      return (arsEquivCache.get(a.offering.id) ?? 0) - (arsEquivCache.get(b.offering.id) ?? 0);
     if (sort === "price_desc")
-      return b.offering.price_ars - a.offering.price_ars;
+      return (arsEquivCache.get(b.offering.id) ?? 0) - (arsEquivCache.get(a.offering.id) ?? 0);
     const aTime = new Date(a.offering.created_at).getTime();
     const bTime = new Date(b.offering.created_at).getTime();
     return sort === "oldest" ? aTime - bTime : bTime - aTime;

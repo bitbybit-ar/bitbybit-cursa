@@ -29,7 +29,7 @@ export function Hero() {
               {t("ctaExplore")}
             </Button>
             <Button
-              href="/sign-in?next=/create-course"
+              href="/create-course"
               variant="primary"
               size="lg"
               className={`${styles.cta} ${styles.ctaSoft}`}

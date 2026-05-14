@@ -1,0 +1,61 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+
+.subtitle {
+  margin: 0 0 $spacing-12;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.textarea {
+  width: 100%;
+  min-height: 120px;
+  padding: $spacing-12 $spacing-16;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  background: $color-bg;
+  color: $color-text-primary;
+  font-family: inherit;
+  font-size: $font-size-sm;
+  line-height: 1.5;
+  resize: vertical;
+  box-sizing: border-box;
+
+  &:focus-visible {
+    outline: 2px solid $focus-ring;
+    outline-offset: 1px;
+    border-color: $color-primary;
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.counter {
+  margin-top: $spacing-8;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+  text-align: right;
+}
+
+.error {
+  margin-top: $spacing-12;
+  font-size: $font-size-xs;
+  color: $color-error;
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-12;
+  margin-top: $spacing-20;
+
+  @include mobile {
+    flex-direction: column-reverse;
+    gap: $spacing-8;
+  }
+}

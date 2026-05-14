@@ -9,13 +9,15 @@ import { BoltIcon } from "@/components/icons";
 
 interface BuyButtonProps {
   offeringId: string;
+  /** True when the offering has no available codes left. */
+  soldOut?: boolean;
 }
 
 interface CheckoutResponse {
   order_id: string;
 }
 
-export function BuyButton({ offeringId }: BuyButtonProps) {
+export function BuyButton({ offeringId, soldOut = false }: BuyButtonProps) {
   const t = useTranslations("offering");
   const tErrors = useTranslations("errors");
   const router = useRouter();
@@ -24,7 +26,7 @@ export function BuyButton({ offeringId }: BuyButtonProps) {
   const [, startTransition] = useTransition();
 
   async function handleClick() {
-    if (isPending) return;
+    if (isPending || soldOut) return;
     setIsPending(true);
     try {
       const res = await fetch("/api/checkout", {
@@ -35,8 +37,16 @@ export function BuyButton({ offeringId }: BuyButtonProps) {
       if (!res.ok) {
         const data = (await res.json().catch(() => ({}))) as {
           error?: string;
+          reason?: string;
         };
-        if (res.status === 404 || data.error === "offering_unavailable") {
+        // 409 with reason=offering_sold_out happens when the pool
+        // emptied between page load and click (race against
+        // another buyer). Toast a specific message and bail —
+        // re-rendering will show the page's sold-out state on
+        // next nav.
+        if (data.reason === "offering_sold_out") {
+          showToast(tErrors("offeringSoldOut"), "error");
+        } else if (res.status === 404 || data.error === "offering_unavailable") {
           showToast(tErrors("offeringUnavailable"), "error");
         } else {
           showToast(tErrors("checkoutFailed"), "error");
@@ -60,10 +70,10 @@ export function BuyButton({ offeringId }: BuyButtonProps) {
       size="lg"
       fullWidth
       onClick={handleClick}
-      disabled={isPending}
+      disabled={isPending || soldOut}
     >
       <BoltIcon size={20} />
-      {isPending ? t("buying") : t("buy")}
+      {soldOut ? t("soldOut") : isPending ? t("buying") : t("buy")}
     </Button>
   );
 }

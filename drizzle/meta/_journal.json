@@ -50,6 +50,13 @@
       "when": 1779100000000,
       "tag": "0006_user_banner",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1779200000000,
+      "tag": "0007_pricing_currency",
+      "breakpoints": true
     }
   ]
 }

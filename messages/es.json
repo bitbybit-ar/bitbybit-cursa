@@ -249,6 +249,8 @@
     },
     "buy": "Comprar con sats",
     "buying": "Generando invoice…",
+    "soldOut": "Sin cupos disponibles",
+    "soldOutBadge": "Sin cupos",
     "rail": {
       "lightning": "Pagás en sats por Lightning"
     },
@@ -313,6 +315,7 @@
   },
   "errors": {
     "offeringUnavailable": "Esta oferta ya no está disponible.",
+    "offeringSoldOut": "El curso se quedó sin cupos. Pedile al instructor que genere más códigos.",
     "checkoutFailed": "No pudimos generar la invoice. Probá de nuevo en un momento.",
     "network": "No pudimos conectarnos. Revisá tu conexión y reintentá.",
     "notFound": "No encontramos lo que buscabas."
@@ -323,9 +326,21 @@
     "closeDialog": "Cerrar",
     "tooltipLabel": "Más información"
   },
+  "shareOnNostr": {
+    "title": "Compartilo en Nostr",
+    "subtitle": "Decile a tu red que ya tenés un curso a la venta. Es opcional — podés saltearlo y compartirlo después.",
+    "placeholder": "Escribí algo lindo…",
+    "publish": "Publicar en Nostr",
+    "publishing": "Publicando…",
+    "published": "¡Publicado!",
+    "cancel": "Después lo comparto",
+    "error": "No pudimos publicar el evento. Probá de nuevo.",
+    "suggested": {
+      "courseCreated": "Acabo de publicar un curso en BitByBit Cursats: {title} ⚡ Comprálo con sats acá 👉 {link}"
+    }
+  },
   "createCourse": {
     "metadataTitle": "Nuevo curso",
-    "back": "Volver al catálogo",
     "title": "Nuevo curso",
     "subtitle": "Definí los detalles para que el curso aparezca en tu storefront."
   },
@@ -348,9 +363,33 @@
       "title": "Editar curso",
       "archived": "Archivado"
     },
+    "codePool": {
+      "title": "Códigos de canje",
+      "remaining": "Tenés {count} código(s) disponibles. Cuando se acaben, el curso queda marcado como \"sin cupos\" hasta que generes más.",
+      "mintCountLabel": "Cuántos códigos generar",
+      "mintCta": "Generar más códigos",
+      "minting": "Generando…",
+      "mintSuccess": "Generamos {count} código(s) nuevos.",
+      "mintFailed": "No pudimos generar los códigos. Probá de nuevo.",
+      "invalidCount": "La cantidad tiene que estar entre 1 y 10.000.",
+      "downloadCsv": "Descargar CSV con los códigos sin usar"
+    },
     "form": {
+      "sectionBasics": "Datos del curso",
+      "sectionBasicsHint": "Cómo aparece el curso en tu storefront y en el explorador.",
+      "sectionPricing": "Precio",
+      "sectionPricingHint": "Elegí en qué moneda querés cobrar. La otra se calcula al tipo de cambio de Wapu al momento de cada compra.",
+      "sectionContent": "Contenido y entrega",
+      "sectionContentHint": "Elegí cómo entregás el curso al comprador.",
+      "sectionCover": "Imagen de portada",
+      "sectionCoverHint": "Aparece en el listado y en la página del curso.",
       "slug": "Slug",
       "slugHint": "Identificador para la URL. Solo minúsculas, números y guiones.",
+      "slugExample": "intro-a-bitcoin",
+      "priceAmountExample": "12000 (en ARS) o 50000 (en sats)",
+      "codeCountExample": "50 códigos = hasta 50 ventas antes de tener que generar más.",
+      "downloadUrlExample": "https://drive.google.com/uc?export=download&id=…",
+      "imageUrlTooltip": "JPG, PNG o WebP, hasta 5 MB. Se sube firmado por Nostr a un servidor Blossom.",
       "type": "Tipo",
       "typeCode": "Código de canje",
       "typeCodeHint": "El comprador recibe un código de la lista al pagar.",
@@ -375,11 +414,22 @@
         "errorCancelled": "Cancelaste la firma. La imagen no se subió.",
         "errorNoServers": "No hay servidores Blossom configurados. Avisale al deploy."
       },
-      "codePool": "Códigos disponibles",
-      "codePoolPlaceholder": "AAAA-1111\nBBBB-2222\nCCCC-3333",
-      "codePoolHint": "Un código por línea. Cada compra consume uno; cuando se acaben, los nuevos compradores ven \"código pendiente\" hasta que cargues más.",
+      "codeCount": "Cantidad de códigos a generar",
+      "codeCountHint": "La plataforma genera códigos únicos automáticamente. Cada compra consume uno; cuando se acaben, el curso aparece como \"sin cupos\" hasta que generes más.",
+      "codePoolRemaining": "Códigos disponibles: {count}. Si llega a cero, el curso queda marcado como \"sin cupos\" — sumá más con el botón de abajo.",
       "downloadUrl": "URL del archivo",
       "downloadUrlHint": "URL donde está alojado el archivo. La servimos detrás de un proxy con control de acceso.",
+      "downloadUrlRequired": "Tenés que indicar la URL del archivo antes de guardar.",
+      "invalidPriceAmount": "El precio tiene que ser un número entero positivo.",
+      "invalidCodeCount": "La cantidad de códigos tiene que estar entre 1 y 10.000.",
+      "imageRequired": "Subí o pegá una imagen de portada antes de guardar.",
+      "priceCurrency": "Moneda del precio",
+      "priceCurrencyArs": "Pesos argentinos",
+      "priceCurrencyArsHint": "El comprador ve el equivalente en sats al tipo de cambio actual.",
+      "priceCurrencySats": "Satoshis",
+      "priceCurrencySatsHint": "El comprador ve el equivalente en ARS al tipo de cambio actual.",
+      "priceAmountHint": "El monto se convierte a la otra moneda al momento de la compra.",
+      "typeLocked": "El tipo no se puede cambiar después de crear el curso.",
       "saveCreate": "Crear curso",
       "saveEdit": "Guardar cambios",
       "saving": "Guardando…",
@@ -489,6 +539,8 @@
       "cbuTooltip": "Clave Bancaria Uniforme — 22 dígitos. Wapu deposita ARS en esta cuenta. Si tenés alias también, podés dejar uno solo.",
       "cbuExample": "0000003100099999999999",
       "cbuPlaceholder": "0000003100000000000000",
+      "cbuTooltip": "Clave Bancaria Uniforme — 22 dígitos. Wapu deposita ARS en esta cuenta. Si tenés alias también, podés dejar uno solo.",
+      "cbuExample": "0000003100099999999999",
       "alias": "Alias",
       "aliasTooltip": "Alias de tu CBU (3 a 20 caracteres, letras/números/puntos). Solo lo ves vos en esta página; Wapu lo usa para acreditarte los pagos.",
       "aliasExample": "PROFE.MARIA.BITCOIN",

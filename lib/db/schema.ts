@@ -17,6 +17,12 @@ import { sql } from "drizzle-orm";
 // asset (signed URL on the receipt page). Decision in ADR 0009.
 export const offeringType = pgEnum("offering_type", ["code", "download"]);
 
+// Currency the seller priced the offering in. The other currency is
+// always computed at display time from the live Wapu exchange rate
+// (see `lib/exchange-rate.ts`). Decision in ADR 0019 (pricing
+// currency picker).
+export const priceCurrency = pgEnum("price_currency", ["ars", "sats"]);
+
 // Order status lifecycle.
 //   pending  — invoice created, awaiting Lightning payment
 //   paid     — Wapu webhook (wapu_ars rail) or LUD-21 verify
@@ -124,10 +130,11 @@ export const offerings = pgTable(
     type: offeringType("type").notNull(),
     title: varchar("title", { length: 200 }).notNull(),
     description: text("description").notNull(),
-    price_ars: integer("price_ars").notNull(),
-    // Optional pinned sats price; when null, the storefront quotes
-    // sats from the live ARS rate at checkout time.
-    price_sats: integer("price_sats"),
+    // Seller-chosen price in their chosen currency. The display
+    // layer (PriceTag, OfferingCard) computes the other currency
+    // live via `lib/exchange-rate.ts`. ADR 0019.
+    price_amount: integer("price_amount").notNull(),
+    price_currency: priceCurrency("price_currency").notNull(),
     image_url: text("image_url"),
     // For type=code: pool of redemption codes. For type=download: null.
     code_pool: text("code_pool")

@@ -35,6 +35,36 @@
   object-fit: cover;
 }
 
+.soldOutBadge {
+  position: absolute;
+  top: $spacing-8;
+  right: $spacing-8;
+  padding: $spacing-4 $spacing-12;
+  background: alpha($color-text-primary, 75%);
+  color: $color-bg;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  border-radius: $border-radius-sm;
+  pointer-events: none;
+}
+
+// Inline pill rendered in the card body when there's no image to
+// overlay. Same colours and casing as the absolute-positioned
+// `soldOutBadge` so the two variants read as the same chip.
+.soldOutInline {
+  align-self: flex-start;
+  padding: $spacing-4 $spacing-12;
+  background: alpha($color-text-primary, 75%);
+  color: $color-bg;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  border-radius: $border-radius-sm;
+}
+
 .body {
   display: flex;
   flex-direction: column;

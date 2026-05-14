@@ -249,6 +249,8 @@
     },
     "buy": "Pay with sats",
     "buying": "Creating invoice…",
+    "soldOut": "Sold out",
+    "soldOutBadge": "Sold out",
     "rail": {
       "lightning": "Pay in sats over Lightning"
     },
@@ -313,6 +315,7 @@
   },
   "errors": {
     "offeringUnavailable": "This offering is no longer available.",
+    "offeringSoldOut": "This course is sold out. Ask the instructor to mint more codes.",
     "checkoutFailed": "We could not create the invoice. Try again in a moment.",
     "network": "Connection failed. Check your network and try again.",
     "notFound": "We couldn't find what you were looking for."
@@ -323,9 +326,21 @@
     "closeDialog": "Close",
     "tooltipLabel": "More info"
   },
+  "shareOnNostr": {
+    "title": "Share on Nostr",
+    "subtitle": "Tell your network you just listed a course. Optional — you can skip and share it later.",
+    "placeholder": "Write something nice…",
+    "publish": "Publish to Nostr",
+    "publishing": "Publishing…",
+    "published": "Published!",
+    "cancel": "I'll share later",
+    "error": "We couldn't publish the event. Try again.",
+    "suggested": {
+      "courseCreated": "I just listed a course on BitByBit Cursats: {title} ⚡ Buy it with sats here 👉 {link}"
+    }
+  },
   "createCourse": {
     "metadataTitle": "New course",
-    "back": "Back to catalog",
     "title": "New course",
     "subtitle": "Set the details so the course shows up in your storefront."
   },
@@ -348,9 +363,33 @@
       "title": "Edit course",
       "archived": "Archived"
     },
+    "codePool": {
+      "title": "Redemption codes",
+      "remaining": "You have {count} code(s) available. When the pool runs out, the course is marked \"sold out\" until you mint more.",
+      "mintCountLabel": "How many to mint",
+      "mintCta": "Mint more codes",
+      "minting": "Minting…",
+      "mintSuccess": "Minted {count} new code(s).",
+      "mintFailed": "Couldn't mint the codes. Try again.",
+      "invalidCount": "Count must be between 1 and 10,000.",
+      "downloadCsv": "Download unused codes (CSV)"
+    },
     "form": {
+      "sectionBasics": "Course basics",
+      "sectionBasicsHint": "How the course shows up on your storefront and in the explorer.",
+      "sectionPricing": "Pricing",
+      "sectionPricingHint": "Pick the currency you want to be paid in. The other one is computed at Wapu's exchange rate at each purchase.",
+      "sectionContent": "Content & delivery",
+      "sectionContentHint": "Pick how you deliver the course to the buyer.",
+      "sectionCover": "Cover image",
+      "sectionCoverHint": "Shows in the listing and on the course page.",
       "slug": "Slug",
       "slugHint": "URL identifier. Lowercase letters, numbers, and hyphens only.",
+      "slugExample": "intro-to-bitcoin",
+      "priceAmountExample": "12000 (in ARS) or 50000 (in sats)",
+      "codeCountExample": "50 codes = up to 50 sales before you need to mint more.",
+      "downloadUrlExample": "https://drive.google.com/uc?export=download&id=…",
+      "imageUrlTooltip": "JPG, PNG, or WebP up to 5 MB. Uploaded with your Nostr signature to a Blossom server.",
       "type": "Type",
       "typeCode": "Redemption code",
       "typeCodeHint": "Buyer receives one code from the pool when they pay.",
@@ -375,11 +414,22 @@
         "errorCancelled": "You cancelled the signature. The image wasn't uploaded.",
         "errorNoServers": "No Blossom servers configured. Tell the deployer."
       },
-      "codePool": "Available codes",
-      "codePoolPlaceholder": "AAAA-1111\nBBBB-2222\nCCCC-3333",
-      "codePoolHint": "One code per line. Each purchase consumes one; when the pool is empty, new buyers see \"code pending\" until you add more.",
+      "codeCount": "Number of codes to mint",
+      "codeCountHint": "The platform mints unique codes automatically. Each purchase consumes one; when the pool runs out, the course is marked \"sold out\" until you mint more.",
+      "codePoolRemaining": "Codes remaining: {count}. When this hits zero the course is marked sold out — mint more with the button below to put it back on sale.",
       "downloadUrl": "File URL",
       "downloadUrlHint": "Where the file is hosted. We serve it through an access-controlled proxy.",
+      "downloadUrlRequired": "Enter the file URL before saving.",
+      "invalidPriceAmount": "Price must be a positive integer.",
+      "invalidCodeCount": "Code count must be between 1 and 10,000.",
+      "imageRequired": "Upload or paste a cover image before saving.",
+      "priceCurrency": "Price currency",
+      "priceCurrencyArs": "Argentine pesos",
+      "priceCurrencyArsHint": "Buyers see the sats equivalent at the current exchange rate.",
+      "priceCurrencySats": "Satoshis",
+      "priceCurrencySatsHint": "Buyers see the ARS equivalent at the current exchange rate.",
+      "priceAmountHint": "The amount converts to the other currency at purchase time.",
+      "typeLocked": "Type cannot be changed after the course is created.",
       "saveCreate": "Create course",
       "saveEdit": "Save changes",
       "saving": "Saving…",
@@ -489,6 +539,8 @@
       "cbuTooltip": "Argentine bank routing number — 22 digits. Wapu deposits ARS into this account. If you also have an alias, you only need one of the two.",
       "cbuExample": "0000003100099999999999",
       "cbuPlaceholder": "0000003100000000000000",
+      "cbuTooltip": "Argentine bank routing number — 22 digits. Wapu deposits ARS into this account. If you also have an alias, you only need one of the two.",
+      "cbuExample": "0000003100099999999999",
       "alias": "Alias",
       "aliasTooltip": "Human-readable alias for your CBU (3–20 characters, letters/numbers/dots). Only you see this page; Wapu uses the value to route the deposit.",
       "aliasExample": "TEACHER.MARIA.BITCOIN",

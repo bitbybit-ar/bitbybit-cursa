@@ -92,8 +92,8 @@ export default async function OfferingPage({ params }: Props) {
             </Link>
 
             <PriceTag
-              priceArs={offering.price_ars}
-              priceSats={offering.price_sats}
+              priceAmount={offering.price_amount}
+              priceCurrency={offering.price_currency}
               size="lg"
             />
 
@@ -112,7 +112,13 @@ export default async function OfferingPage({ params }: Props) {
               </li>
             </ul>
 
-            <BuyButton offeringId={offering.id} />
+            <BuyButton
+              offeringId={offering.id}
+              soldOut={
+                offering.type === "code" &&
+                (offering.code_pool?.length ?? 0) === 0
+              }
+            />
           </div>
         </article>
 
