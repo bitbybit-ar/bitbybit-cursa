@@ -424,8 +424,8 @@
   },
   "settings": {
     "metadataTitle": "Configuración · Cursats",
-    "title": "Configuración",
-    "subtitle": "Tu perfil público y dónde se acreditan tus ventas.",
+    "title": "Tu cuenta",
+    "subtitle": "Editá tu perfil, cómo cobrás y tus preferencias.",
     "nav": {
       "ariaLabel": "Secciones de configuración",
       "profile": "Perfil",

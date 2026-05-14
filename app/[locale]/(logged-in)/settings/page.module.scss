@@ -6,9 +6,11 @@
 .header {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: $spacing-4;
   margin-bottom: $spacing-32;
   width: 100%;
+  text-align: left;
 }
 
 .title {

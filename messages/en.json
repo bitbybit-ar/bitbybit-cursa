@@ -424,8 +424,8 @@
   },
   "settings": {
     "metadataTitle": "Settings · Cursats",
-    "title": "Settings",
-    "subtitle": "Your public profile and where your sales land.",
+    "title": "Your account",
+    "subtitle": "Edit your profile, payout method, and preferences.",
     "nav": {
       "ariaLabel": "Settings sections",
       "profile": "Profile",
