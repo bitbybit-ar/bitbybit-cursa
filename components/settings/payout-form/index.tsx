@@ -12,17 +12,20 @@ import {
   hashSettingsBody,
 } from "@/lib/admin/sign-settings-payload";
 import { isSignerCancellation } from "@/lib/nostr/auth-errors";
-import styles from "./settings-form.module.scss";
+import styles from "./payout-form.module.scss";
 
 type PayoutMethod = "cbu_alias" | "lightning_address";
 
-interface SettingsFormProps {
-  initialBannerUrl: string;
+interface PayoutFormProps {
   initialCbu: string;
   initialAlias: string;
-  initialLightningAddress: string;
   initialPayoutMethod: PayoutMethod;
-  initialAutorenewal: boolean;
+  /**
+   * Read-only display value. The actual Lightning Address is owned
+   * by the Profile form; this section only shows the rail picker
+   * and (when relevant) a pointer back to Profile.
+   */
+  currentLightningAddress: string;
 }
 
 function emptyToNull(value: string): string | null {
@@ -30,14 +33,12 @@ function emptyToNull(value: string): string | null {
   return trimmed.length === 0 ? null : trimmed;
 }
 
-export function SettingsForm({
-  initialBannerUrl,
+export function PayoutForm({
   initialCbu,
   initialAlias,
-  initialLightningAddress,
   initialPayoutMethod,
-  initialAutorenewal,
-}: SettingsFormProps) {
+  currentLightningAddress,
+}: PayoutFormProps) {
   const t = useTranslations("settings.form");
   const tCommon = useTranslations("common");
   const tErr = useTranslations("errors");
@@ -45,15 +46,10 @@ export function SettingsForm({
   const { showToast } = useToast();
   const { signWithPrompt } = useSignerContext();
 
-  const [bannerUrl, setBannerUrl] = useState(initialBannerUrl);
   const [payoutMethod, setPayoutMethod] =
     useState<PayoutMethod>(initialPayoutMethod);
   const [cbu, setCbu] = useState(initialCbu);
   const [alias, setAlias] = useState(initialAlias);
-  const [lightningAddress, setLightningAddress] = useState(
-    initialLightningAddress
-  );
-  const [isAutorenewal, setIsAutorenewal] = useState(initialAutorenewal);
   const [isPending, setIsPending] = useState(false);
 
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -64,42 +60,27 @@ export function SettingsForm({
       showToast(t("destinationRequired"), "error");
       return;
     }
-    if (payoutMethod === "lightning_address" && !lightningAddress.trim()) {
+    if (
+      payoutMethod === "lightning_address" &&
+      !currentLightningAddress.trim()
+    ) {
       showToast(t("lightningAddressRequired"), "error");
       return;
     }
 
-    const nextBannerUrl = emptyToNull(bannerUrl);
-    if (nextBannerUrl !== null) {
-      try {
-        new URL(nextBannerUrl);
-      } catch {
-        showToast(t("bannerUrlInvalid"), "error");
-        return;
-      }
-    }
     const nextCbu = emptyToNull(cbu);
     const nextAlias = emptyToNull(alias);
-    const nextLightningAddress = emptyToNull(lightningAddress);
     const cbuChanged = nextCbu !== emptyToNull(initialCbu);
     const aliasChanged = nextAlias !== emptyToNull(initialAlias);
-    const lightningChanged =
-      nextLightningAddress !== emptyToNull(initialLightningAddress);
     const railChanged = payoutMethod !== initialPayoutMethod;
-    const requiresReSign =
-      cbuChanged || aliasChanged || lightningChanged || railChanged;
+    const requiresReSign = cbuChanged || aliasChanged || railChanged;
 
     setIsPending(true);
     try {
-      // Pre-serialize once so the bytes the client hashes are the
-      // same bytes the server hashes from `req.text()`.
       const serialized = JSON.stringify({
-        banner_url: nextBannerUrl,
         cbu: nextCbu,
         alias: nextAlias,
-        lightning_address: nextLightningAddress,
         payout_method: payoutMethod,
-        features_autorenewal: isAutorenewal,
       });
 
       const headers: Record<string, string> = {
@@ -109,20 +90,18 @@ export function SettingsForm({
       if (requiresReSign) {
         const url = new URL(
           "/api/settings",
-          window.location.origin
+          window.location.origin,
         ).toString();
         const payloadHash = await hashSettingsBody(serialized);
         const unsigned = buildSettingsAuthEvent(url, payloadHash);
-
         try {
           const signed = await signWithPrompt(unsigned);
           headers.Authorization = `Nostr ${btoa(JSON.stringify(signed))}`;
         } catch (err) {
-          if (isSignerCancellation(err)) {
-            showToast(t("signCancelled"), "info");
-            return;
-          }
-          if (err instanceof Error && err.message === "re_sign_in_cancelled") {
+          if (
+            isSignerCancellation(err) ||
+            (err instanceof Error && err.message === "re_sign_in_cancelled")
+          ) {
             showToast(t("signCancelled"), "info");
             return;
           }
@@ -152,16 +131,6 @@ export function SettingsForm({
           showToast(t("signRequiredBody"), "error");
           return;
         }
-        if (res.status === 400) {
-          const json = (await res.json().catch(() => null)) as {
-            error?: string;
-            reason?: string;
-          } | null;
-          if (json?.error === "lightning_address_invalid") {
-            showToast(t("lightningAddressInvalid"), "error");
-            return;
-          }
-        }
         showToast(t("saveFailed"), "error");
         return;
       }
@@ -176,35 +145,17 @@ export function SettingsForm({
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
-      <fieldset className={styles.fieldset}>
-        <legend className={styles.legend}>{t("profileLegend")}</legend>
-        <p className={styles.legendHint}>{t("profileHint")}</p>
+      <section className={styles.section}>
+        <header className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>{t("sectionPayout")}</h2>
+          <p className={styles.sectionHint}>{t("sectionPayoutHint")}</p>
+        </header>
 
-        <div className={styles.field}>
-          <label htmlFor="banner_url" className={styles.label}>
-            {t("bannerUrl")}
-          </label>
-          <input
-            id="banner_url"
-            type="url"
-            inputMode="url"
-            className={styles.input}
-            value={bannerUrl}
-            onChange={(e) => setBannerUrl(e.target.value)}
-            placeholder={t("bannerUrlPlaceholder")}
-            autoComplete="off"
-            spellCheck={false}
-          />
-          <span className={styles.fieldHint}>{t("bannerUrlHint")}</span>
-        </div>
-      </fieldset>
-
-      <fieldset className={styles.fieldset}>
-        <legend className={styles.legend}>{t("payoutLegend")}</legend>
-        <p className={styles.legendHint}>{t("payoutHint")}</p>
-
-        <div className={styles.railSelector}>
-          <label className={styles.railOption}>
+        <fieldset className={styles.fieldset}>
+          <legend className={styles.legend}>{t("payoutMethod")}</legend>
+          <label
+            className={`${styles.radio} ${payoutMethod === "cbu_alias" ? styles.radioSelected : ""}`}
+          >
             <input
               type="radio"
               name="payout_method"
@@ -214,10 +165,12 @@ export function SettingsForm({
             />
             <span>
               <strong>{t("railArs")}</strong>
-              <span className={styles.railHint}>{t("railArsHint")}</span>
+              <span className={styles.radioHint}>{t("railArsHint")}</span>
             </span>
           </label>
-          <label className={styles.railOption}>
+          <label
+            className={`${styles.radio} ${payoutMethod === "lightning_address" ? styles.radioSelected : ""}`}
+          >
             <input
               type="radio"
               name="payout_method"
@@ -227,13 +180,13 @@ export function SettingsForm({
             />
             <span>
               <strong>{t("railSats")}</strong>
-              <span className={styles.railHint}>{t("railSatsHint")}</span>
+              <span className={styles.radioHint}>{t("railSatsHint")}</span>
             </span>
           </label>
-        </div>
+        </fieldset>
 
         {payoutMethod === "cbu_alias" ? (
-          <>
+          <div className={styles.row}>
             <div className={styles.field}>
               <label htmlFor="cbu" className={styles.label}>
                 {t("cbu")}
@@ -276,52 +229,15 @@ export function SettingsForm({
                 spellCheck={false}
               />
             </div>
-          </>
-        ) : (
-          <div className={styles.field}>
-            <label htmlFor="lightning_address" className={styles.label}>
-              {t("lightningAddress")}
-              <Tooltip
-                text={t("lightningAddressTooltip")}
-                example={t("lightningAddressExample")}
-                label={tCommon("tooltipLabel")}
-              />
-            </label>
-            <input
-              id="lightning_address"
-              type="text"
-              inputMode="email"
-              className={styles.input}
-              value={lightningAddress}
-              onChange={(e) => setLightningAddress(e.target.value)}
-              placeholder={t("lightningAddressPlaceholder")}
-              autoComplete="off"
-              spellCheck={false}
-            />
-            <span className={styles.fieldHint}>
-              {t("lightningAddressHint")}
-            </span>
           </div>
+        ) : (
+          <p className={styles.payoutLnNote}>
+            {t("payoutLnNote", {
+              address: currentLightningAddress || t("payoutLnEmpty"),
+            })}
+          </p>
         )}
-      </fieldset>
-
-      <fieldset className={styles.fieldset}>
-        <legend className={styles.legend}>{t("featuresLegend")}</legend>
-        <div className={styles.toggle}>
-          <input
-            id="autorenewal"
-            type="checkbox"
-            checked={isAutorenewal}
-            onChange={(e) => setIsAutorenewal(e.target.checked)}
-          />
-          <label htmlFor="autorenewal">
-            <strong>{t("autorenewal")}</strong>
-            <span className={styles.toggleHint}>
-              {t("autorenewalHint")}
-            </span>
-          </label>
-        </div>
-      </fieldset>
+      </section>
 
       <div className={styles.actions}>
         <Button type="submit" variant="primary" disabled={isPending}>
@@ -332,4 +248,4 @@ export function SettingsForm({
   );
 }
 
-export default SettingsForm;
+export default PayoutForm;

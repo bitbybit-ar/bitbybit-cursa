@@ -1,12 +1,16 @@
 @use "@/styles/colors" as *;
 @use "@/styles/spacing" as *;
 @use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
 
 .header {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: $spacing-4;
   margin-bottom: $spacing-32;
+  width: 100%;
+  text-align: left;
 }
 
 .title {
@@ -16,30 +20,59 @@
   font-weight: $font-weight-extrabold;
   letter-spacing: $letter-spacing-tight;
   color: $color-text-primary;
+
+  @include mobile {
+    font-size: $font-size-lg-alt;
+  }
 }
 
 .subtitle {
   margin: 0;
   color: $color-text-secondary;
+
+  @include mobile {
+    font-size: $font-size-sm;
+  }
 }
 
-.warning {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-4;
-  margin-bottom: $spacing-24;
-  padding: $spacing-16 $spacing-20;
-  border-color: color-mix(in srgb, $color-warning 35%, transparent);
-  background-color: color-mix(in srgb, $color-warning 10%, $color-bg-2);
+.shell {
+  // The logged-in layout's Container has `align-items: center`, so
+  // flex children shrink to their content width. Pin the shell to
+  // 100% so the sidebar column lands at the same x-position
+  // regardless of which panel is active.
+  width: 100%;
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: $spacing-32;
+  align-items: flex-start;
 
-  strong {
-    color: $color-text-primary;
+  // 1024-1199px (tabletLarge): keep the sidebar but tighten the gap
+  // a little so two wide fields in Payout/Profile don't get
+  // squeezed.
+  @include tabletLarge {
+    gap: $spacing-24;
   }
 
-  p {
-    margin: 0;
-    color: $color-text-secondary;
-    font-size: $font-size-sm;
-    line-height: $line-height-base;
+  // 768-1023px (tablet): sidebar shrinks but stays visible. 180px
+  // is the smallest the longest label ("Cómo cobrás" / "How you
+  // get paid") fits without wrapping.
+  @include tablet {
+    grid-template-columns: 180px minmax(0, 1fr);
+    gap: $spacing-20;
   }
+
+  // <768px (mobile): stack vertically. Sidebar becomes a wrap of
+  // pill buttons rendered above the active panel.
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $spacing-20;
+  }
+}
+
+.sidebar {
+  min-width: 0;
+}
+
+.content {
+  min-width: 0;
 }

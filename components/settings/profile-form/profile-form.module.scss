@@ -1,0 +1,118 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+@use "@/styles/common-mixins" as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-24;
+  width: 100%;
+}
+
+.section {
+  @include ceramic-card;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-20;
+  padding: $spacing-24;
+
+  @include mobile {
+    padding: $spacing-16;
+    gap: $spacing-16;
+  }
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  letter-spacing: $letter-spacing-tight;
+}
+
+.sectionHint {
+  margin: 0;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.prefillHint {
+  margin: $spacing-4 0 0;
+  padding: $spacing-8 $spacing-12;
+  background: alpha($color-info, 8%);
+  border: 1px solid alpha($color-info, 25%);
+  border-radius: $border-radius-md;
+  font-size: $font-size-xs;
+  color: $color-text-primary;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  gap: $spacing-8;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: $spacing-12 $spacing-12;
+  background: $color-bg;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  font-family: $font-family-base;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  transition: border-color 0.15s ease, outline-color 0.15s ease;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: $color-text-secondary;
+  }
+
+  &:hover {
+    border-color: $color-text-secondary;
+  }
+
+  &:focus-visible {
+    border-color: $color-primary;
+    outline: 2px solid $focus-ring;
+    outline-offset: 1px;
+  }
+}
+
+.textarea {
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-12;
+
+  @include mobile {
+    flex-direction: column-reverse;
+
+    > * {
+      width: 100%;
+    }
+  }
+}

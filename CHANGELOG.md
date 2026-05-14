@@ -12,6 +12,16 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Profile fields on `/settings`.** Display name, bio (up to 500
+  chars), and avatar URL join the existing banner URL — sellers can
+  edit every field the storefront renders without touching Nostr
+  directly. All new fields are seeded server-side from the user's
+  Nostr kind:0 profile at sign-in; sellers can override.
+- **Lightning Address auto-fill from Nostr.** When the cursats row
+  has no Lightning Address but the user's Nostr kind:0 profile
+  carries a `lud16`, the settings page pre-fills the field and
+  surfaces a hint so the seller knows where the value came from.
+  Saving persists it; editing is unrestricted.
 - **Pricing currency picker on the offering form.** Sellers now
   choose whether to price the course in ARS or sats. The other
   currency is computed live from the current Wapu exchange rate
@@ -20,7 +30,6 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
   currency.sql` drops `price_sats` and renames `price_ars` →
   `price_amount`, plus adds `price_currency` enum. Centralised
   rate access via `lib/exchange-rate.ts`.
-
 - **Auto-generated redemption codes.** Sellers specify a quantity
   on create (default 10, max 10,000); the server mints
   cryptographically random 8-character alphanumeric codes (charset
@@ -29,15 +38,65 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
   codes (CSV)" link, both backed by new endpoints at
   `POST /api/my-courses/[id]/mint-codes` and
   `GET /api/my-courses/[id]/codes`.
-
 - **Sliding session — 1h inactivity timeout.** The session JWT
   shrinks from 7-day absolute to 1-hour inactivity. Each
   authenticated request through the edge proxy re-mints the
   cookie with a fresh clock, so a working session never expires
   mid-use. Constant renamed `SESSION_DURATION_DAYS` →
   `SESSION_INACTIVITY_MINUTES`.
+- **Tooltip component** ported from arena's
+  `components/common/Tooltip`. Used on every label in the settings
+  form with non-obvious copy (display name, bio, avatar URL,
+  banner URL, Lightning Address, CBU, alias).
 
 ### Changed
+
+- **Settings page restructured with a left sidebar.** Five sections
+  selected via `?section=` and surfaced as a vertical nav: Profile
+  (default), How you get paid, Preferences, Notifications, Danger
+  zone. The first two are wired up; the last three show
+  coming-soon placeholders so the sidebar doesn't dead-end on a
+  blank screen. Each wired panel is its own form with its own Save
+  button, so a payout edit doesn't bundle with a profile edit and
+  vice versa.
+
+- **ProfileForm gains "Sync from Nostr" and "Publish to Nostr".**
+  Sync re-fetches kind:0 from the public relays via a new
+  `POST /api/profile/sync-from-nostr` endpoint and pre-fills the
+  form with what relays returned; the user reviews and saves to
+  persist into the cursats row. Publish builds a kind:0 event
+  from the current form state, signs it with the user's signer,
+  and broadcasts to `PUBLIC_RELAYS`. Both buttons live next to
+  the Save button in the Profile panel.
+
+- **All profile fields fall back to Nostr kind:0** when the
+  cursats row is empty (display name → `display_name||name`, bio
+  → `about`, avatar URL → `picture`, banner URL → `banner`,
+  Lightning Address → `lud16`). A new hint at the top of the
+  Profile panel surfaces when any field was pre-filled so the
+  user knows the source.
+
+- **`components/admin/settings-form/` moved to
+  `components/settings/`.** Per ADR 0014 the admin/ directory is
+  being phased out; the new tree splits the single form into
+  `profile-form/`, `payout-form/`, `placeholder-panel/`, and
+  `settings-nav/`.
+
+- **Settings form restyled** to match the create-course form:
+  ceramic-card sections (`@include ceramic-card`), section header
+  with title + hint, two-column radio for the payout-method
+  picker, full-width grid for the CBU/alias pair.
+- **Lightning Address moved into Public profile.** It used to be
+  hidden behind the sats-rail radio; now it always shows so a
+  seller on the CBU rail can still surface their LN address for
+  the Nostr profile sync hint. The Payout section renders a small
+  note pointing back to the profile field when the sats rail is
+  picked.
+- **"Visible to every buyer" warning card removed** from the top
+  of `/settings`. CBU/alias data has never been visible to buyers
+  (Wapu handles routing in the backend); the warning was
+  misleading. The "double-check before saving" copy moved into a
+  tooltip on the alias label, where it's contextual.
 
 - **Slug auto-fills from the title.** Typing in the title field
   fills the slug in real-time (lowercased, kebab-cased, ASCII).
@@ -91,9 +150,19 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
   `components/courses/offering-form/`;
   `components/admin/image-upload/` →
   `components/ui/image-upload/` (it's a generic uploader, not
-  course-specific). The settings form stays at
-  `components/admin/settings-form/` for now; a follow-up rename
-  is tracked separately.
+  course-specific). With this PR `components/admin/settings-form/`
+  is also gone — the settings rewrite split the form into
+  `components/settings/{profile-form,payout-form,…}` instead.
+
+### Removed
+
+- **Auto-renewal toggle.** The NWC auto-renewal feature
+  (`users.features_autorenewal`, decided in ADR 0005) never
+  landed past the settings flag — no NWC client, no cron worker,
+  no second checkout button. v1 ships one-shot purchases only.
+  The column stays in the DB (no destructive migration); the
+  form no longer surfaces the toggle and never sends the field.
+  Decision in ADR 0020.
 
 ### Fixed
 
