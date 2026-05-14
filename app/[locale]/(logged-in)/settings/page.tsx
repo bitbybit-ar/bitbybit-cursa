@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { SettingsForm } from "@/components/admin/settings-form";
+import { ProfileForm } from "@/components/settings/profile-form";
+import { PayoutForm } from "@/components/settings/payout-form";
+import { PlaceholderPanel } from "@/components/settings/placeholder-panel";
+import { SettingsNav } from "@/components/settings/settings-nav";
+import { isSettingsSection } from "@/components/settings/settings-nav/sections";
 import { requirePanelUser } from "@/lib/admin/panel-context";
 import { fetchKind0Profile } from "@/lib/nostr/profile";
 import styles from "./page.module.scss";
@@ -22,8 +26,10 @@ export async function generateMetadata({
 
 export default async function SettingsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>;
+  searchParams: Promise<{ section?: string }>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
@@ -31,15 +37,34 @@ export default async function SettingsPage({
   const { user } = await requirePanelUser();
   const t = await getTranslations("settings");
 
-  // Best-effort kind:0 read. If the user has never set a Lightning
-  // Address on the cursats row, fall back to whatever their Nostr
-  // profile advertises as `lud16`. The fetch is best-effort with a
-  // 3s relay timeout — a slow relay set returns an empty profile
-  // and the form starts with empty fields, exactly as before. The
-  // user can always override what we pre-fill.
+  const { section: sectionParam } = await searchParams;
+  const section =
+    sectionParam && isSettingsSection(sectionParam) ? sectionParam : "profile";
+
+  // Best-effort kind:0 read. Whenever the cursats row is missing a
+  // field, fall back to whatever the user advertises on Nostr. The
+  // user can override either path; saving persists into the cursats
+  // row, which then wins on future loads. 3s relay timeout so a
+  // slow relay set just returns an empty profile.
   const profile = await fetchKind0Profile(user.pubkey);
+
+  const fromNostrDisplayName =
+    !user.display_name && (profile.display_name || profile.name);
+  const initialDisplayName =
+    user.display_name || profile.display_name || profile.name || "";
+  const initialBio = user.bio ?? profile.about ?? "";
+  const initialAvatarUrl = user.avatar_url ?? profile.picture ?? "";
+  const initialBannerUrl = user.banner_url ?? profile.banner ?? "";
   const initialLightningAddress =
     user.lightning_address ?? profile.lud16 ?? "";
+
+  const prefilledFromNostr = Boolean(
+    fromNostrDisplayName ||
+      (!user.bio && profile.about) ||
+      (!user.avatar_url && profile.picture) ||
+      (!user.banner_url && profile.banner) ||
+      (!user.lightning_address && profile.lud16),
+  );
 
   return (
     <>
@@ -48,20 +73,50 @@ export default async function SettingsPage({
         <p className={styles.subtitle}>{t("subtitle")}</p>
       </header>
 
-      <SettingsForm
-        userSlug={user.slug}
-        initialDisplayName={user.display_name}
-        initialBio={user.bio ?? ""}
-        initialAvatarUrl={user.avatar_url ?? ""}
-        initialBannerUrl={user.banner_url ?? ""}
-        initialCbu={user.cbu ?? ""}
-        initialAlias={user.alias ?? ""}
-        initialLightningAddress={initialLightningAddress}
-        initialPayoutMethod={user.payout_method}
-        lightningAddressFromNostr={
-          !user.lightning_address && Boolean(profile.lud16)
-        }
-      />
+      <div className={styles.shell}>
+        <aside className={styles.sidebar}>
+          <SettingsNav />
+        </aside>
+        <div className={styles.content}>
+          {section === "profile" ? (
+            <ProfileForm
+              userSlug={user.slug}
+              initialDisplayName={initialDisplayName}
+              initialBio={initialBio}
+              initialAvatarUrl={initialAvatarUrl}
+              initialBannerUrl={initialBannerUrl}
+              initialLightningAddress={initialLightningAddress}
+              prefilledFromNostr={prefilledFromNostr}
+            />
+          ) : null}
+          {section === "payout" ? (
+            <PayoutForm
+              initialCbu={user.cbu ?? ""}
+              initialAlias={user.alias ?? ""}
+              initialPayoutMethod={user.payout_method}
+              currentLightningAddress={initialLightningAddress}
+            />
+          ) : null}
+          {section === "preferences" ? (
+            <PlaceholderPanel
+              title={t("placeholder.preferencesTitle")}
+              body={t("placeholder.preferencesBody")}
+            />
+          ) : null}
+          {section === "notifications" ? (
+            <PlaceholderPanel
+              title={t("placeholder.notificationsTitle")}
+              body={t("placeholder.notificationsBody")}
+            />
+          ) : null}
+          {section === "danger" ? (
+            <PlaceholderPanel
+              title={t("placeholder.dangerTitle")}
+              body={t("placeholder.dangerBody")}
+            />
+          ) : null}
+        </div>
+      </div>
     </>
   );
 }

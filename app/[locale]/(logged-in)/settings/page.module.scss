@@ -1,6 +1,7 @@
 @use "@/styles/colors" as *;
 @use "@/styles/spacing" as *;
 @use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
 
 .header {
   display: flex;
@@ -23,23 +24,27 @@
   color: $color-text-secondary;
 }
 
-.warning {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-4;
-  margin-bottom: $spacing-24;
-  padding: $spacing-16 $spacing-20;
-  border-color: color-mix(in srgb, $color-warning 35%, transparent);
-  background-color: color-mix(in srgb, $color-warning 10%, $color-bg-2);
+.shell {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: $spacing-32;
+  align-items: flex-start;
 
-  strong {
-    color: $color-text-primary;
+  @include tablet {
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: $spacing-24;
   }
 
-  p {
-    margin: 0;
-    color: $color-text-secondary;
-    font-size: $font-size-sm;
-    line-height: $line-height-base;
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $spacing-20;
   }
+}
+
+.sidebar {
+  min-width: 0;
+}
+
+.content {
+  min-width: 0;
 }

@@ -1,0 +1,62 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+
+.nav {
+  position: sticky;
+  top: $spacing-100;
+  align-self: flex-start;
+
+  @include mobile {
+    position: static;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  @include mobile {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: $spacing-8;
+  }
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: $spacing-12;
+  padding: $spacing-12 $spacing-16;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: $border-radius-md;
+  color: $color-text-secondary;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  text-decoration: none;
+  transition: background-color 0.15s ease, color 0.15s ease,
+    border-color 0.15s ease;
+  white-space: nowrap;
+
+  &:hover {
+    background: $color-bg-2;
+    color: $color-text-primary;
+  }
+
+  &:focus-visible {
+    outline: 2px solid $focus-ring;
+    outline-offset: 2px;
+  }
+}
+
+.active {
+  background: $color-bg-2;
+  border-color: $color-border;
+  color: $color-text-primary;
+}

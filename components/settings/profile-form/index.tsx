@@ -11,29 +11,26 @@ import {
   buildSettingsAuthEvent,
   hashSettingsBody,
 } from "@/lib/admin/sign-settings-payload";
+import { buildProfileMetadataEvent } from "@/lib/nostr/events";
+import { publishSignedEvent } from "@/lib/nostr/publish";
+import type { Kind0Profile } from "@/lib/nostr/profile";
 import { isSignerCancellation } from "@/lib/nostr/auth-errors";
-import styles from "./settings-form.module.scss";
+import styles from "./profile-form.module.scss";
 
-type PayoutMethod = "cbu_alias" | "lightning_address";
-
-interface SettingsFormProps {
-  /** Storefront slug — interpolated into the profile-section hint. */
+interface ProfileFormProps {
   userSlug: string;
   initialDisplayName: string;
   initialBio: string;
   initialAvatarUrl: string;
   initialBannerUrl: string;
-  initialCbu: string;
-  initialAlias: string;
   initialLightningAddress: string;
-  initialPayoutMethod: PayoutMethod;
   /**
-   * True when the LN address we seeded came from the user's Nostr
-   * kind:0 profile rather than their cursats row. Surfaces a hint
-   * under the field so the user knows why a value they never typed
-   * into cursats is already there, and that saving will persist it.
+   * True when ANY profile field came from kind:0 fallback (no value
+   * was set on the cursats row yet). Surfaces a hint at the top of
+   * the panel so the user knows the form was pre-filled from their
+   * Nostr profile and saving will persist the values.
    */
-  lightningAddressFromNostr: boolean;
+  prefilledFromNostr: boolean;
 }
 
 function emptyToNull(value: string): string | null {
@@ -41,18 +38,15 @@ function emptyToNull(value: string): string | null {
   return trimmed.length === 0 ? null : trimmed;
 }
 
-export function SettingsForm({
+export function ProfileForm({
   userSlug,
   initialDisplayName,
   initialBio,
   initialAvatarUrl,
   initialBannerUrl,
-  initialCbu,
-  initialAlias,
   initialLightningAddress,
-  initialPayoutMethod,
-  lightningAddressFromNostr,
-}: SettingsFormProps) {
+  prefilledFromNostr,
+}: ProfileFormProps) {
   const t = useTranslations("settings.form");
   const tCommon = useTranslations("common");
   const tErr = useTranslations("errors");
@@ -64,16 +58,14 @@ export function SettingsForm({
   const [bio, setBio] = useState(initialBio);
   const [avatarUrl, setAvatarUrl] = useState(initialAvatarUrl);
   const [bannerUrl, setBannerUrl] = useState(initialBannerUrl);
-  const [payoutMethod, setPayoutMethod] =
-    useState<PayoutMethod>(initialPayoutMethod);
-  const [cbu, setCbu] = useState(initialCbu);
-  const [alias, setAlias] = useState(initialAlias);
   const [lightningAddress, setLightningAddress] = useState(
     initialLightningAddress,
   );
   const [isPending, setIsPending] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [isPublishing, setIsPublishing] = useState(false);
 
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSave(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (isPending) return;
 
@@ -81,15 +73,6 @@ export function SettingsForm({
       showToast(t("displayNameRequired"), "error");
       return;
     }
-    if (payoutMethod === "cbu_alias" && !cbu.trim() && !alias.trim()) {
-      showToast(t("destinationRequired"), "error");
-      return;
-    }
-    if (payoutMethod === "lightning_address" && !lightningAddress.trim()) {
-      showToast(t("lightningAddressRequired"), "error");
-      return;
-    }
-
     const nextAvatarUrl = emptyToNull(avatarUrl);
     if (nextAvatarUrl !== null) {
       try {
@@ -109,53 +92,40 @@ export function SettingsForm({
       }
     }
 
-    const nextCbu = emptyToNull(cbu);
-    const nextAlias = emptyToNull(alias);
     const nextLightningAddress = emptyToNull(lightningAddress);
-    const cbuChanged = nextCbu !== emptyToNull(initialCbu);
-    const aliasChanged = nextAlias !== emptyToNull(initialAlias);
     const lightningChanged =
       nextLightningAddress !== emptyToNull(initialLightningAddress);
-    const railChanged = payoutMethod !== initialPayoutMethod;
-    const requiresReSign =
-      cbuChanged || aliasChanged || lightningChanged || railChanged;
 
     setIsPending(true);
     try {
-      // Pre-serialize once so the bytes the client hashes are the
-      // same bytes the server hashes from `req.text()`.
       const serialized = JSON.stringify({
         display_name: displayName.trim(),
         bio: emptyToNull(bio),
         avatar_url: nextAvatarUrl,
         banner_url: nextBannerUrl,
-        cbu: nextCbu,
-        alias: nextAlias,
         lightning_address: nextLightningAddress,
-        payout_method: payoutMethod,
       });
 
       const headers: Record<string, string> = {
         "content-type": "application/json",
       };
 
-      if (requiresReSign) {
+      // LN-address changes require a NIP-98 re-sign (ADR 0008/0015).
+      if (lightningChanged) {
         const url = new URL(
           "/api/settings",
           window.location.origin,
         ).toString();
         const payloadHash = await hashSettingsBody(serialized);
         const unsigned = buildSettingsAuthEvent(url, payloadHash);
-
         try {
           const signed = await signWithPrompt(unsigned);
           headers.Authorization = `Nostr ${btoa(JSON.stringify(signed))}`;
         } catch (err) {
-          if (isSignerCancellation(err)) {
-            showToast(t("signCancelled"), "info");
-            return;
-          }
-          if (err instanceof Error && err.message === "re_sign_in_cancelled") {
+          if (
+            isSignerCancellation(err) ||
+            (err instanceof Error && err.message === "re_sign_in_cancelled")
+          ) {
             showToast(t("signCancelled"), "info");
             return;
           }
@@ -188,7 +158,6 @@ export function SettingsForm({
         if (res.status === 400) {
           const json = (await res.json().catch(() => null)) as {
             error?: string;
-            reason?: string;
           } | null;
           if (json?.error === "lightning_address_invalid") {
             showToast(t("lightningAddressInvalid"), "error");
@@ -207,14 +176,80 @@ export function SettingsForm({
     }
   }
 
+  async function handleSyncFromRelays() {
+    if (isSyncing) return;
+    setIsSyncing(true);
+    try {
+      const res = await fetch("/api/profile/sync-from-nostr", {
+        method: "POST",
+      });
+      if (!res.ok) {
+        showToast(t("syncFailed"), "error");
+        return;
+      }
+      const data = (await res.json()) as { profile: Kind0Profile };
+      const p = data.profile;
+      // Only overwrite a field when relays actually returned a
+      // value — preserves any unsaved local edits in fields kind:0
+      // doesn't carry.
+      if (p.display_name || p.name)
+        setDisplayName(p.display_name ?? p.name ?? "");
+      if (p.about !== undefined) setBio(p.about ?? "");
+      if (p.picture !== undefined) setAvatarUrl(p.picture ?? "");
+      if (p.banner !== undefined) setBannerUrl(p.banner ?? "");
+      if (p.lud16 !== undefined) setLightningAddress(p.lud16 ?? "");
+      showToast(t("syncSuccess"), "success");
+    } catch {
+      showToast(tErr("network"), "error");
+    } finally {
+      setIsSyncing(false);
+    }
+  }
+
+  async function handlePublishToNostr() {
+    if (isPublishing) return;
+    if (displayName.trim().length < 2) {
+      showToast(t("displayNameRequired"), "error");
+      return;
+    }
+    setIsPublishing(true);
+    try {
+      const metadata: Kind0Profile = {
+        display_name: displayName.trim(),
+        about: emptyToNull(bio) ?? undefined,
+        picture: emptyToNull(avatarUrl) ?? undefined,
+        banner: emptyToNull(bannerUrl) ?? undefined,
+        lud16: emptyToNull(lightningAddress) ?? undefined,
+      };
+      const unsigned = buildProfileMetadataEvent(metadata);
+      const signed = await signWithPrompt(unsigned);
+      publishSignedEvent(signed).catch(() => {});
+      showToast(t("publishSuccess"), "success");
+    } catch (err) {
+      if (
+        isSignerCancellation(err) ||
+        (err instanceof Error && err.message === "re_sign_in_cancelled")
+      ) {
+        showToast(t("signCancelled"), "info");
+        return;
+      }
+      showToast(t("publishFailed"), "error");
+    } finally {
+      setIsPublishing(false);
+    }
+  }
+
   return (
-    <form className={styles.form} onSubmit={handleSubmit}>
+    <form className={styles.form} onSubmit={handleSave}>
       <section className={styles.section}>
         <header className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>{t("sectionProfile")}</h2>
           <p className={styles.sectionHint}>
             {t("sectionProfileHint", { slug: userSlug })}
           </p>
+          {prefilledFromNostr ? (
+            <p className={styles.prefillHint}>{t("prefilledFromNostr")}</p>
+          ) : null}
         </header>
 
         <div className={styles.field}>
@@ -241,10 +276,7 @@ export function SettingsForm({
         <div className={styles.field}>
           <label htmlFor="bio" className={styles.label}>
             {t("bio")}
-            <Tooltip
-              text={t("bioTooltip")}
-              label={tCommon("tooltipLabel")}
-            />
+            <Tooltip text={t("bioTooltip")} label={tCommon("tooltipLabel")} />
           </label>
           <textarea
             id="bio"
@@ -320,109 +352,32 @@ export function SettingsForm({
             autoComplete="off"
             spellCheck={false}
           />
-          {lightningAddressFromNostr && lightningAddress ? (
-            <p className={styles.hint}>{t("lightningAddressFromNostr")}</p>
-          ) : null}
         </div>
-      </section>
-
-      <section className={styles.section}>
-        <header className={styles.sectionHeader}>
-          <h2 className={styles.sectionTitle}>{t("sectionPayout")}</h2>
-          <p className={styles.sectionHint}>{t("sectionPayoutHint")}</p>
-        </header>
-
-        <fieldset className={styles.fieldset}>
-          <legend className={styles.legend}>{t("payoutMethod")}</legend>
-          <label
-            className={`${styles.radio} ${payoutMethod === "cbu_alias" ? styles.radioSelected : ""}`}
-          >
-            <input
-              type="radio"
-              name="payout_method"
-              value="cbu_alias"
-              checked={payoutMethod === "cbu_alias"}
-              onChange={() => setPayoutMethod("cbu_alias")}
-            />
-            <span>
-              <strong>{t("railArs")}</strong>
-              <span className={styles.radioHint}>{t("railArsHint")}</span>
-            </span>
-          </label>
-          <label
-            className={`${styles.radio} ${payoutMethod === "lightning_address" ? styles.radioSelected : ""}`}
-          >
-            <input
-              type="radio"
-              name="payout_method"
-              value="lightning_address"
-              checked={payoutMethod === "lightning_address"}
-              onChange={() => setPayoutMethod("lightning_address")}
-            />
-            <span>
-              <strong>{t("railSats")}</strong>
-              <span className={styles.radioHint}>{t("railSatsHint")}</span>
-            </span>
-          </label>
-        </fieldset>
-
-        {payoutMethod === "cbu_alias" ? (
-          <div className={styles.row}>
-            <div className={styles.field}>
-              <label htmlFor="cbu" className={styles.label}>
-                {t("cbu")}
-                <Tooltip
-                  text={t("cbuTooltip")}
-                  example={t("cbuExample")}
-                  label={tCommon("tooltipLabel")}
-                />
-              </label>
-              <input
-                id="cbu"
-                type="text"
-                inputMode="numeric"
-                className={styles.input}
-                value={cbu}
-                onChange={(e) => setCbu(e.target.value)}
-                placeholder={t("cbuPlaceholder")}
-                autoComplete="off"
-                spellCheck={false}
-              />
-            </div>
-
-            <div className={styles.field}>
-              <label htmlFor="alias" className={styles.label}>
-                {t("alias")}
-                <Tooltip
-                  text={t("aliasTooltip")}
-                  example={t("aliasExample")}
-                  label={tCommon("tooltipLabel")}
-                />
-              </label>
-              <input
-                id="alias"
-                type="text"
-                className={styles.input}
-                value={alias}
-                onChange={(e) => setAlias(e.target.value)}
-                placeholder={t("aliasPlaceholder")}
-                autoComplete="off"
-                spellCheck={false}
-              />
-            </div>
-          </div>
-        ) : (
-          <p className={styles.hint}>{t("payoutLnNote")}</p>
-        )}
       </section>
 
       <div className={styles.actions}>
         <Button type="submit" variant="primary" disabled={isPending}>
           {isPending ? t("saving") : t("save")}
         </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={handleSyncFromRelays}
+          disabled={isSyncing}
+        >
+          {isSyncing ? t("syncing") : t("syncFromRelays")}
+        </Button>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={handlePublishToNostr}
+          disabled={isPublishing}
+        >
+          {isPublishing ? t("publishing") : t("publishToNostr")}
+        </Button>
       </div>
     </form>
   );
 }
 
-export default SettingsForm;
+export default ProfileForm;

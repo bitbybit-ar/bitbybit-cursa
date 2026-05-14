@@ -426,7 +426,32 @@
     "metadataTitle": "Settings · Cursats",
     "title": "Settings",
     "subtitle": "Your public profile and where your sales land.",
+    "nav": {
+      "ariaLabel": "Settings sections",
+      "profile": "Profile",
+      "payout": "How you get paid",
+      "preferences": "Preferences",
+      "notifications": "Notifications",
+      "danger": "Danger zone"
+    },
+    "placeholder": {
+      "preferencesTitle": "Preferences",
+      "preferencesBody": "Theme (light / dark) and language switching live in the top navbar for now. We'll move them here alongside other preferences in a later release.",
+      "notificationsTitle": "Notifications",
+      "notificationsBody": "Soon you'll be able to pick which events ping you (someone buys your course, your code gets assigned, etc.). Until then, every event surfaces through the bell in the top navbar.",
+      "dangerTitle": "Danger zone",
+      "dangerBody": "Deleting your Cursats account is a permanent action; we'd rather not expose a button before the backup flows are wired. Reach out if you need to disable an account today."
+    },
     "form": {
+      "syncFromRelays": "Sync from Nostr",
+      "syncing": "Syncing…",
+      "syncSuccess": "Pre-filled with what's on your relays. Review and save to keep it.",
+      "syncFailed": "Couldn't read your profile from the relays. Try again in a moment.",
+      "publishToNostr": "Publish to Nostr",
+      "publishing": "Publishing…",
+      "publishSuccess": "Updated kind:0 published to public relays.",
+      "publishFailed": "Couldn't publish the event. Try again.",
+      "prefilledFromNostr": "Some fields were pre-filled from your Nostr profile. Review and save to lock them into Cursats.",
       "sectionProfile": "Public profile",
       "sectionProfileHint": "How buyers see you at cursats.bitbybit.com.ar/{slug}.",
       "displayName": "Display name",

@@ -29,6 +29,37 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Changed
 
+- **Settings page restructured with a left sidebar.** Five sections
+  selected via `?section=` and surfaced as a vertical nav: Profile
+  (default), How you get paid, Preferences, Notifications, Danger
+  zone. The first two are wired up; the last three show
+  coming-soon placeholders so the sidebar doesn't dead-end on a
+  blank screen. Each wired panel is its own form with its own Save
+  button, so a payout edit doesn't bundle with a profile edit and
+  vice versa.
+
+- **ProfileForm gains "Sync from Nostr" and "Publish to Nostr".**
+  Sync re-fetches kind:0 from the public relays via a new
+  `POST /api/profile/sync-from-nostr` endpoint and pre-fills the
+  form with what relays returned; the user reviews and saves to
+  persist into the cursats row. Publish builds a kind:0 event
+  from the current form state, signs it with the user's signer,
+  and broadcasts to `PUBLIC_RELAYS`. Both buttons live next to
+  the Save button in the Profile panel.
+
+- **All profile fields fall back to Nostr kind:0** when the
+  cursats row is empty (display name → `display_name||name`, bio
+  → `about`, avatar URL → `picture`, banner URL → `banner`,
+  Lightning Address → `lud16`). A new hint at the top of the
+  Profile panel surfaces when any field was pre-filled so the
+  user knows the source.
+
+- **`components/admin/settings-form/` moved to
+  `components/settings/`.** Per ADR 0014 the admin/ directory is
+  being phased out; the new tree splits the single form into
+  `profile-form/`, `payout-form/`, `placeholder-panel/`, and
+  `settings-nav/`.
+
 - **Settings form restyled** to match the create-course form:
   ceramic-card sections (`@include ceramic-card`), section header
   with title + hint, two-column radio for the payout-method

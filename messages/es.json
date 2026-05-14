@@ -426,7 +426,32 @@
     "metadataTitle": "Configuración · Cursats",
     "title": "Configuración",
     "subtitle": "Tu perfil público y dónde se acreditan tus ventas.",
+    "nav": {
+      "ariaLabel": "Secciones de configuración",
+      "profile": "Perfil",
+      "payout": "Cómo cobrás",
+      "preferences": "Preferencias",
+      "notifications": "Notificaciones",
+      "danger": "Zona de peligro"
+    },
+    "placeholder": {
+      "preferencesTitle": "Preferencias",
+      "preferencesBody": "El cambio de tema (claro / oscuro) y de idioma viven en la barra superior por ahora. En una próxima versión los vamos a mover acá junto con otras preferencias.",
+      "notificationsTitle": "Notificaciones",
+      "notificationsBody": "Pronto vas a poder elegir qué notificaciones recibís cuando alguien compra un curso tuyo o cuando se te asigna un código. Por ahora avisamos todo desde la campanita de la barra superior.",
+      "dangerTitle": "Zona de peligro",
+      "dangerBody": "Eliminar tu cuenta de Cursats es una acción permanente; preferimos no exponer un botón antes de tener los flujos de respaldo en su lugar. Si necesitás dar de baja la cuenta ahora, escribinos."
+    },
     "form": {
+      "syncFromRelays": "Sincronizar desde Nostr",
+      "syncing": "Sincronizando…",
+      "syncSuccess": "Pre-cargamos lo que está en tus relays. Revisalo y guardalo si querés conservarlo.",
+      "syncFailed": "No pudimos leer tu perfil desde los relays. Probá de nuevo en un momento.",
+      "publishToNostr": "Publicar en Nostr",
+      "publishing": "Publicando…",
+      "publishSuccess": "Publicamos tu kind:0 actualizado en los relays públicos.",
+      "publishFailed": "No pudimos publicar el evento. Probá de nuevo.",
+      "prefilledFromNostr": "Algunos campos los precargamos desde tu perfil de Nostr. Verificalos y guardalos para fijarlos en Cursats.",
       "sectionProfile": "Perfil público",
       "sectionProfileHint": "Cómo te ven los compradores en cursats.bitbybit.com.ar/{slug}.",
       "displayName": "Nombre para mostrar",
