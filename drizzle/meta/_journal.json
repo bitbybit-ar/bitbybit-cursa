@@ -57,6 +57,13 @@
       "when": 1779200000000,
       "tag": "0007_pricing_currency",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1779300000000,
+      "tag": "0008_user_preferences",
+      "breakpoints": true
     }
   ]
 }

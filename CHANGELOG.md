@@ -12,6 +12,30 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Preferences panel on `/settings`.** Default language dropdown
+  (es / en) persisted to a new `users.locale` column. Theme stays
+  in the navbar (per-device via `next-themes`); the panel renders
+  an explanatory note so users don't go hunting for it.
+- **Notifications panel on `/settings`.** Per-kind toggles
+  (`order.paid`, `sale.received` today) persisted to a new
+  `users.notification_prefs` jsonb column. Missing key = enabled.
+  The emission code in `lib/notifications.ts:emitNotification` now
+  checks the recipient's prefs before inserting a row; existing
+  history is never touched.
+- **Danger zone on `/settings`.** "Delete account" button with a
+  confirmation modal and NIP-98 re-sign. The new
+  `DELETE /api/settings` route scrubs PII, sets `deleted_at`,
+  marks `active = false`, and clears the session cookie. The row
+  stays — foreign keys on offerings / orders / audit log remain
+  valid. Decision in ADR 0021.
+
+- **Schema migration `0008_user_preferences.sql`.** Three
+  additive columns: `users.locale` (varchar(2), default 'es'),
+  `users.notification_prefs` (jsonb, default `{}`),
+  `users.deleted_at` (nullable timestamp).
+
+### Added
+
 - **Profile fields on `/settings`.** Display name, bio (up to 500
   chars), and avatar URL join the existing banner URL — sellers can
   edit every field the storefront renders without touching Nostr

@@ -99,7 +99,25 @@ export const users = pgTable(
     features_autorenewal: boolean("features_autorenewal")
       .notNull()
       .default(false),
+    // Default UI language for this user. The navbar's locale switch
+    // is a temporary session-only override (URL prefix); this is the
+    // value applied on next sign-in. ADR 0021.
+    locale: varchar("locale", { length: 2 }).notNull().default("es"),
+    // Per-kind notification opt-outs. Missing key or `true` = enabled;
+    // `false` skips the insert in `lib/notifications.ts:emitNotification`.
+    // ADR 0021.
+    notification_prefs: jsonb("notification_prefs")
+      .$type<Record<string, boolean>>()
+      .notNull()
+      .default({}),
     active: boolean("active").notNull().default(true),
+    // Soft-delete timestamp for the "Delete account" flow in
+    // /settings. When set, PII fields above are scrubbed and the
+    // user can no longer sign in. Distinct from `active` (admin
+    // moderation gate) so a deactivated-by-platform user can be
+    // reactivated, while a user-initiated delete is permanent.
+    // ADR 0021.
+    deleted_at: timestamp("deleted_at"),
     created_at: timestamp("created_at").notNull().defaultNow(),
     updated_at: timestamp("updated_at").notNull().defaultNow(),
   },

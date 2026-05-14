@@ -1,0 +1,115 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+@use "@/styles/common-mixins" as *;
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-24;
+  width: 100%;
+}
+
+.section {
+  @include ceramic-card;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-20;
+  padding: $spacing-24;
+
+  @include mobile {
+    padding: $spacing-16;
+    gap: $spacing-16;
+  }
+}
+
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  letter-spacing: $letter-spacing-tight;
+}
+
+.sectionHint {
+  margin: 0;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.select {
+  width: 100%;
+  max-width: 320px;
+  padding: $spacing-12;
+  background: $color-bg;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  font-family: $font-family-base;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  cursor: pointer;
+
+  &:focus-visible {
+    border-color: $color-primary;
+    outline: 2px solid $focus-ring;
+    outline-offset: 1px;
+  }
+}
+
+.hint {
+  margin: 0;
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.themeNote {
+  padding: $spacing-12 $spacing-16;
+  background: $color-bg;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+
+  strong {
+    display: block;
+    margin-bottom: $spacing-4;
+    font-size: $font-size-sm;
+    color: $color-text-primary;
+  }
+
+  p {
+    margin: 0;
+    font-size: $font-size-xs;
+    color: $color-text-secondary;
+    line-height: 1.5;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: $spacing-12;
+
+  @include mobile {
+    > * {
+      width: 100%;
+    }
+  }
+}

@@ -484,13 +484,57 @@
       "notifications": "Notifications",
       "danger": "Danger zone"
     },
-    "placeholder": {
-      "preferencesTitle": "Preferences",
-      "preferencesBody": "This is where you'll pick your default theme (light / dark) and language. After signing in those values apply; the navbar toggles stay where they are for switching temporarily during the session. Coming soon.",
-      "notificationsTitle": "Notifications",
-      "notificationsBody": "Soon you'll be able to pick which events ping you (someone buys your course, your code gets assigned, etc.). Until then, every event surfaces through the bell in the top navbar.",
-      "dangerTitle": "Danger zone",
-      "dangerBody": "Deleting your Cursats account is a permanent action; we'd rather not expose a button before the backup flows are wired. Reach out if you need to disable an account today."
+    "preferences": {
+      "title": "Preferences",
+      "hint": "Pick your default language. Theme (light / dark) is saved in your browser via the navbar toggle.",
+      "language": "Default language",
+      "languageEs": "Español",
+      "languageEn": "English",
+      "languageHint": "Applied the next time you sign in. You can still switch temporarily from the navbar whenever you want.",
+      "themeLabel": "Theme",
+      "themeHint": "Theme switching lives in the navbar and is saved per device, not per account.",
+      "save": "Save preferences",
+      "saving": "Saving…",
+      "saved": "Preferences saved.",
+      "saveFailed": "Couldn't save preferences. Try again."
+    },
+    "notifications": {
+      "title": "Notifications",
+      "hint": "Pick which events ring the bell. Turning one off stops emitting new notifications; existing history isn't touched.",
+      "kind": {
+        "order.paid": {
+          "title": "Tell me when a payment of mine confirms",
+          "hint": "When you buy a course, we ping you once the Lightning payment confirms."
+        },
+        "sale.received": {
+          "title": "Tell me when someone buys my course",
+          "hint": "When a buyer pays for one of your courses, we ping you so you can see the sale in \"Orders\"."
+        }
+      },
+      "save": "Save notifications",
+      "saving": "Saving…",
+      "saved": "Notifications saved.",
+      "saveFailed": "Couldn't save preferences. Try again."
+    },
+    "danger": {
+      "title": "Danger zone",
+      "hint": "Permanent actions on your account. Think twice before continuing.",
+      "deleteAccount": "Delete my account",
+      "deleteAccountHint": "We scrub your profile data and disable the account. Your purchase history stays tied to your pubkey, but you can no longer sign in with this account.",
+      "deleteAccountCta": "Delete account",
+      "modalTitle": "Delete your account?",
+      "modalBody": "This is permanent. On confirm:",
+      "modalBullets": {
+        "profile": "Your name, bio, picture, and payout details are scrubbed from Cursats.",
+        "offerings": "Your courses stop appearing in the catalog and on your storefront.",
+        "history": "Existing orders and signed Nostr events stay — they're immutable. But you can no longer sign in with this identity."
+      },
+      "modalCancel": "Cancel",
+      "modalConfirm": "Yes, delete account",
+      "modalConfirming": "Deleting…",
+      "deleted": "Account deleted.",
+      "deleteFailed": "Couldn't delete the account. Try again.",
+      "signCancelled": "You cancelled the signature. Try again when you're ready."
     },
     "form": {
       "syncFromRelays": "Sync from Nostr",

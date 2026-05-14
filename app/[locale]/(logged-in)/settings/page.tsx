@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { ProfileForm } from "@/components/settings/profile-form";
 import { PayoutForm } from "@/components/settings/payout-form";
-import { PlaceholderPanel } from "@/components/settings/placeholder-panel";
+import { PreferencesForm } from "@/components/settings/preferences-form";
+import { NotificationsForm } from "@/components/settings/notifications-form";
+import { DangerZoneForm } from "@/components/settings/danger-zone-form";
 import { SettingsNav } from "@/components/settings/settings-nav";
 import { isSettingsSection } from "@/components/settings/settings-nav/sections";
 import { requirePanelUser } from "@/lib/admin/panel-context";
@@ -98,23 +100,16 @@ export default async function SettingsPage({
             />
           ) : null}
           {section === "preferences" ? (
-            <PlaceholderPanel
-              title={t("placeholder.preferencesTitle")}
-              body={t("placeholder.preferencesBody")}
+            <PreferencesForm
+              initialLocale={user.locale === "en" ? "en" : "es"}
             />
           ) : null}
           {section === "notifications" ? (
-            <PlaceholderPanel
-              title={t("placeholder.notificationsTitle")}
-              body={t("placeholder.notificationsBody")}
+            <NotificationsForm
+              initialPrefs={user.notification_prefs ?? {}}
             />
           ) : null}
-          {section === "danger" ? (
-            <PlaceholderPanel
-              title={t("placeholder.dangerTitle")}
-              body={t("placeholder.dangerBody")}
-            />
-          ) : null}
+          {section === "danger" ? <DangerZoneForm /> : null}
         </div>
       </div>
     </>
