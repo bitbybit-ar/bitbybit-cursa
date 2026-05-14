@@ -436,7 +436,7 @@
     },
     "placeholder": {
       "preferencesTitle": "Preferencias",
-      "preferencesBody": "El cambio de tema (claro / oscuro) y de idioma viven en la barra superior por ahora. En una próxima versión los vamos a mover acá junto con otras preferencias.",
+      "preferencesBody": "Acá vas a poder elegir tu tema (claro / oscuro) y tu idioma por defecto. Al iniciar sesión esos valores quedan seleccionados; los toggles de la barra superior se siguen usando para cambiarlos temporalmente durante la sesión. Próximamente.",
       "notificationsTitle": "Notificaciones",
       "notificationsBody": "Pronto vas a poder elegir qué notificaciones recibís cuando alguien compra un curso tuyo o cuando se te asigna un código. Por ahora avisamos todo desde la campanita de la barra superior.",
       "dangerTitle": "Zona de peligro",

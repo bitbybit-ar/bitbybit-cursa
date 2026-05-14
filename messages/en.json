@@ -436,7 +436,7 @@
     },
     "placeholder": {
       "preferencesTitle": "Preferences",
-      "preferencesBody": "Theme (light / dark) and language switching live in the top navbar for now. We'll move them here alongside other preferences in a later release.",
+      "preferencesBody": "This is where you'll pick your default theme (light / dark) and language. After signing in those values apply; the navbar toggles stay where they are for switching temporarily during the session. Coming soon.",
       "notificationsTitle": "Notifications",
       "notificationsBody": "Soon you'll be able to pick which events ping you (someone buys your course, your code gets assigned, etc.). Until then, every event surfaces through the bell in the top navbar.",
       "dangerTitle": "Danger zone",
