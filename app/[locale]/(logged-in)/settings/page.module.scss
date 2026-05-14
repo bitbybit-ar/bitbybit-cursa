@@ -8,6 +8,7 @@
   flex-direction: column;
   gap: $spacing-4;
   margin-bottom: $spacing-32;
+  width: 100%;
 }
 
 .title {
@@ -25,6 +26,11 @@
 }
 
 .shell {
+  // The logged-in layout's Container has `align-items: center`, so
+  // flex children shrink to their content width. Pin the shell to
+  // 100% so the sidebar column lands at the same x-position
+  // regardless of which panel is active.
+  width: 100%;
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);
   gap: $spacing-32;
