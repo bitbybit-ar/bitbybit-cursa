@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations, setRequestLocale } from "next-intl/server";
-import { Card } from "@/components/ui/card";
 import { SettingsForm } from "@/components/admin/settings-form";
 import { requirePanelUser } from "@/lib/admin/panel-context";
+import { fetchKind0Profile } from "@/lib/nostr/profile";
 import styles from "./page.module.scss";
 
 export const dynamic = "force-dynamic";
@@ -29,8 +29,17 @@ export default async function SettingsPage({
   setRequestLocale(locale);
 
   const { user } = await requirePanelUser();
-
   const t = await getTranslations("settings");
+
+  // Best-effort kind:0 read. If the user has never set a Lightning
+  // Address on the cursats row, fall back to whatever their Nostr
+  // profile advertises as `lud16`. The fetch is best-effort with a
+  // 3s relay timeout — a slow relay set returns an empty profile
+  // and the form starts with empty fields, exactly as before. The
+  // user can always override what we pre-fill.
+  const profile = await fetchKind0Profile(user.pubkey);
+  const initialLightningAddress =
+    user.lightning_address ?? profile.lud16 ?? "";
 
   return (
     <>
@@ -39,18 +48,18 @@ export default async function SettingsPage({
         <p className={styles.subtitle}>{t("subtitle")}</p>
       </header>
 
-      <Card variant="default" className={styles.warning}>
-        <strong>{t("warningTitle")}</strong>
-        <p>{t("warningBody")}</p>
-      </Card>
-
       <SettingsForm
+        initialDisplayName={user.display_name}
+        initialBio={user.bio ?? ""}
+        initialAvatarUrl={user.avatar_url ?? ""}
         initialBannerUrl={user.banner_url ?? ""}
         initialCbu={user.cbu ?? ""}
         initialAlias={user.alias ?? ""}
-        initialLightningAddress={user.lightning_address ?? ""}
+        initialLightningAddress={initialLightningAddress}
         initialPayoutMethod={user.payout_method}
-        initialAutorenewal={user.features_autorenewal}
+        lightningAddressFromNostr={
+          !user.lightning_address && Boolean(profile.lud16)
+        }
       />
     </>
   );

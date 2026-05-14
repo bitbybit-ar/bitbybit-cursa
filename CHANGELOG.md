@@ -12,6 +12,51 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Profile fields on `/settings`.** Display name, bio (up to 500
+  chars), and avatar URL join the existing banner URL — sellers can
+  edit every field the storefront renders without touching Nostr
+  directly. All new fields are seeded server-side from the user's
+  Nostr kind:0 profile at sign-in; sellers can override.
+- **Lightning Address auto-fill from Nostr.** When the cursats row
+  has no Lightning Address but the user's Nostr kind:0 profile
+  carries a `lud16`, the settings page pre-fills the field and
+  surfaces a hint so the seller knows where the value came from.
+  Saving persists it; editing is unrestricted.
+- **Tooltip component** ported from arena's
+  `components/common/Tooltip`. Used on every label in the settings
+  form with non-obvious copy (display name, bio, avatar URL,
+  banner URL, Lightning Address, CBU, alias).
+
+### Changed
+
+- **Settings form restyled** to match the create-course form:
+  ceramic-card sections (`@include ceramic-card`), section header
+  with title + hint, two-column radio for the payout-method
+  picker, full-width grid for the CBU/alias pair.
+- **Lightning Address moved into Public profile.** It used to be
+  hidden behind the sats-rail radio; now it always shows so a
+  seller on the CBU rail can still surface their LN address for
+  the Nostr profile sync hint. The Payout section renders a small
+  note pointing back to the profile field when the sats rail is
+  picked.
+- **"Visible to every buyer" warning card removed** from the top
+  of `/settings`. CBU/alias data has never been visible to buyers
+  (Wapu handles routing in the backend); the warning was
+  misleading. The "double-check before saving" copy moved into a
+  tooltip on the alias label, where it's contextual.
+
+### Removed
+
+- **Auto-renewal toggle.** The NWC auto-renewal feature
+  (`users.features_autorenewal`, decided in ADR 0005) never
+  landed past the settings flag — no NWC client, no cron worker,
+  no second checkout button. v1 ships one-shot purchases only.
+  The column stays in the DB (no destructive migration); the
+  form no longer surfaces the toggle and never sends the field.
+  Decision in ADR 0020.
+
+### Added
+
 - **`/explore` discovery surface.** The page gains a free-text search
   (title, description, teacher name), a filter by offering type
   (redemption code / download), four sort options (newest, oldest,

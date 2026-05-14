@@ -1,36 +1,49 @@
 @use "@/styles/colors" as *;
 @use "@/styles/spacing" as *;
 @use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+@use "@/styles/common-mixins" as *;
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: $spacing-20;
-  max-width: 560px;
+  gap: $spacing-32;
+  width: 100%;
+  max-width: 960px;
 }
 
-.fieldset {
+.section {
+  @include ceramic-card;
   display: flex;
   flex-direction: column;
-  gap: $spacing-12;
-  border: 1px solid $color-border;
-  border-radius: $border-radius-md;
-  padding: $spacing-16;
-  background: $color-bg-2;
+  gap: $spacing-20;
+  padding: $spacing-24;
+
+  @include mobile {
+    padding: $spacing-16;
+    gap: $spacing-16;
+  }
 }
 
-.legend {
-  font-size: $font-size-xs;
+.sectionHeader {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-2;
+}
+
+.sectionTitle {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-base;
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
-  padding: 0 $spacing-4;
+  letter-spacing: $letter-spacing-tight;
 }
 
-.legendHint {
-  margin: 0 0 $spacing-4;
+.sectionHint {
+  margin: 0;
   font-size: $font-size-xs;
   color: $color-text-secondary;
-  line-height: $line-height-base;
 }
 
 .field {
@@ -39,16 +52,93 @@
   gap: $spacing-4;
 }
 
+.fieldset {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-12;
+  border: 0;
+  padding: 0;
+  margin: 0;
+
+  > legend {
+    grid-column: 1 / -1;
+  }
+
+  @include mobile {
+    grid-template-columns: 1fr;
+    gap: $spacing-8;
+  }
+}
+
+.legend {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  padding: 0;
+  margin-bottom: $spacing-4;
+}
+
+.radio {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-12;
+  cursor: pointer;
+  font-size: $font-size-sm;
+  padding: $spacing-16;
+  background: $color-bg;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  height: 100%;
+
+  &:hover {
+    border-color: $color-text-secondary;
+  }
+
+  input[type="radio"] {
+    accent-color: $color-primary;
+    margin-top: $spacing-2;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  > span {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-2;
+  }
+
+  strong {
+    color: $color-text-primary;
+    font-weight: $font-weight-semibold;
+  }
+}
+
+.radioSelected {
+  border-color: $color-primary;
+  background: alpha($color-primary, 6%);
+}
+
+.radioHint {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
 .label {
+  display: flex;
+  align-items: center;
+  gap: $spacing-8;
   font-size: $font-size-sm;
   font-weight: $font-weight-semibold;
   color: $color-text-primary;
 }
 
-.input {
+.input,
+.textarea {
   width: 100%;
-  padding: $spacing-8 $spacing-12;
-  background: $color-surface;
+  padding: $spacing-12 $spacing-12;
+  background: $color-bg;
   border: 1px solid $color-border;
   border-radius: $border-radius-md;
   font-family: $font-family-base;
@@ -61,6 +151,10 @@
     color: $color-text-secondary;
   }
 
+  &:hover {
+    border-color: $color-text-secondary;
+  }
+
   &:focus-visible {
     border-color: $color-primary;
     outline: 2px solid $focus-ring;
@@ -68,85 +162,37 @@
   }
 }
 
-.toggle {
-  display: flex;
-  align-items: flex-start;
-  gap: $spacing-12;
-  cursor: pointer;
-  font-size: $font-size-sm;
-
-  input[type="checkbox"] {
-    accent-color: $color-primary;
-    margin-top: $spacing-2;
-  }
-
-  > span {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-2;
-  }
-
-  strong {
-    color: $color-text-primary;
-    font-weight: $font-weight-semibold;
-  }
+.textarea {
+  resize: vertical;
+  line-height: 1.5;
 }
 
-.toggleHint {
+.hint {
+  margin: 0;
   font-size: $font-size-xs;
   color: $color-text-secondary;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-16;
+
+  @include mobile {
+    grid-template-columns: 1fr;
+  }
 }
 
 .actions {
   display: flex;
   gap: $spacing-12;
-  padding-top: $spacing-16;
-  border-top: 1px solid $color-border;
-}
+  padding-top: $spacing-8;
 
-.railSelector {
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-8;
-  margin-bottom: $spacing-8;
-}
+  @include mobile {
+    flex-direction: column-reverse;
 
-.railOption {
-  display: flex;
-  align-items: flex-start;
-  gap: $spacing-12;
-  padding: $spacing-12;
-  border: 1px solid $color-border;
-  border-radius: $border-radius-md;
-  background: $color-surface;
-  cursor: pointer;
-
-  input[type="radio"] {
-    accent-color: $color-primary;
-    margin-top: $spacing-2;
+    > * {
+      width: 100%;
+    }
   }
-
-  > span {
-    display: flex;
-    flex-direction: column;
-    gap: $spacing-2;
-    font-size: $font-size-sm;
-  }
-
-  strong {
-    color: $color-text-primary;
-    font-weight: $font-weight-semibold;
-  }
-}
-
-.railHint {
-  font-size: $font-size-xs;
-  color: $color-text-secondary;
-  line-height: $line-height-base;
-}
-
-.fieldHint {
-  font-size: $font-size-xs;
-  color: $color-text-secondary;
-  line-height: $line-height-base;
 }

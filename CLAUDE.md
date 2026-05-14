@@ -137,13 +137,14 @@ repo's copy is intentionally identical and should stay in sync.
   vars, and operational state (offerings, settings) is in
   Postgres. Decision in ADR
   `docs/architecture/decisions/0010-no-yaml-config.md`.
-- **Auto-renewal is opt-in per user.** The flag lives in
-  `users.features_autorenewal` (Postgres), toggled from
-  `/[locale]/settings`. When off, the NWC client, cron handler,
-  and encrypted-secrets storage are *deployed but dormant* — gated
-  by a runtime check on the flag. Decision in ADR
-  `docs/architecture/decisions/0005-prepaid-default-autorenewal-optin.md`
-  (amended by ADR 0009).
+- **Auto-renewal is deferred from MVP.** The `users.features_
+  autorenewal` column and the `/api/settings` plumbing for it
+  still exist (no destructive migration), but the settings page
+  no longer surfaces a toggle and no checkout/cron code reads
+  it. Re-introducing the feature is a future-tracked item; in
+  v1 every purchase is one-shot. Decision in ADR
+  `docs/architecture/decisions/0020-defer-autorenewal-from-mvp.md`,
+  superseding the runtime-toggle posture of ADR 0005.
 - **Creator surfaces are open to every signed-in user.** Any
   Nostr-authenticated session can reach `/[locale]/my-courses`,
   `/[locale]/create-course`, `/[locale]/settings`, and
@@ -191,9 +192,8 @@ repo's copy is intentionally identical and should stay in sync.
   `NOSTR_NSEC` lives in env vars and is consumed by API routes or
   server-only modules. Never ship it to the client.
 - **No buyer-side wallet detection.** Buyers came to a sats checkout
-  to pay sats. The seller's auto-renewal flag is the only real
-  toggle; both checkout buttons are visible when it is on, and the
-  buyer self-selects.
+  to pay sats. Every purchase is one-shot — there are no renewable
+  subscriptions in v1 (see the auto-renewal deferral above).
 - Every user-facing string goes through next-intl. Add the key to
   **both** `messages/es.json` and `messages/en.json` in the same
   change.

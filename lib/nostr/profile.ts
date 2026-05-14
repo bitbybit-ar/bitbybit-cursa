@@ -19,6 +19,10 @@ export interface Kind0Profile {
   picture?: string;
   about?: string;
   banner?: string;
+  /** NIP-05 verified identifier, e.g. "alice@cursats.bitbybit.com.ar". */
+  nip05?: string;
+  /** Lightning Address (LUD-16), e.g. "alice@walletofsatoshi.com". */
+  lud16?: string;
 }
 
 const QUERY_TIMEOUT_MS = 3_000;
@@ -34,6 +38,8 @@ function parseKind0(content: string): Kind0Profile {
     if (typeof parsed.picture === "string") out.picture = parsed.picture;
     if (typeof parsed.about === "string") out.about = parsed.about;
     if (typeof parsed.banner === "string") out.banner = parsed.banner;
+    if (typeof parsed.nip05 === "string") out.nip05 = parsed.nip05;
+    if (typeof parsed.lud16 === "string") out.lud16 = parsed.lud16;
     return out;
   } catch {
     return {};
