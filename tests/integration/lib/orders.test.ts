@@ -58,9 +58,13 @@ async function seedOffering(slug = "bono-4-clases") {
       title: "Bono 4 clases",
       description: "Cuatro clases.",
       price_amount: 28000,
-        price_currency: "ars" as const,
-
-        image_url: "https://example.com/cover.png",
+      price_currency: "ars" as const,
+      image_url: "https://example.com/cover.png",
+      // createOrder refuses to take a checkout against a code
+      // offering with an empty pool (ADR 0019 follow-on). Seed
+      // some codes so the order-creation tests can exercise the
+      // post-pool-check code paths.
+      code_pool: ["TEST-AAAA", "TEST-BBBB", "TEST-CCCC"],
     })
     .returning();
   return row;

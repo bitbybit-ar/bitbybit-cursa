@@ -33,7 +33,7 @@ beforeEach(async () => {
 });
 
 describe("admin/offerings/createOfferingForAdmin", () => {
-  it("inserts a code offering with empty pool and writes an audit row", async () => {
+  it("inserts a code offering with a server-minted pool and writes an audit row", async () => {
     const user = await seedUser({ pubkey: ACTOR });
     const result = await createOfferingForAdmin(
       user.id,
@@ -44,9 +44,8 @@ describe("admin/offerings/createOfferingForAdmin", () => {
         description: "Taller online.",
         price_amount: 5000,
         price_currency: "ars" as const,
-
         image_url: "https://example.com/cover.png",
-      code_count: 5,
+        code_count: 5,
       },
       ACTOR
     );
@@ -54,7 +53,13 @@ describe("admin/offerings/createOfferingForAdmin", () => {
     if (!result.ok) return;
     expect(result.offering.slug).toBe("intro-bitcoin");
     expect(result.offering.user_id).toBe(user.id);
-    expect(result.offering.code_pool).toEqual([]);
+    // ADR 0019 follow-on: the server mints `code_count` unique
+    // codes server-side. Each code is the platform's 8-char
+    // alphanumeric format (4-4 with a hyphen, e.g. NF26-HJVU).
+    expect(result.offering.code_pool).toHaveLength(5);
+    for (const code of result.offering.code_pool ?? []) {
+      expect(code).toMatch(/^[A-Z0-9]{4}-[A-Z0-9]{4}$/);
+    }
 
     const audit = await testDb.select().from(adminAuditLog);
     expect(audit.length).toBe(1);
