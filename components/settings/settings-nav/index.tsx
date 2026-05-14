@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import {
   UserIcon,
   BoltIcon,
+  BellIcon,
   SettingsIcon,
   CloseIcon,
 } from "@/components/icons";
@@ -29,7 +30,7 @@ const ICONS: Record<SettingsSection, React.ComponentType<{ size?: number }>> = {
   profile: UserIcon,
   payout: BoltIcon,
   preferences: SettingsIcon,
-  notifications: BoltIcon,
+  notifications: BellIcon,
   danger: CloseIcon,
 };
 
