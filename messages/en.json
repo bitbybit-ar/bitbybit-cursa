@@ -428,7 +428,7 @@
     "subtitle": "Your public profile and where your sales land.",
     "form": {
       "sectionProfile": "Public profile",
-      "sectionProfileHint": "How buyers see you at cursats.bitbybit.com.ar/{your-slug}.",
+      "sectionProfileHint": "How buyers see you at cursats.bitbybit.com.ar/{slug}.",
       "displayName": "Display name",
       "displayNameTooltip": "The name buyers see on your storefront and in the catalog. Seeded from your Nostr profile — feel free to override.",
       "displayNameExample": "Teacher Maria — Bitcoin for all",

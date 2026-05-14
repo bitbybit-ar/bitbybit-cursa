@@ -428,7 +428,7 @@
     "subtitle": "Tu perfil público y dónde se acreditan tus ventas.",
     "form": {
       "sectionProfile": "Perfil público",
-      "sectionProfileHint": "Cómo te ven los compradores en cursats.bitbybit.com.ar/{tu-slug}.",
+      "sectionProfileHint": "Cómo te ven los compradores en cursats.bitbybit.com.ar/{slug}.",
       "displayName": "Nombre para mostrar",
       "displayNameTooltip": "El nombre que ven los compradores en tu storefront y en el catálogo. Lo que se prendió desde tu perfil de Nostr — podés editarlo.",
       "displayNameExample": "Profe María — Bitcoin para todes",

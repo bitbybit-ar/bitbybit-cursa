@@ -17,6 +17,8 @@ import styles from "./settings-form.module.scss";
 type PayoutMethod = "cbu_alias" | "lightning_address";
 
 interface SettingsFormProps {
+  /** Storefront slug — interpolated into the profile-section hint. */
+  userSlug: string;
   initialDisplayName: string;
   initialBio: string;
   initialAvatarUrl: string;
@@ -40,6 +42,7 @@ function emptyToNull(value: string): string | null {
 }
 
 export function SettingsForm({
+  userSlug,
   initialDisplayName,
   initialBio,
   initialAvatarUrl,
@@ -209,7 +212,9 @@ export function SettingsForm({
       <section className={styles.section}>
         <header className={styles.sectionHeader}>
           <h2 className={styles.sectionTitle}>{t("sectionProfile")}</h2>
-          <p className={styles.sectionHint}>{t("sectionProfileHint")}</p>
+          <p className={styles.sectionHint}>
+            {t("sectionProfileHint", { slug: userSlug })}
+          </p>
         </header>
 
         <div className={styles.field}>

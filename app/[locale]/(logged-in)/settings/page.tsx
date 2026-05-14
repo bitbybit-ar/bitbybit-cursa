@@ -49,6 +49,7 @@ export default async function SettingsPage({
       </header>
 
       <SettingsForm
+        userSlug={user.slug}
         initialDisplayName={user.display_name}
         initialBio={user.bio ?? ""}
         initialAvatarUrl={user.avatar_url ?? ""}
