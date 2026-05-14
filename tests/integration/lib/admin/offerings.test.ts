@@ -33,7 +33,7 @@ beforeEach(async () => {
 });
 
 describe("admin/offerings/createOfferingForAdmin", () => {
-  it("inserts a code offering with empty pool and writes an audit row", async () => {
+  it("inserts a code offering with a server-minted pool and writes an audit row", async () => {
     const user = await seedUser({ pubkey: ACTOR });
     const result = await createOfferingForAdmin(
       user.id,
@@ -42,7 +42,10 @@ describe("admin/offerings/createOfferingForAdmin", () => {
         type: "code",
         title: "Intro a Bitcoin",
         description: "Taller online.",
-        price_ars: 5000,
+        price_amount: 5000,
+        price_currency: "ars" as const,
+        image_url: "https://example.com/cover.png",
+        code_count: 5,
       },
       ACTOR
     );
@@ -50,7 +53,13 @@ describe("admin/offerings/createOfferingForAdmin", () => {
     if (!result.ok) return;
     expect(result.offering.slug).toBe("intro-bitcoin");
     expect(result.offering.user_id).toBe(user.id);
-    expect(result.offering.code_pool).toEqual([]);
+    // ADR 0019 follow-on: the server mints `code_count` unique
+    // codes server-side. Each code is the platform's 8-char
+    // alphanumeric format (4-4 with a hyphen, e.g. NF26-HJVU).
+    expect(result.offering.code_pool).toHaveLength(5);
+    for (const code of result.offering.code_pool ?? []) {
+      expect(code).toMatch(/^[A-Z0-9]{4}-[A-Z0-9]{4}$/);
+    }
 
     const audit = await testDb.select().from(adminAuditLog);
     expect(audit.length).toBe(1);
@@ -68,7 +77,11 @@ describe("admin/offerings/createOfferingForAdmin", () => {
         type: "code",
         title: "First",
         description: "First.",
-        price_ars: 1000,
+        price_amount: 1000,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
+      code_count: 5,
       },
       ACTOR
     );
@@ -79,7 +92,11 @@ describe("admin/offerings/createOfferingForAdmin", () => {
         type: "code",
         title: "Second",
         description: "Second.",
-        price_ars: 2000,
+        price_amount: 2000,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
+      code_count: 5,
       },
       ACTOR
     );
@@ -104,7 +121,11 @@ describe("admin/offerings/createOfferingForAdmin", () => {
         type: "code",
         title: "From A",
         description: "From A.",
-        price_ars: 1000,
+        price_amount: 1000,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
+      code_count: 5,
       },
       a.pubkey
     );
@@ -115,7 +136,11 @@ describe("admin/offerings/createOfferingForAdmin", () => {
         type: "code",
         title: "From B",
         description: "From B.",
-        price_ars: 1000,
+        price_amount: 1000,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
+      code_count: 5,
       },
       b.pubkey
     );
@@ -134,7 +159,11 @@ describe("admin/offerings/updateOfferingForAdmin", () => {
         type: "code",
         title: "Original",
         description: "Original.",
-        price_ars: 1000,
+        price_amount: 1000,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
+      code_count: 5,
       },
       ACTOR
     );
@@ -143,13 +172,13 @@ describe("admin/offerings/updateOfferingForAdmin", () => {
     const updated = await updateOfferingForAdmin(
       user.id,
       created.offering.id,
-      { title: "New title", price_ars: 1500 },
+      { title: "New title", price_amount: 1500, price_currency: "ars" },
       ACTOR
     );
     expect(updated.ok).toBe(true);
     if (!updated.ok) return;
     expect(updated.offering.title).toBe("New title");
-    expect(updated.offering.price_ars).toBe(1500);
+    expect(updated.offering.price_amount).toBe(1500);
     expect(updated.offering.slug).toBe("to-edit");
 
     const auditRows = await testDb
@@ -158,7 +187,7 @@ describe("admin/offerings/updateOfferingForAdmin", () => {
       .where(eq(adminAuditLog.action, "update"));
     expect(auditRows.length).toBe(1);
     const diff = auditRows[0].payload_diff as { changed: string[] };
-    expect(diff.changed.sort()).toEqual(["price_ars", "title"]);
+    expect(diff.changed.sort()).toEqual(["price_amount", "title"]);
   });
 
   it("returns not_found for an unknown id", async () => {
@@ -190,7 +219,11 @@ describe("admin/offerings/updateOfferingForAdmin", () => {
         type: "code",
         title: "Private",
         description: "Private.",
-        price_ars: 1000,
+        price_amount: 1000,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
+      code_count: 5,
       },
       owner.pubkey
     );
@@ -216,7 +249,11 @@ describe("admin/offerings/updateOfferingForAdmin", () => {
         type: "code",
         title: "A",
         description: "A.",
-        price_ars: 100,
+        price_amount: 100,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
+      code_count: 5,
       },
       ACTOR
     );
@@ -227,7 +264,11 @@ describe("admin/offerings/updateOfferingForAdmin", () => {
         type: "code",
         title: "B",
         description: "B.",
-        price_ars: 100,
+        price_amount: 100,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
+      code_count: 5,
       },
       ACTOR
     );
@@ -255,7 +296,10 @@ describe("admin/offerings/archiveOfferingForAdmin", () => {
         type: "download",
         title: "Soon-archived",
         description: "Goodbye.",
-        price_ars: 500,
+        price_amount: 500,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
         download_url: "https://example.com/file.pdf",
       },
       ACTOR
@@ -291,7 +335,11 @@ describe("admin/offerings/archiveOfferingForAdmin", () => {
         type: "code",
         title: "Already archived",
         description: "Already.",
-        price_ars: 500,
+        price_amount: 500,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
+      code_count: 5,
       },
       ACTOR
     );
@@ -319,7 +367,11 @@ describe("admin/offerings/list helpers", () => {
         type: "code",
         title: "A",
         description: "A.",
-        price_ars: 100,
+        price_amount: 100,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
+      code_count: 5,
       },
       ACTOR
     );
@@ -330,7 +382,11 @@ describe("admin/offerings/list helpers", () => {
         type: "code",
         title: "B",
         description: "B.",
-        price_ars: 100,
+        price_amount: 100,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
+      code_count: 5,
       },
       ACTOR
     );
@@ -357,7 +413,11 @@ describe("admin/offerings/list helpers", () => {
         type: "code",
         title: "From A",
         description: "From A.",
-        price_ars: 100,
+        price_amount: 100,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
+      code_count: 5,
       },
       a.pubkey
     );
@@ -368,7 +428,11 @@ describe("admin/offerings/list helpers", () => {
         type: "code",
         title: "From B",
         description: "From B.",
-        price_ars: 100,
+        price_amount: 100,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
+      code_count: 5,
       },
       b.pubkey
     );
@@ -386,7 +450,11 @@ describe("admin/offerings/list helpers", () => {
         type: "code",
         title: "Fetched",
         description: "Fetched.",
-        price_ars: 100,
+        price_amount: 100,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
+      code_count: 5,
       },
       ACTOR
     );

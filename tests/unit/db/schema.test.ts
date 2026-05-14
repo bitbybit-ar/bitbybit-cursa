@@ -81,16 +81,16 @@ describe("db/schema offerings", () => {
     expect(archivedAt?.notNull).toBe(false);
   });
 
-  it("requires title, description, and price_ars", () => {
-    for (const name of ["title", "description", "price_ars"]) {
+  it("requires title, description, price_amount, and price_currency", () => {
+    for (const name of [
+      "title",
+      "description",
+      "price_amount",
+      "price_currency",
+    ]) {
       const col = config.columns.find((c) => c.name === name);
       expect(col?.notNull, `${name} should be NOT NULL`).toBe(true);
     }
-  });
-
-  it("makes price_sats nullable so the storefront can quote dynamically", () => {
-    const priceSats = config.columns.find((c) => c.name === "price_sats");
-    expect(priceSats?.notNull).toBe(false);
   });
 
   it("references users via user_id", () => {

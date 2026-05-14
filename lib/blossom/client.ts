@@ -179,15 +179,29 @@ export async function uploadToBlossom(
 }
 
 /**
+ * Public Blossom servers known to accept anonymous Nostr-signed
+ * uploads. Used as a fallback when `NEXT_PUBLIC_BLOSSOM_SERVERS` is
+ * unset — keeps the offering form usable in dev without forcing
+ * every contributor to copy a value out of `.env.example`. Operators
+ * who care about pinning a specific server override via the env var.
+ */
+const DEFAULT_BLOSSOM_SERVERS = [
+  "https://blossom.primal.net",
+  "https://cdn.satellite.earth",
+];
+
+/**
  * Resolve the configured server list from a comma-separated env
  * string. `NEXT_PUBLIC_BLOSSOM_SERVERS` is the runtime entry point
  * because the upload happens in the browser; without `NEXT_PUBLIC_*`
- * the value would be undefined at upload time.
+ * the value would be undefined at upload time. Empty / unset →
+ * `DEFAULT_BLOSSOM_SERVERS` so the form works out of the box.
  */
 export function readBlossomServers(envValue: string | undefined): string[] {
-  if (!envValue) return [];
-  return envValue
+  if (!envValue) return [...DEFAULT_BLOSSOM_SERVERS];
+  const parsed = envValue
     .split(",")
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
+  return parsed.length > 0 ? parsed : [...DEFAULT_BLOSSOM_SERVERS];
 }

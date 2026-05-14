@@ -57,7 +57,14 @@ async function seedOffering(slug = "bono-4-clases") {
       type: "code",
       title: "Bono 4 clases",
       description: "Cuatro clases.",
-      price_ars: 28000,
+      price_amount: 28000,
+      price_currency: "ars" as const,
+      image_url: "https://example.com/cover.png",
+      // createOrder refuses to take a checkout against a code
+      // offering with an empty pool (ADR 0019 follow-on). Seed
+      // some codes so the order-creation tests can exercise the
+      // post-pool-check code paths.
+      code_pool: ["TEST-AAAA", "TEST-BBBB", "TEST-CCCC"],
     })
     .returning();
   return row;
@@ -362,7 +369,10 @@ describe("orders/drawAndAssignCode", () => {
         type: "code",
         title: "Pool offering",
         description: "Has a pool.",
-        price_ars: 1000,
+        price_amount: 1000,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
         code_pool: codes,
       })
       .returning();
@@ -379,7 +389,10 @@ describe("orders/drawAndAssignCode", () => {
         type: "download",
         title: "PDF",
         description: "A download.",
-        price_ars: 500,
+        price_amount: 500,
+        price_currency: "ars" as const,
+
+        image_url: "https://example.com/cover.png",
         download_url: "https://example.com/pdf",
       })
       .returning();
@@ -438,11 +451,22 @@ describe("orders/drawAndAssignCode", () => {
   });
 
   it("returns pool_empty when there is nothing to draw", async () => {
-    const offering = await seedCodeOfferingWithPool([]);
+    // Simulates the race where two buyers claim the last code at
+    // once — one wins the pop, the other lands on `pool_empty`.
+    // createOrder's pre-checkout sold-out guard (ADR 0019 follow-
+    // on) refuses checkout against an empty pool, so we can't
+    // reach this code path through the normal seed flow. Instead
+    // we seed the offering WITH a code, create the order, then
+    // drop the pool by hand before calling drawAndAssignCode.
+    const offering = await seedCodeOfferingWithPool(["TRANSIENT"]);
     const { order_id } = await createOrder({
       offering_id: offering.id,
       pubkey: null,
     });
+    await testDb
+      .update(offerings)
+      .set({ code_pool: [] })
+      .where(eq(offerings.id, offering.id));
     const result = await drawAndAssignCode({ order_id });
     expect(result.status).toBe("pool_empty");
     const order = await getOrder(order_id);

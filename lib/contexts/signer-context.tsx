@@ -126,6 +126,15 @@ interface PendingPrompt {
 interface SignerProviderProps {
   children: ReactNode;
   /**
+   * Initial session value read server-side from the cookie. Lets the
+   * navbar render the correct logged-in/logged-out state on first
+   * paint instead of flashing the anonymous state until the on-mount
+   * `/api/auth/session` fetch resolves. Pass `null` when the cookie
+   * is missing/invalid; omit (or pass `undefined`) only when the
+   * caller deliberately wants client-only hydration.
+   */
+  initialSession?: SessionUser | null;
+  /**
    * Optional render-prop for the re-attach modal. Buyer-only mounts
    * can skip it; surfaces that need post-login signing must pass
    * one (see `SignerProviderClient`). When omitted,
@@ -140,10 +149,15 @@ interface SignerProviderProps {
 
 export function SignerProvider({
   children,
+  initialSession,
   renderReSignInModal,
 }: SignerProviderProps) {
-  const [session, setSession] = useState<SessionUser | null>(null);
-  const [sessionLoading, setSessionLoading] = useState(true);
+  const [session, setSession] = useState<SessionUser | null>(
+    initialSession ?? null,
+  );
+  const [sessionLoading, setSessionLoading] = useState(
+    initialSession === undefined,
+  );
   const [signer, setSignerState] = useState<SignerHandle | null>(null);
   // Mirror of `signer` state. signWithPrompt reads from this ref so a
   // handler that called `requestReSignIn()` and THEN falls through to

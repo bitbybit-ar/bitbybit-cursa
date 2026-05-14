@@ -35,9 +35,12 @@ export function OfferingCard({
 }: OfferingCardProps) {
   const t = useTranslations("catalog.card");
   const tType = useTranslations("offering.type");
+  const tOffering = useTranslations("offering");
 
   const offeringHref = `/${seller.slug}/c/${offering.slug}`;
   const sellerHref = `/${seller.slug}`;
+  const isSoldOut =
+    offering.type === "code" && (offering.code_pool?.length ?? 0) === 0;
 
   return (
     <Card variant="hover" className={styles.card}>
@@ -51,11 +54,26 @@ export function OfferingCard({
               sizes="(max-width: 768px) 100vw, 360px"
               className={styles.image}
             />
+            {isSoldOut ? (
+              <span className={styles.soldOutBadge}>
+                {tOffering("soldOutBadge")}
+              </span>
+            ) : null}
           </div>
         </Link>
       ) : null}
 
       <div className={styles.body}>
+        {/*
+          Inline sold-out pill so legacy rows without a cover image
+          still surface the state. Hidden when there's an image,
+          because the image overlay above already carries the chip.
+        */}
+        {isSoldOut && !offering.image_url ? (
+          <span className={styles.soldOutInline}>
+            {tOffering("soldOutBadge")}
+          </span>
+        ) : null}
         <h3 className={styles.title}>
           <Link href={offeringHref} className={styles.titleLink}>
             {offering.title}
@@ -85,8 +103,8 @@ export function OfferingCard({
 
       <div className={styles.footer}>
         <PriceTag
-          priceArs={offering.price_ars}
-          priceSats={offering.price_sats}
+          priceAmount={offering.price_amount}
+          priceCurrency={offering.price_currency}
           size="default"
         />
         <Link href={offeringHref} className={styles.cta}>

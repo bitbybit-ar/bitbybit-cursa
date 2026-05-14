@@ -1,0 +1,96 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-16;
+  padding: $spacing-24;
+  background: $color-bg-2;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-lg;
+  width: 100%;
+  max-width: 720px;
+  margin-top: $spacing-24;
+
+  @include mobile {
+    padding: $spacing-16;
+  }
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+}
+
+.title {
+  margin: 0;
+  font-family: $font-family-display;
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.row {
+  display: flex;
+  gap: $spacing-12;
+  align-items: flex-end;
+
+  @include mobile {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-4;
+  flex: 1;
+}
+
+.label {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.input {
+  width: 100%;
+  padding: $spacing-12;
+  background: $color-bg;
+  border: 1px solid $color-border;
+  border-radius: $border-radius-md;
+  font-family: $font-family-base;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  box-sizing: border-box;
+
+  &:focus-visible {
+    border-color: $color-primary;
+    outline: 2px solid $focus-ring;
+    outline-offset: 1px;
+  }
+}
+
+.download {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  font-size: $font-size-sm;
+  color: $color-primary;
+  text-decoration: underline;
+
+  &:hover {
+    color: $color-primary-hover;
+  }
+}

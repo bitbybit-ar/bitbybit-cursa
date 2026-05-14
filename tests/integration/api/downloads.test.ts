@@ -40,7 +40,8 @@ async function seedDownloadOffering(downloadUrl: string | null) {
       type: "download",
       title: "PDF",
       description: "A download.",
-      price_ars: 500,
+      price_amount: 500,
+        price_currency: "ars" as const,
       download_url: downloadUrl,
     })
     .returning();
@@ -60,7 +61,8 @@ async function seedCodeOffering() {
       type: "code",
       title: "Code",
       description: "A code offering.",
-      price_ars: 500,
+      price_amount: 500,
+        price_currency: "ars" as const,
       code_pool: ["X"],
     })
     .returning();

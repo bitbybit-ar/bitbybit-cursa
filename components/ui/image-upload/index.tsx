@@ -33,7 +33,10 @@ interface ImageUploadProps {
   onChange: (url: string | null) => void;
   /** Field label, sourced from the parent's translation namespace. */
   label: string;
-  optionalLabel: string;
+  /** When set, render the field as optional with the supplied label. */
+  optionalLabel?: string;
+  /** When true, the form requires a value (used for the "required" tag). */
+  required?: boolean;
 }
 
 const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -55,6 +58,7 @@ export function ImageUpload({
   onChange,
   label,
   optionalLabel,
+  required,
 }: ImageUploadProps) {
   const t = useTranslations("myCourses.form.imageUpload");
   const { signWithPrompt } = useSignerContext();
@@ -116,7 +120,9 @@ export function ImageUpload({
     <div className={styles.field}>
       <span className={styles.label}>
         {label}
-        <span className={styles.optional}>{optionalLabel}</span>
+        {optionalLabel && !required ? (
+          <span className={styles.optional}>{optionalLabel}</span>
+        ) : null}
       </span>
 
       {value ? (

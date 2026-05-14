@@ -1,12 +1,15 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
 import { getAuthSecret, isPlatformAdminPubkey } from "@/lib/env";
-import { SESSION_COOKIE_NAME, SESSION_DURATION_DAYS } from "@/lib/auth-constants";
+import {
+  SESSION_COOKIE_NAME,
+  SESSION_INACTIVITY_MINUTES,
+} from "@/lib/auth-constants";
 import { LocaleSchema, SignerTypeSchema, type Locale, type SignerType } from "@/lib/schemas/auth";
 
 export { SESSION_COOKIE_NAME };
 
-const SESSION_DURATION = `${SESSION_DURATION_DAYS}d`;
+const SESSION_DURATION = `${SESSION_INACTIVITY_MINUTES}m` as const;
 
 /**
  * The session payload that lives inside the signed JWT cookie.
@@ -52,6 +55,24 @@ export async function getSession(): Promise<AuthSession | null> {
   if (!token) return null;
 
   return verifySessionToken(token);
+}
+
+/**
+ * Has-cookie / verified-session probe. Lets the layout and the
+ * `/api/auth/session` route both detect the "cookie present but
+ * JWT no longer verifies" state so they can drop the stale cookie
+ * instead of leaving the browser to keep sending it on every
+ * request until natural expiry.
+ */
+export async function readSessionCookieAndVerify(): Promise<{
+  hasCookie: boolean;
+  session: AuthSession | null;
+}> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
+  if (!token) return { hasCookie: false, session: null };
+  const session = await verifySessionToken(token);
+  return { hasCookie: true, session };
 }
 
 /**

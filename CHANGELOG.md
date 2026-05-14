@@ -12,6 +12,103 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Pricing currency picker on the offering form.** Sellers now
+  choose whether to price the course in ARS or sats. The other
+  currency is computed live from the current Wapu exchange rate
+  at every render. Replaces the old "ARS price required, sats
+  price optional pin" model. Schema migration `0007_pricing_
+  currency.sql` drops `price_sats` and renames `price_ars` →
+  `price_amount`, plus adds `price_currency` enum. Centralised
+  rate access via `lib/exchange-rate.ts`.
+
+- **Auto-generated redemption codes.** Sellers specify a quantity
+  on create (default 10, max 10,000); the server mints
+  cryptographically random 8-character alphanumeric codes (charset
+  excludes 0/O/1/I/L for readability) and stores them in the pool.
+  Edit page gains a "Mint more codes" form and a "Download unused
+  codes (CSV)" link, both backed by new endpoints at
+  `POST /api/my-courses/[id]/mint-codes` and
+  `GET /api/my-courses/[id]/codes`.
+
+- **Sliding session — 1h inactivity timeout.** The session JWT
+  shrinks from 7-day absolute to 1-hour inactivity. Each
+  authenticated request through the edge proxy re-mints the
+  cookie with a fresh clock, so a working session never expires
+  mid-use. Constant renamed `SESSION_DURATION_DAYS` →
+  `SESSION_INACTIVITY_MINUTES`.
+
+### Changed
+
+- **Slug auto-fills from the title.** Typing in the title field
+  fills the slug in real-time (lowercased, kebab-cased, ASCII).
+  The slug stays editable; once the seller types into it
+  manually, the auto-fill stops overwriting their changes. Title
+  moved above slug in the form to match the typing order.
+
+- **Cover image is required.** The image upload field on the
+  offering form no longer carries the "optional" tag; submission
+  is blocked until an image is uploaded or pasted.
+
+- **Removed the back button from `/create-course`.** The page is a
+  single focused task; the nav-up affordance was unused chrome.
+  Edit page keeps its back link.
+
+- **Offering type is locked after creation.** Switching a course
+  from `code` to `download` (or vice versa) on edit would
+  strand the code pool or download URL; the type radio is
+  disabled in edit mode with a hint explaining why.
+
+- **Refreshed the `/create-course` and `/my-courses/[slug]/edit`
+  form.** The single 346-line offering form now groups its inputs
+  under four card-style sections (Basics, Pricing, Content &
+  delivery, Cover image) with helper text per section. Type-radio
+  cards gain a hover and selected state so the active choice is
+  obvious. Action buttons stack on mobile with the destructive
+  archive button below the primary save. New i18n keys land in
+  both `messages/es.json` and `messages/en.json`.
+
+- **Marketing CTAs now point at `/create-course` directly.** The
+  landing hero (`components/landing/hero/index.tsx`) and the
+  how-it-works page (`app/[locale]/como-funciona/page.tsx`)
+  previously linked to `/sign-in?next=/create-course`. The same
+  CTA now goes straight to `/create-course`; the edge middleware
+  (`proxy.ts`) already redirects anonymous visitors to sign-in,
+  so signed-in users skip the bounce.
+
+- **Logged-in pages use Container as the only chrome.** The
+  `app/[locale]/(logged-in)/layout.tsx` shared layout previously
+  wrapped children in `<Section><Container column>...`. The
+  outer `Section` is gone — Container already has its own
+  padding and `Section`'s big vertical padding was duplicating
+  chrome. Affects `/settings`, `/my-courses`, `/create-course`,
+  `/orders`, `/purchases`. Pages that need section banding can
+  add their own `<Section>` inside.
+
+- **Moved offering form components out of `components/admin/`.**
+  ADRs 0014 and 0016 removed the admin/merchant concept — every
+  signed-in user is a creator. The directory name no longer
+  fits. `components/admin/offering-form/` →
+  `components/courses/offering-form/`;
+  `components/admin/image-upload/` →
+  `components/ui/image-upload/` (it's a generic uploader, not
+  course-specific). The settings form stays at
+  `components/admin/settings-form/` for now; a follow-up rename
+  is tracked separately.
+
+### Fixed
+
+- **Per-type required validation on the offering form.**
+  Previously a download-type offering could be saved with an
+  empty `download_url`, and a code-type offering with an empty
+  `code_pool` — both states silently dead-ended buyers on the
+  receipt page. The form now toasts an error and refuses to
+  submit when the type-dependent field is missing, and a zod
+  `.superRefine` on `CreateOfferingSchema` /
+  `UpdateOfferingSchema` enforces the same on the server so a
+  bypassed client can't slip through.
+
+### Added
+
 - **`/explore` discovery surface.** The page gains a free-text search
   (title, description, teacher name), a filter by offering type
   (redemption code / download), four sort options (newest, oldest,

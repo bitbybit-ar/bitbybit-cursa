@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/routing";
 import { Button } from "@/components/ui/button";
+import { Tooltip } from "@/components/ui/tooltip";
 import { useToast } from "@/components/ui/toast";
 import { useSignerContext } from "@/lib/contexts/signer-context";
 import {
@@ -38,6 +39,7 @@ export function SettingsForm({
   initialAutorenewal,
 }: SettingsFormProps) {
   const t = useTranslations("settings.form");
+  const tCommon = useTranslations("common");
   const tErr = useTranslations("errors");
   const router = useRouter();
   const { showToast } = useToast();
@@ -235,6 +237,11 @@ export function SettingsForm({
             <div className={styles.field}>
               <label htmlFor="cbu" className={styles.label}>
                 {t("cbu")}
+                <Tooltip
+                  text={t("cbuTooltip")}
+                  example={t("cbuExample")}
+                  label={tCommon("tooltipLabel")}
+                />
               </label>
               <input
                 id="cbu"
@@ -252,6 +259,11 @@ export function SettingsForm({
             <div className={styles.field}>
               <label htmlFor="alias" className={styles.label}>
                 {t("alias")}
+                <Tooltip
+                  text={t("aliasTooltip")}
+                  example={t("aliasExample")}
+                  label={tCommon("tooltipLabel")}
+                />
               </label>
               <input
                 id="alias"
@@ -269,6 +281,11 @@ export function SettingsForm({
           <div className={styles.field}>
             <label htmlFor="lightning_address" className={styles.label}>
               {t("lightningAddress")}
+              <Tooltip
+                text={t("lightningAddressTooltip")}
+                example={t("lightningAddressExample")}
+                label={tCommon("tooltipLabel")}
+              />
             </label>
             <input
               id="lightning_address"

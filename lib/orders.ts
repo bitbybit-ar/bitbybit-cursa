@@ -10,6 +10,7 @@ import {
   LightningMintError,
 } from "@/lib/lightning";
 import { pickPayoutAlias } from "@/lib/admin/users";
+import { convertPrice } from "@/lib/exchange-rate";
 
 export interface CreateOrderInput {
   offering_id: string;
@@ -41,6 +42,7 @@ export interface CreateOrderResult {
 export type CreateOrderError =
   | "offering_not_found"
   | "offering_archived"
+  | "offering_sold_out"
   | "seller_inactive"
   | "seller_payout_missing"
   | "seller_lightning_address_missing"
@@ -53,13 +55,8 @@ export class OrderCreateError extends Error {
   }
 }
 
-// Default sats price when the offering has no pinned price_sats and
-// the order rides the direct-Lightning rail. Wapu derives sats from
-// ARS at funding time on its own; the LN rail has no upstream rate
-// quote, so we fall back to a fixed dev rate matching
-// MockWapuClient.MOCK_SATS_PER_ARS. Production deployments will swap
-// this for a live FX feed before flipping LIGHTNING_USE_REAL_CLIENT.
-const FALLBACK_SATS_PER_ARS = 4;
+// Sats/ARS quotes come from `lib/exchange-rate.ts` so the dev
+// fallback and the future live Wapu rate share a single seam.
 
 /**
  * Atomically create a pending order row and the matching funding
@@ -97,6 +94,29 @@ export async function createOrder(
     throw new OrderCreateError("offering_archived");
   }
   if (!seller.active) throw new OrderCreateError("seller_inactive");
+  // Code offerings are sold out when the pool is empty. Pre-checkout
+  // refusal avoids charging buyers for codes we cannot deliver. The
+  // pool itself remains the source of truth — sellers re-open the
+  // course by minting more codes from /my-courses/[slug]/edit. The
+  // optimistic pop in `drawAndAssignCode` is still in place for the
+  // narrow race where two buyers check out the last code at once;
+  // the loser of that race lands in the receipt's "code pending"
+  // branch and is the seller's manual problem.
+  if (
+    offering.type === "code" &&
+    (offering.code_pool?.length ?? 0) === 0
+  ) {
+    throw new OrderCreateError("offering_sold_out");
+  }
+
+  // Snapshot the ARS price at checkout time. The Wapu rail needs ARS
+  // upstream; the direct-Lightning rail records ARS for the buyer's
+  // receipt. Either way we lock the rate at the moment of order
+  // creation so a rate move mid-flight cannot re-price the order.
+  const lockedArs =
+    offering.price_currency === "ars"
+      ? offering.price_amount
+      : await convertPrice(offering.price_amount, "sats", "ars");
 
   // Insert the order first so we have an external_id to give upstream.
   // Stamp the rail at insert time from the seller's current
@@ -108,7 +128,7 @@ export async function createOrder(
       pubkey: input.pubkey,
       offering_id: offering.id,
       user_id: seller.id,
-      amount_ars: offering.price_ars,
+      amount_ars: lockedArs,
       amount_sats: 0,
       rail:
         seller.payout_method === "lightning_address"
@@ -122,15 +142,16 @@ export async function createOrder(
       const funding = await fundDirectLightningOrder({
         order_id: pendingRow.id,
         offering_title: offering.title,
-        offering_price_ars: offering.price_ars,
-        offering_price_sats: offering.price_sats,
+        offering_price_amount: offering.price_amount,
+        offering_price_currency: offering.price_currency,
+        locked_ars: lockedArs,
         lightning_address: seller.lightning_address,
       });
       return { order_id: pendingRow.id, funding };
     }
     const funding = await fundWapuOrder({
       order_id: pendingRow.id,
-      offering_price_ars: offering.price_ars,
+      amount_ars: lockedArs,
       seller,
     });
     return { order_id: pendingRow.id, funding };
@@ -142,7 +163,7 @@ export async function createOrder(
 
 async function fundWapuOrder(opts: {
   order_id: string;
-  offering_price_ars: number;
+  amount_ars: number;
   seller: typeof users.$inferSelect;
 }): Promise<OrderFunding> {
   const db = getDb();
@@ -151,7 +172,7 @@ async function fundWapuOrder(opts: {
 
   const wapu = getWapuClient();
   const tentative = await wapu.createDirectPayment({
-    amount_ars: opts.offering_price_ars,
+    amount_ars: opts.amount_ars,
     alias: payoutAlias,
     receiver_name: opts.seller.display_name,
     external_id: opts.order_id,
@@ -183,8 +204,9 @@ async function fundWapuOrder(opts: {
 async function fundDirectLightningOrder(opts: {
   order_id: string;
   offering_title: string;
-  offering_price_ars: number;
-  offering_price_sats: number | null;
+  offering_price_amount: number;
+  offering_price_currency: "ars" | "sats";
+  locked_ars: number;
   lightning_address: string | null;
 }): Promise<OrderFunding> {
   const db = getDb();
@@ -192,8 +214,9 @@ async function fundDirectLightningOrder(opts: {
     throw new OrderCreateError("seller_lightning_address_missing");
   }
   const amount_sats =
-    opts.offering_price_sats ??
-    opts.offering_price_ars * FALLBACK_SATS_PER_ARS;
+    opts.offering_price_currency === "sats"
+      ? opts.offering_price_amount
+      : await convertPrice(opts.offering_price_amount, "ars", "sats");
   const ln = getLightningClient();
   let invoice;
   try {
@@ -223,7 +246,7 @@ async function fundDirectLightningOrder(opts: {
   return {
     bolt11: invoice.bolt11,
     amount_sats: invoice.amount_sats,
-    amount_ars: opts.offering_price_ars,
+    amount_ars: opts.locked_ars,
     expires_at: invoice.expires_at,
     payment_hash: invoice.payment_hash,
   };

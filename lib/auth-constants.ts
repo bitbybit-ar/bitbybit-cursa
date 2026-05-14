@@ -19,4 +19,11 @@
 export const SESSION_COOKIE_NAME =
   process.env.NODE_ENV === "production" ? "__Host-session" : "session";
 
-export const SESSION_DURATION_DAYS = 7;
+/**
+ * Inactivity timeout for the session cookie, in minutes. Each
+ * authenticated request through `proxy.ts` re-mints the cookie with
+ * a fresh `SESSION_INACTIVITY_MINUTES` clock — so this is a sliding
+ * window, not an absolute lifetime. Idle for this long → cookie
+ * expires and the user gets bounced to `/sign-in` on next click.
+ */
+export const SESSION_INACTIVITY_MINUTES = 60;
