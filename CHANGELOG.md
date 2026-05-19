@@ -10,6 +10,19 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- **App-wide crash from invalid i18n keys.** The
+  `settings.notifications.kind` block keyed its entries by the raw
+  notification-kind values `order.paid` / `sale.received`. next-intl
+  v4 forbids `.` in message keys (it's the nesting separator), so
+  `getMessages()` threw in the root layout and **every page** 500'd.
+  The i18n keys are now dot-free (`orderPaid` / `saleReceived`); the
+  notification-kind values themselves (DB `notification_prefs`
+  keys, the `notificationKindSchema` enum, the Wapu webhook
+  payload) are unchanged — only the translation lookup maps to the
+  safe token.
+
 ### Added
 
 - **Preferences panel on `/settings`.** Default language dropdown

@@ -502,11 +502,11 @@
       "title": "Notifications",
       "hint": "Pick which events ring the bell. Turning one off stops emitting new notifications; existing history isn't touched.",
       "kind": {
-        "order.paid": {
+        "orderPaid": {
           "title": "Tell me when a payment of mine confirms",
           "hint": "When you buy a course, we ping you once the Lightning payment confirms."
         },
-        "sale.received": {
+        "saleReceived": {
           "title": "Tell me when someone buys my course",
           "hint": "When a buyer pays for one of your courses, we ping you so you can see the sale in \"Orders\"."
         }
