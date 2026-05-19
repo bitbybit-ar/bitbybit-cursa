@@ -10,6 +10,17 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- **Navbar / link navigation showed the landing page.** Clicking
+  any navbar link (or an offering card) updated the URL and navbar
+  but kept rendering the landing page, and offering-card prefetches
+  404'd in the console. The middleware matcher excluded prefetch
+  requests, so next-intl's locale rewrite never ran for them and
+  `/explore` resolved as `[locale]="explore"` → the landing page.
+  Prefetch now flows through the rewrite; the auth gate and session
+  refresh still skip prefetch.
+
 ### Added
 
 - **Preferences panel on `/settings`.** Default language dropdown

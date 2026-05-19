@@ -61,6 +61,29 @@ function rewriteLegacyPath(subpath: string): string | null {
 }
 
 /**
+ * App Router prefetch requests still need the next-intl locale
+ * rewrite. With `localePrefix: "as-needed"` the Spanish default is
+ * served unprefixed and next-intl internally rewrites `/explore` →
+ * `/es/explore` so the App Router can resolve `app/[locale]/explore`.
+ * If prefetch requests skip that rewrite, `/explore` resolves with
+ * `[locale]="explore"` and Next renders `app/[locale]/page.tsx` (the
+ * landing page); the soft navigation then serves that poisoned
+ * prefetch — the URL + navbar update client-side but the body stays
+ * on the landing page, and offering-card RSC prefetches 404. So we
+ * keep prefetch in the matcher and run the locale rewrite for it.
+ * What we must NOT do on a prefetch is bounce it to /sign-in or
+ * re-mint the session cookie — those are handled only for real
+ * navigations below.
+ */
+function isPrefetchRequest(req: NextRequest): boolean {
+  return (
+    req.headers.get("next-router-prefetch") === "1" ||
+    req.headers.get("purpose") === "prefetch" ||
+    (req.headers.get("sec-purpose")?.includes("prefetch") ?? false)
+  );
+}
+
+/**
  * Edge middleware.
  *
  * Three responsibilities:
@@ -86,6 +109,7 @@ function rewriteLegacyPath(subpath: string): string | null {
  */
 export default async function proxy(request: NextRequest): Promise<NextResponse> {
   const pathname = request.nextUrl.pathname;
+  const isPrefetch = isPrefetchRequest(request);
 
   const legacyMatch = LEGACY_PATHS_RE.exec(pathname);
   if (legacyMatch) {
@@ -102,7 +126,11 @@ export default async function proxy(request: NextRequest): Promise<NextResponse>
   }
 
   const creatorMatch = CREATOR_PATH_RE.exec(pathname);
-  if (creatorMatch) {
+  // Skip the auth gate for prefetch: bouncing a prefetch to /sign-in
+  // would poison the prefetch cache for a gated page. The real
+  // (non-prefetch) navigation still hits this gate, and each page's
+  // `requirePanelUser` is the server-side backstop.
+  if (creatorMatch && !isPrefetch) {
     const locale = creatorMatch[1] ?? routing.defaultLocale;
     const session = await readSession(request);
 
@@ -133,7 +161,11 @@ export default async function proxy(request: NextRequest): Promise<NextResponse>
   }
 
   const response = intlMiddleware(request);
-  await refreshOrClearSessionCookie(request, response);
+  // Sliding-session refresh only on real navigations — a prefetch
+  // must not emit a Set-Cookie that re-mints the inactivity clock.
+  if (!isPrefetch) {
+    await refreshOrClearSessionCookie(request, response);
+  }
   return response;
 }
 
@@ -183,13 +215,10 @@ async function refreshOrClearSessionCookie(
 }
 
 export const config = {
-  matcher: [
-    {
-      source: "/((?!api|_next|_vercel|.*\\..*).*)",
-      missing: [
-        { type: "header", key: "next-router-prefetch" },
-        { type: "header", key: "purpose", value: "prefetch" },
-      ],
-    },
-  ],
+  // Standard next-intl matcher. Prefetch requests are intentionally
+  // INCLUDED (no `missing` clause) so the locale rewrite runs for
+  // them — see `isPrefetchRequest` for why excluding prefetch broke
+  // navigation. Auth-gate / cookie-refresh prefetch handling lives
+  // in the handler, not the matcher.
+  matcher: ["/((?!api|_next|_vercel|.*\\..*).*)"],
 };
