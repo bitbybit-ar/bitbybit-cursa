@@ -92,6 +92,21 @@
   //   losing the "physical card pinned to a board" feel. —
   --color-polaroid-bg: #ffffff;
 
+  // — Chalkboard (the 404 "attendance roster" art: a wood-framed
+  //   green board on a light wall, with a chalk stub on the ledge).
+  //   Like the polaroid paper these are physical-object colors, not
+  //   theme roles — they must NOT flip, so they live in :root only
+  //   with no [data-theme="dark"] override. Chalk inks are tuned for
+  //   >=4.5:1 against --color-chalkboard. —
+  --color-chalk-wall: #dfe3e7;
+  --color-chalk-wood: #c79a5b;
+  --color-chalk-wood-dark: #9a6f37;
+  --color-chalkboard: #21392c;
+  --color-chalkboard-glow: #2f5240;
+  --color-chalk: #f3f1e9;
+  --color-chalk-dim: #aebcae;
+  --color-chalk-absent: #f0a07c;
+
   // — Semantic feedback (intentionally independent of brand) —
   --color-success: #22c55e;
   --color-warning: #f7a825;

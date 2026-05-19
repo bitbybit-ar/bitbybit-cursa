@@ -759,8 +759,7 @@
     }
   },
   "notFound": {
-    "title": "El profe faltó hoy",
-    "subtitle": "La página que buscabas no dio el presente.",
+    "title": "La página que buscabas faltó hoy",
     "sheetTitle": "Asistencia",
     "code": "404",
     "presentLabel": "presente",
@@ -771,13 +770,11 @@
     "excuseLabel": "Justificativo",
     "excuses": [
       "Se quedó sin sats para el bondi.",
-      "Justo se le cortó la luz.",
-      "Se le colgó el Lightning.",
-      "Fue a buscar tiza y no volvió.",
-      "Está en una capacitación obligatoria."
+      "Le comió la tarea el perro.",
+      "Se quedó dormida y no sonó la alarma.",
+      "Tenía paro de trenes.",
+      "Se le colgó el Lightning justo antes de entrar."
     ],
-    "ctaExplore": "Explorar cursos",
-    "ctaBack": "Volver",
-    "backAria": "Volver a la página anterior"
+    "ctaExplore": "Explorar cursos"
   }
 }

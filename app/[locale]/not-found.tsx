@@ -1,11 +1,11 @@
 import { getTranslations } from "next-intl/server";
 import { Container } from "@/components/ui/container";
-import { AttendanceSheet } from "@/components/not-found/attendance-sheet";
-import styles from "@/components/not-found/attendance-sheet/attendance-sheet.module.scss";
+import { AttendancePolaroid } from "@/components/not-found/attendance-polaroid";
+import styles from "@/components/not-found/attendance-polaroid/attendance-polaroid.module.scss";
 
-// Re-render per request so the teacher's excuse rotates and the
-// roster isn't frozen at build time. Matches the `force-dynamic`
-// posture of other interactive pages (e.g. /sign-in).
+// Re-render per request so the page's excuse rotates and the roster
+// isn't frozen at build time. Matches the `force-dynamic` posture of
+// other interactive pages (e.g. /sign-in).
 export const dynamic = "force-dynamic";
 
 function asStringArray(value: unknown, fallback: string[]): string[] {
@@ -30,9 +30,8 @@ export default async function NotFound() {
 
   return (
     <Container center column className={styles.page}>
-      <AttendanceSheet
+      <AttendancePolaroid
         title={t("title")}
-        subtitle={t("subtitle")}
         sheetTitle={t("sheetTitle")}
         code={t("code")}
         roster={roster}
@@ -40,11 +39,9 @@ export default async function NotFound() {
         absentLabel={t("absentLabel")}
         absentTag={t("absentTag")}
         missingAria={t("missingAria")}
-        noteLabel={t("excuseLabel")}
+        excuseLabel={t("excuseLabel")}
         excuse={excuse}
         ctaExplore={t("ctaExplore")}
-        ctaBack={t("ctaBack")}
-        backAria={t("backAria")}
       />
     </Container>
   );

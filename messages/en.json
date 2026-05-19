@@ -759,8 +759,7 @@
     }
   },
   "notFound": {
-    "title": "Teacher's out today",
-    "subtitle": "The page you wanted didn't answer roll call.",
+    "title": "The page you were looking for is absent today",
     "sheetTitle": "Roll call",
     "code": "404",
     "presentLabel": "present",
@@ -771,13 +770,11 @@
     "excuseLabel": "Note",
     "excuses": [
       "Ran out of sats for the bus.",
-      "Power's out, naturally.",
-      "Their Lightning node froze.",
-      "Went for chalk, never came back.",
-      "Stuck in mandatory training."
+      "The dog ate the homework.",
+      "Overslept — the alarm never went off.",
+      "There was a train strike.",
+      "Lightning froze right before class."
     ],
-    "ctaExplore": "Explore courses",
-    "ctaBack": "Go back",
-    "backAria": "Go back to the previous page"
+    "ctaExplore": "Explore courses"
   }
 }

@@ -3,7 +3,7 @@
 import { usePathname } from "@/i18n/routing";
 import { CloseIcon } from "@/components/icons";
 import { cn } from "@/lib/utils";
-import styles from "./attendance-sheet.module.scss";
+import styles from "./attendance-polaroid.module.scss";
 
 interface MissingRouteProps {
   /** Status word stamped on the absent row, e.g. "AUSENTE". */
@@ -40,7 +40,7 @@ export function MissingRoute({
       <span className={styles.leader} aria-hidden="true" />
       <span className={styles.status}>
         <span className={styles.icon} aria-hidden="true">
-          <CloseIcon size={16} />
+          <CloseIcon size={12} />
         </span>
         {absentLabel}
       </span>
