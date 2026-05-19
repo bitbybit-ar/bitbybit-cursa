@@ -757,5 +757,27 @@
       "saveFailed": "No pudimos crear la tienda. Probá de nuevo.",
       "alreadyClaimed": "Ya tenés una tienda asociada a tu identidad."
     }
+  },
+  "notFound": {
+    "title": "El profe faltó hoy",
+    "subtitle": "La página que buscabas no dio el presente.",
+    "sheetTitle": "Asistencia",
+    "code": "404",
+    "presentLabel": "presente",
+    "absentLabel": "AUSENTE",
+    "absentTag": "Ausente con aviso",
+    "roster": ["Explorar cursos", "Mis cursos", "Configuración"],
+    "missingAria": "La ruta que pediste, marcada ausente",
+    "excuseLabel": "Justificativo",
+    "excuses": [
+      "Se quedó sin sats para el bondi.",
+      "Justo se le cortó la luz.",
+      "Se le colgó el Lightning.",
+      "Fue a buscar tiza y no volvió.",
+      "Está en una capacitación obligatoria."
+    ],
+    "ctaExplore": "Explorar cursos",
+    "ctaBack": "Volver",
+    "backAria": "Volver a la página anterior"
   }
 }

@@ -12,6 +12,12 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Custom 404 page.** A branded "El profe faltó hoy" not-found
+  page framed as a class attendance roster: the route you asked
+  for is stamped AUSENTE, with a rotating teacher's excuse and
+  CTAs back to Explore / the previous page. Bilingual (es/en),
+  theme-token styled, reuses the existing component kit.
+
 - **Preferences panel on `/settings`.** Default language dropdown
   (es / en) persisted to a new `users.locale` column. Theme stays
   in the navbar (per-device via `next-themes`); the panel renders

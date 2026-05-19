@@ -1,0 +1,184 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+
+// 404 framed as a class attendance roster: present students tick off
+// with a dotted leader, the route the visitor asked for is stamped
+// AUSENTE. Token-driven so it reads in light and dark.
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - #{$navbar-height} * 2);
+  padding-block: $spacing-48;
+  text-align: center;
+}
+
+.sheet {
+  width: 100%;
+  max-width: 34rem;
+  background: $color-surface;
+  border: 1px solid $color-border;
+  // The bound-edge of a school roster — a thicker brand spine.
+  border-left: $spacing-3 solid $color-primary-soft;
+  border-radius: $border-radius-lg;
+  box-shadow: 0 1px 0 $card-shadow;
+  padding: $spacing-32;
+  text-align: left;
+}
+
+.title {
+  font-family: $font-family-display;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-extrabold;
+  color: $color-text-primary;
+  line-height: $line-height-heading;
+  margin: 0;
+}
+
+.subtitle {
+  margin: $spacing-2 0 $spacing-24;
+  color: $color-text-secondary;
+  font-size: $font-size-body;
+}
+
+.sheetHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-8;
+  padding-bottom: $spacing-8;
+  border-bottom: 2px solid $color-border;
+}
+
+.sheetTitle {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-text-secondary;
+}
+
+.code {
+  font-family: $font-family-display;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-wide;
+  color: $color-error;
+  border: 2px solid $color-error;
+  border-radius: $border-radius-sm;
+  padding: 2px $spacing-8;
+}
+
+.roster {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: $spacing-8;
+  padding-block: $spacing-8;
+  font-size: $font-size-body;
+  color: $color-text-primary;
+}
+
+.name {
+  flex: 0 1 auto;
+  overflow-wrap: anywhere;
+}
+
+// The dotted "fill to the right margin" leader of a paper list.
+.leader {
+  flex: 1 1 auto;
+  border-bottom: 1px dotted $color-border;
+  transform: translateY(-0.25em);
+  min-width: $spacing-16;
+}
+
+.status {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-3;
+  font-weight: $font-weight-semibold;
+}
+
+.present .status {
+  color: $color-success;
+}
+
+.absentRow {
+  // Pull the highlight to the bound edge so it reads like a margin
+  // mark the teacher made.
+  margin-inline: calc(-1 * #{$spacing-16});
+  padding-inline: $spacing-16;
+  background: $color-bg-2;
+  border-radius: $border-radius-sm;
+}
+
+.absentRow .name {
+  font-weight: $font-weight-bold;
+}
+
+.absentRow .status {
+  color: $color-error;
+}
+
+.tag {
+  display: block;
+  margin-top: $spacing-2;
+  font-size: $font-size-xs;
+  font-style: italic;
+  color: $color-error;
+}
+
+.note {
+  margin-top: $spacing-16;
+  padding-top: $spacing-12;
+  border-top: 1px dashed $color-border;
+  font-size: $font-size-sm;
+  font-style: italic;
+  color: $color-text-secondary;
+}
+
+.noteLabel {
+  font-style: normal;
+  font-weight: $font-weight-bold;
+  color: $color-text-primary;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: $spacing-12;
+  margin-top: $spacing-32;
+}
+
+.icon {
+  flex: 0 0 auto;
+}
+
+// Settle the roster in gently — only when the visitor hasn't asked
+// for reduced motion.
+@media (prefers-reduced-motion: no-preference) {
+  .sheet {
+    animation: sheet-in 0.32s ease-out both;
+  }
+
+  @keyframes sheet-in {
+    from {
+      opacity: 0;
+      transform: translateY($spacing-8);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
