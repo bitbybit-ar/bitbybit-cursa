@@ -10,17 +10,16 @@ import { HowItWorksBubbles } from "./bubbles";
 import { HowItWorksSteps } from "./steps";
 import styles from "./page.module.scss";
 
-// "Quién es quién" brand logos. Wapu reuses the same GitHub-avatar
-// source the landing's travel-companions board already points at;
-// Lightning + Nostr are the projects' public brand marks. All three
-// load through next/image — next.config allows any https host and
-// sandboxes SVG.
+// "Quién es quién" brand logos, vendored into `public/images/logos`
+// so the page has no runtime dependency on third-party hosts (the
+// upstreams were Wikimedia + two githubusercontent URLs, one of
+// which is an unstable comment-upload). Refresh by re-downloading
+// from the project's brand page if a mark changes. Wapu's is a JPEG
+// (GitHub serves the avatar as JPEG); the others are PNG.
 const GLOSSARY_LOGOS = {
-  lightning:
-    "https://upload.wikimedia.org/wikipedia/commons/f/f1/Bitcoin_lightning_logo.png",
-  wapu: "https://avatars.githubusercontent.com/u/161655811?s=128&v=4",
-  nostr:
-    "https://user-images.githubusercontent.com/99301796/219715119-8d2d017a-3a76-4f16-abc2-08f9ea0e985d.png",
+  lightning: "/images/logos/lightning.png",
+  wapu: "/images/logos/wapu.jpg",
+  nostr: "/images/logos/nostr.png",
 } as const;
 
 type Props = {
