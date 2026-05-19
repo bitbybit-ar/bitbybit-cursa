@@ -757,5 +757,24 @@
       "saveFailed": "Couldn't create the store. Try again.",
       "alreadyClaimed": "You already have a store on this identity."
     }
+  },
+  "notFound": {
+    "title": "The page you were looking for is absent today",
+    "sheetTitle": "Roll call",
+    "code": "404",
+    "presentLabel": "present",
+    "absentLabel": "ABSENT",
+    "absentTag": "Absent, with a note",
+    "roster": ["Explore courses", "My courses", "Settings"],
+    "missingAria": "The route you requested, marked absent",
+    "excuseLabel": "Note",
+    "excuses": [
+      "Ran out of sats for the bus.",
+      "Was stacking sats and lost track of time.",
+      "Got stuck zapping memes on Nostr.",
+      "Went to the Bitcoin ATM for sats and missed the bus.",
+      "Spent the bus-fare sats on a snack."
+    ],
+    "ctaExplore": "Explore courses"
   }
 }

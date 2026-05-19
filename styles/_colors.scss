@@ -15,6 +15,17 @@ $color-accent-alt: var(--color-accent-alt);
 $color-cta-dark: var(--color-cta-dark);
 $color-polaroid-bg: var(--color-polaroid-bg);
 
+// — Chalkboard art (404 attendance roster). Physical-object colors,
+//   do not flip with theme. Declared in _theme.scss :root only. —
+$color-chalk-wall: var(--color-chalk-wall);
+$color-chalk-wood: var(--color-chalk-wood);
+$color-chalk-wood-dark: var(--color-chalk-wood-dark);
+$color-chalkboard: var(--color-chalkboard);
+$color-chalkboard-glow: var(--color-chalkboard-glow);
+$color-chalk: var(--color-chalk);
+$color-chalk-dim: var(--color-chalk-dim);
+$color-chalk-absent: var(--color-chalk-absent);
+
 // — Decorative brand accents (no semantic role; pick by vibe) —
 $accent-pink: var(--accent-pink);
 $accent-orange: var(--accent-orange);

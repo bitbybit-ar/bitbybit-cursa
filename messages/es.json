@@ -757,5 +757,24 @@
       "saveFailed": "No pudimos crear la tienda. Probá de nuevo.",
       "alreadyClaimed": "Ya tenés una tienda asociada a tu identidad."
     }
+  },
+  "notFound": {
+    "title": "La página que buscabas faltó hoy",
+    "sheetTitle": "Asistencia",
+    "code": "404",
+    "presentLabel": "presente",
+    "absentLabel": "AUSENTE",
+    "absentTag": "Ausente con aviso",
+    "roster": ["Explorar cursos", "Mis cursos", "Configuración"],
+    "missingAria": "La ruta que pediste, marcada ausente",
+    "excuseLabel": "Justificativo",
+    "excuses": [
+      "Se quedó sin sats para el bondi.",
+      "Estaba apilando sats y perdió la hora.",
+      "Se quedó zapeando memes en Nostr.",
+      "Fue a comprar sats al cajero y perdió el colectivo.",
+      "Gastó los sats del viático en un alfajor."
+    ],
+    "ctaExplore": "Explorar cursos"
   }
 }

@@ -47,6 +47,15 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Custom 404 page.** A branded "La página que buscabas faltó
+  hoy" not-found page: a Polaroid whose photo is a CSS-drawn
+  wood-framed green chalkboard on a gray wall, showing an
+  attendance roster where the route you asked for is the student
+  stamped AUSENTE. Caption carries the headline, a rotating
+  "justificativo", and a single chalk-styled "EXPLORAR CURSOS"
+  link. Bilingual (es/en), 100% theme-token styled (new
+  non-flipping chalkboard tokens), reuses the Polaroid component.
+
 - **Preferences panel on `/settings`.** Default language dropdown
   (es / en) persisted to a new `users.locale` column. Theme stays
   in the navbar (per-device via `next-themes`); the panel renders

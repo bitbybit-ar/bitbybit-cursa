@@ -1,0 +1,244 @@
+@use "@/styles/colors" as *;
+@use "@/styles/spacing" as *;
+@use "@/styles/typography" as *;
+@use "@/styles/media-mixins" as *;
+
+// 404 as a Polaroid: the photo is a wood-framed green chalkboard on
+// a light wall (recreated in CSS, no raster asset), the caption is
+// the headline + the page's "justificativo" + a single chalk-styled
+// CTA. The route the visitor asked for is the student stamped
+// AUSENTE on the board.
+
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - #{$navbar-height} * 2);
+  padding-block: $spacing-48;
+}
+
+// ---- The photo: gray wall + wooden chalkboard ----------------------
+
+.wall {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  // The reference wall: cool light gray with a soft vignette.
+  background: radial-gradient(
+    circle at 50% 42%,
+    $color-chalk-wall,
+    color-mix(in srgb, $color-chalk-wall 86%, #000)
+  );
+  padding: $spacing-12;
+}
+
+// Wooden frame — a beveled plank border drawn with a gradient.
+.board {
+  position: relative;
+  width: 100%;
+  padding: $spacing-8;
+  border-radius: $border-radius-xs;
+  background: linear-gradient(
+    135deg,
+    $color-chalk-wood 0%,
+    $color-chalk-wood-dark 48%,
+    $color-chalk-wood 100%
+  );
+  box-shadow:
+    0 1px 0 color-mix(in srgb, $color-chalk-wood 70%, #fff) inset,
+    0 6px 14px rgba(0, 0, 0, 0.28);
+}
+
+// Green slate with the classic worn-center highlight.
+.boardInner {
+  position: relative;
+  border-radius: 1px;
+  padding: $spacing-8 $spacing-12 $spacing-12;
+  color: $color-chalk;
+  background: radial-gradient(
+    ellipse at 50% 45%,
+    $color-chalkboard-glow,
+    $color-chalkboard 72%
+  );
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.35) inset,
+    0 2px 6px rgba(0, 0, 0, 0.4) inset;
+}
+
+// A stub of chalk resting on the bottom rail.
+.chalkStick {
+  position: absolute;
+  right: 14%;
+  bottom: $spacing-2;
+  width: $spacing-16;
+  height: $spacing-3;
+  border-radius: $border-radius-full;
+  background: $color-chalk;
+  transform: rotate(-7deg);
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+}
+
+// ---- The roster, in chalk -----------------------------------------
+
+.boardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $spacing-8;
+  padding-bottom: $spacing-3;
+  border-bottom: 1px solid $color-chalk-dim;
+}
+
+.sheetTitle {
+  font-family: $font-family-display;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $color-chalk;
+}
+
+.code {
+  font-family: $font-family-display;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-extrabold;
+  letter-spacing: $letter-spacing-wide;
+  color: $color-chalk-absent;
+  border: 1px solid $color-chalk-absent;
+  border-radius: $border-radius-sm;
+  padding: 1px $spacing-3;
+}
+
+.roster {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  align-items: baseline;
+  gap: $spacing-4;
+  padding-block: $spacing-2;
+  font-size: $font-size-xs;
+  line-height: $line-height-tight;
+  color: $color-chalk;
+}
+
+.name {
+  flex: 0 1 auto;
+  overflow-wrap: anywhere;
+}
+
+.leader {
+  flex: 1 1 auto;
+  border-bottom: 1px dotted $color-chalk-dim;
+  transform: translateY(-0.2em);
+  min-width: $spacing-8;
+}
+
+.status {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-2;
+  font-weight: $font-weight-semibold;
+  color: $color-chalk-dim;
+}
+
+.present .status {
+  color: $color-chalk;
+}
+
+.absentRow .name {
+  font-weight: $font-weight-bold;
+  font-family: $font-family-base;
+}
+
+.absentRow .status {
+  color: $color-chalk-absent;
+}
+
+.tag {
+  display: block;
+  margin-top: 1px;
+  font-size: $font-size-xs;
+  font-style: italic;
+  color: $color-chalk-absent;
+}
+
+.icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+}
+
+// ---- The polaroid caption -----------------------------------------
+
+.title {
+  // Polaroid caption already pins h1 to the display font / navy ink;
+  // we only tighten the size for the longer 404 sentence.
+  font-size: $font-size-md;
+  line-height: $line-height-heading;
+}
+
+.note {
+  font-style: italic;
+}
+
+.noteLabel {
+  font-style: normal;
+  font-weight: $font-weight-bold;
+}
+
+// CTA styled to match the polaroid caption — not the platform
+// Button. A chalk-on-paper text link, not a filled control.
+.cta {
+  align-self: center;
+  margin-top: $spacing-4;
+  font-family: $font-family-display;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-bold;
+  letter-spacing: $letter-spacing-wide;
+  text-transform: uppercase;
+  color: $static-navy;
+  text-decoration: none;
+  border-bottom: 2px solid $static-navy;
+  padding-bottom: 2px;
+  transition: opacity 0.2s ease;
+}
+
+.cta:hover {
+  opacity: 0.6;
+}
+
+.cta:focus-visible {
+  outline: 2px solid $static-navy;
+  outline-offset: 4px;
+}
+
+// ---- Responsive ---------------------------------------------------
+
+// On narrow screens the caption headline + CTA crowd the polaroid;
+// step them down a token. The chalkboard text is left untouched.
+@include mobile {
+  .title {
+    font-size: $font-size-base;
+  }
+
+  .cta {
+    font-size: $font-size-xs;
+  }
+}
+
+// The Polaroid component fixes its own width at 320px via a single
+// `.polaroid` rule. The doubled class outranks that on specificity
+// (deterministic, independent of CSS bundle order) so non-mobile
+// gets a slightly roomier card.
+@include tabletAndUp {
+  .polaroid.polaroid {
+    width: 22.5rem;
+  }
+}
