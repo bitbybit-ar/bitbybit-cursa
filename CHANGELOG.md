@@ -10,6 +10,17 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Added
+
+- **Live sats↔ARS exchange rate.** Every price the storefront
+  computes (PriceTag, offering detail, explore sort, checkout
+  estimate) now uses the real Argentine crypto-market rate from
+  Yadio instead of a hardcoded `4 sats = 1 ARS` mock that was
+  ~4.5× off. Cached 5 min, with a last-good-rate then static
+  fallback so an upstream blip never crashes a price render or
+  shows a wildly wrong number. Source overridable via
+  `EXCHANGE_RATE_API_URL`. Decision in ADR 0022.
+
 ### Fixed
 
 - **Navbar / link navigation showed the landing page.** Clicking
