@@ -3,14 +3,14 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Section } from "@/components/ui/section";
 import { Polaroid } from "@/components/ui/polaroid";
 import {
-  BadgeIcon,
   BellIcon,
+  BoltIcon,
   BookIcon,
   CoinIcon,
   EyeOffIcon,
   KeyIcon,
-  PaletteIcon,
   SettingsIcon,
+  ShoppingBagIcon,
   UserIcon,
 } from "@/components/icons";
 import { alternatesFor } from "@/lib/seo";
@@ -33,10 +33,10 @@ const FEATURES = [
   { key: "anonymousByDefault", icon: EyeOffIcon, tone: "pink", rotation: "left" },
   { key: "optionalNostrLogin", icon: UserIcon, tone: "nostr", rotation: "right" },
   { key: "deliveryInApp", icon: BellIcon, tone: "cyan", rotation: "left" },
-  { key: "autorenewalOptIn", icon: BadgeIcon, tone: "orange", rotation: "right" },
+  { key: "oneShot", icon: BoltIcon, tone: "orange", rotation: "right" },
   { key: "creatorAccount", icon: SettingsIcon, tone: "blue", rotation: "left" },
   { key: "codesOrDownloads", icon: BookIcon, tone: "lime", rotation: "right" },
-  { key: "multiTenantSelfHost", icon: PaletteIcon, tone: "gold", rotation: "left" },
+  { key: "openMarketplace", icon: ShoppingBagIcon, tone: "gold", rotation: "left" },
 ] as const;
 
 export async function generateMetadata({
@@ -47,7 +47,7 @@ export async function generateMetadata({
   return {
     title: t("metadataTitle"),
     description: t("metadataDescription"),
-    alternates: alternatesFor(locale, "/caracteristicas"),
+    alternates: alternatesFor(locale, "/features"),
   };
 }
 

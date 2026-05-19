@@ -30,8 +30,8 @@ interface MobileMenuProps {
 // route that works from anywhere.
 const SECTIONS = [
   { id: "explore", kind: "link", target: "/explore" },
-  { id: "howItWorks", kind: "link", target: "/como-funciona" },
-  { id: "features", kind: "link", target: "/caracteristicas" },
+  { id: "howItWorks", kind: "link", target: "/how-it-works" },
+  { id: "features", kind: "link", target: "/features" },
 ] as const;
 
 export function MobileMenu({ open, onClose }: MobileMenuProps) {

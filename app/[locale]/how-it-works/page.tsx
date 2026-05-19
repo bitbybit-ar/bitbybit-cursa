@@ -1,13 +1,27 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { Section } from "@/components/ui/section";
 import { Card } from "@/components/ui/card";
 import { Polaroid } from "@/components/ui/polaroid";
 import { Button } from "@/components/ui/button";
-import { BoltIcon, CoinIcon, HeartIcon } from "@/components/icons";
 import { alternatesFor } from "@/lib/seo";
 import { HowItWorksBubbles } from "./bubbles";
+import { HowItWorksSteps } from "./steps";
 import styles from "./page.module.scss";
+
+// "Quién es quién" brand logos. Wapu reuses the same GitHub-avatar
+// source the landing's travel-companions board already points at;
+// Lightning + Nostr are the projects' public brand marks. All three
+// load through next/image — next.config allows any https host and
+// sandboxes SVG.
+const GLOSSARY_LOGOS = {
+  lightning:
+    "https://upload.wikimedia.org/wikipedia/commons/f/f1/Bitcoin_lightning_logo.png",
+  wapu: "https://avatars.githubusercontent.com/u/161655811?s=128&v=4",
+  nostr:
+    "https://user-images.githubusercontent.com/99301796/219715119-8d2d017a-3a76-4f16-abc2-08f9ea0e985d.png",
+} as const;
 
 type Props = {
   params: Promise<{ locale: string }>;
@@ -23,7 +37,7 @@ export async function generateMetadata({
   return {
     title: t("metadataTitle"),
     description: t("metadataDescription"),
-    alternates: alternatesFor(locale, "/como-funciona"),
+    alternates: alternatesFor(locale, "/how-it-works"),
   };
 }
 
@@ -44,30 +58,30 @@ export default async function HowItWorksPage({ params }: Props) {
     { title: t("creators.step3Title"), body: t("creators.step3Body") },
   ];
 
-  // Glossary cards. Each gets an icon themed to its concept and a
-  // staggered rotation so they read as three Polaroids pinned to a
-  // board rather than a uniform grid.
+  // Glossary cards — one Polaroid per payment-stack actor, each
+  // showing that project's real brand logo. Staggered rotation so
+  // they read as photos pinned to a board, not a uniform grid.
   const glossary = [
     {
       title: t("glossary.lightningTitle"),
       body: t("glossary.lightningBody"),
-      icon: <BoltIcon size={64} />,
+      logo: GLOSSARY_LOGOS.lightning,
       rotation: "left" as const,
-      tone: styles.glossaryToneLightning,
+      frameTone: styles.glossaryFrameLightning,
     },
     {
       title: t("glossary.wapuTitle"),
       body: t("glossary.wapuBody"),
-      icon: <CoinIcon size={64} />,
+      logo: GLOSSARY_LOGOS.wapu,
       rotation: "right" as const,
-      tone: styles.glossaryToneWapu,
+      frameTone: styles.glossaryFrameWapu,
     },
     {
       title: t("glossary.nostrTitle"),
       body: t("glossary.nostrBody"),
-      icon: <HeartIcon size={64} />,
+      logo: GLOSSARY_LOGOS.nostr,
       rotation: "left" as const,
-      tone: styles.glossaryToneNostr,
+      frameTone: styles.glossaryFrameNostr,
     },
   ];
 
@@ -90,37 +104,11 @@ export default async function HowItWorksPage({ params }: Props) {
       </section>
 
       <Section>
-        <h2 className={styles.sectionTitle}>{t("buyers.title")}</h2>
-        <ol className={styles.steps}>
-          {buyerSteps.map((step, i) => (
-            <li key={step.title}>
-              <Card variant="hover" className={styles.stepCard}>
-                <span className={styles.stepNumber} aria-hidden="true">
-                  {i + 1}
-                </span>
-                <h3 className={styles.stepTitle}>{step.title}</h3>
-                <p className={styles.stepBody}>{step.body}</p>
-              </Card>
-            </li>
-          ))}
-        </ol>
+        <HowItWorksSteps title={t("buyers.title")} steps={buyerSteps} />
       </Section>
 
       <Section>
-        <h2 className={styles.sectionTitle}>{t("creators.title")}</h2>
-        <ol className={styles.steps}>
-          {creatorSteps.map((step, i) => (
-            <li key={step.title}>
-              <Card variant="hover" className={styles.stepCard}>
-                <span className={styles.stepNumber} aria-hidden="true">
-                  {i + 1}
-                </span>
-                <h3 className={styles.stepTitle}>{step.title}</h3>
-                <p className={styles.stepBody}>{step.body}</p>
-              </Card>
-            </li>
-          ))}
-        </ol>
+        <HowItWorksSteps title={t("creators.title")} steps={creatorSteps} />
       </Section>
 
       <Section>
@@ -131,8 +119,16 @@ export default async function HowItWorksPage({ params }: Props) {
               <Polaroid
                 rotation={item.rotation}
                 frame={
-                  <span className={`${styles.glossaryIcon} ${item.tone}`}>
-                    {item.icon}
+                  <span
+                    className={`${styles.glossaryLogo} ${item.frameTone}`}
+                  >
+                    <Image
+                      src={item.logo}
+                      alt={item.title}
+                      width={128}
+                      height={128}
+                      className={styles.glossaryLogoImg}
+                    />
                   </span>
                 }
               >

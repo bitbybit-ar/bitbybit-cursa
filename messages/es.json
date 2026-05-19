@@ -124,7 +124,7 @@
       "step1Title": "Iniciás sesión con Nostr",
       "step1Body": "Tu llave Nostr es tu cuenta. Sin emails, sin formularios largos.",
       "step2Title": "Armás tu tienda y elegís cómo cobrar",
-      "step2Body": "Reclamás un slug (cursats.bitbybit.com.ar/tu-slug) y elegís tu método de cobro: pesos al CBU/alias (vía Wapu) si querés evitar Bitcoin, o sats directo a tu Lightning Address si ya vivís en sats. Después cargás tus primeras ofertas.",
+      "step2Body": "Tu tienda ya tiene su URL (cursats.bitbybit.com.ar/tu-slug) — la personalizás en Settings — y elegís tu método de cobro: pesos al CBU/alias (vía Wapu) si querés evitar Bitcoin, o sats directo a tu Lightning Address si ya vivís en sats. Después cargás tus primeras ofertas.",
       "step3Title": "Vendés y cobrás en lo que elegiste",
       "step3Body": "Cuando alguien te paga, el rail que elegiste deposita en tu cuenta: pesos al CBU vía Wapu, o sats directo a tu wallet. La plataforma no toca el dinero."
     },
@@ -141,7 +141,7 @@
     },
     "custody": {
       "title": "Tu plata, tus llaves",
-      "body": "Cursats nunca custodia los fondos. Cada pago va directo al destino que elegiste el profe — pesos al CBU vía Wapu, o sats a tu Lightning Address. Si Cursats desaparece mañana, los pagos siguen llegando: los rails no somos nosotros."
+      "body": "Cursats nunca custodia los fondos. Cada pago va directo al destino que eligió el profe — pesos al CBU vía Wapu, o sats a su Lightning Address. Si Cursats desaparece mañana, los pagos siguen llegando: los rails no somos nosotros."
     },
     "cta": {
       "title": "¿Listo para arrancar?",
@@ -160,21 +160,21 @@
       "twoRailsTitle": "Dos formas de cobrar",
       "twoRailsBody": "El comprador siempre paga en Lightning. El profe elige: pesos al CBU vía Wapu (para los que prefieren su rutina con el banco), o sats directo a su Lightning Address (para los que ya viven en sats).",
       "noCustodyTitle": "Sin custodia",
-      "noCustodyBody": "Cada pago va directo al destino que elegiste el profe — al CBU vía Wapu, o a su Lightning Address. La plataforma nunca tiene los fondos en sus manos.",
+      "noCustodyBody": "Cada pago va directo al destino que eligió el profe — al CBU vía Wapu, o a su Lightning Address. La plataforma nunca tiene los fondos en sus manos.",
       "anonymousByDefaultTitle": "Compra anónima por defecto",
       "anonymousByDefaultBody": "El comprador llega, paga y se va con un código o descarga. Sin formularios, sin emails, sin cuentas obligatorias.",
       "optionalNostrLoginTitle": "Login Nostr opcional",
       "optionalNostrLoginBody": "Si el comprador conecta su identidad Nostr, ve su historial de compras y recibe el código por DM en cualquier dispositivo.",
       "deliveryInAppTitle": "Entrega in-app y por DM",
       "deliveryInAppBody": "Recibo permanente en una URL. Si hay identidad Nostr, también llega por DM cifrado. No hay integración con email.",
-      "autorenewalOptInTitle": "Auto-renovación opt-in",
-      "autorenewalOptInBody": "Para suscripciones, el profe puede prender el flujo NWC desde Configuración. Apagado por default, prendido cuando lo necesite.",
+      "oneShotTitle": "Pagás una vez",
+      "oneShotBody": "Cada compra es un pago único en Lightning. Sin suscripciones, sin renovaciones automáticas, sin tarjetas guardadas: pagás, recibís y listo.",
       "creatorAccountTitle": "Tu cuenta de profe",
       "creatorAccountBody": "Gestioná tus cursos, datos de cobro y pedidos desde tu cuenta. Iniciás sesión con tu llave Nostr.",
       "codesOrDownloadsTitle": "Códigos o descargas",
       "codesOrDownloadsBody": "Cada oferta entrega un código de canje (de un pool que vos cargás) o una descarga directa. Vos elegís por oferta.",
-      "multiTenantSelfHostTitle": "Marketplace o self-host",
-      "multiTenantSelfHostBody": "Vendé desde el marketplace en cursats.bitbybit.com.ar/tu-slug, o forkeá el repo y armá tu propio deployment."
+      "openMarketplaceTitle": "Marketplace abierto",
+      "openMarketplaceBody": "Cualquiera con identidad Nostr publica y vende desde cursats.bitbybit.com.ar/tu-slug. Sin solicitudes, sin aprobación, sin forkear ni desplegar nada."
     }
   },
   "faq": {

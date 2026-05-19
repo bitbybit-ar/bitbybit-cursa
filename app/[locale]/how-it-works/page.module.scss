@@ -98,9 +98,11 @@
   color: $color-text-primary;
 }
 
-// Numbered step cards. The list now defers the surface treatment to
-// the shared <Card> primitive — this rule is just the grid layout
-// and the inner stack the Card's children form.
+// Numbered step cards. Surface treatment is the shared <Card>
+// primitive; these rules are the grid, the per-card inner stack,
+// and the gradient number badge. The reveal-on-scroll motion lives
+// in `steps.tsx` (framer-motion) — nothing here animates so the
+// CSS stays the static fallback.
 .steps {
   list-style: none;
   margin: 0;
@@ -111,8 +113,12 @@
 
   @include mobile {
     grid-template-columns: 1fr;
-    gap: $spacing-16;
+    gap: $spacing-20;
   }
+}
+
+.stepItem {
+  height: 100%;
 }
 
 .stepCard {
@@ -122,18 +128,26 @@
   height: 100%;
 }
 
+// Gradient disc badge — same primary→secondary ramp as the hero
+// gradient word so the two surfaces stay in the same family. White
+// glyph + soft primary shadow lifts it off the card.
 .stepNumber {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: $spacing-48;
+  height: $spacing-48;
   border-radius: 50%;
-  background: $color-primary-soft;
-  color: $color-primary-hover;
+  background-image: linear-gradient(
+    135deg,
+    $color-primary 0%,
+    $color-secondary 100%
+  );
+  color: $static-white;
   font-family: $font-family-display;
   font-weight: $font-weight-bold;
-  font-size: $font-size-md;
+  font-size: $font-size-lg;
+  box-shadow: 0 6px 16px alpha($color-primary, 30%);
 }
 
 .stepTitle {
@@ -175,31 +189,36 @@
   flex: 0 0 auto;
 }
 
-// Icon centered inside the polaroid frame. Each tone class swaps the
-// frame background and icon color so the three concepts read as
-// distinct stamped tiles. Static colors so the polaroid paper-feel
-// holds in both themes (matching the polaroid module's caption).
-.glossaryIcon {
+// Brand logo centered inside the polaroid frame. The frame fills
+// the Polaroid's square photo area; each tone class tints the
+// backdrop so the three logos read as distinct stamped tiles. Tints
+// are static (low-alpha brand colors) so the polaroid paper-feel
+// holds in both themes, matching the polaroid module's caption.
+.glossaryLogo {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;
+  padding: $spacing-32;
 }
 
-.glossaryToneLightning {
-  background: alpha($accent-gold, 18%);
-  color: $accent-gold;
+.glossaryLogoImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
-.glossaryToneWapu {
-  background: alpha($color-secondary, 22%);
-  color: $secondary-700;
+.glossaryFrameLightning {
+  background: alpha($accent-gold, 14%);
 }
 
-.glossaryToneNostr {
-  background: alpha($color-nostr, 18%);
-  color: $color-nostr;
+.glossaryFrameWapu {
+  background: alpha($color-secondary, 14%);
+}
+
+.glossaryFrameNostr {
+  background: alpha($color-nostr, 14%);
 }
 
 // Custody section uses Card variant="highlight" for the primary-

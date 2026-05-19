@@ -30,8 +30,8 @@ import styles from "./navbar.module.scss";
 // with the matching one in MobileMenu.
 const SECTIONS = [
   { id: "explore", kind: "link", target: "/explore" },
-  { id: "howItWorks", kind: "link", target: "/como-funciona" },
-  { id: "features", kind: "link", target: "/caracteristicas" },
+  { id: "howItWorks", kind: "link", target: "/how-it-works" },
+  { id: "features", kind: "link", target: "/features" },
 ] as const;
 const SCROLLED_THRESHOLD = 16;
 

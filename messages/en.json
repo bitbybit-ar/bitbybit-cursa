@@ -124,7 +124,7 @@
       "step1Title": "Sign in with Nostr",
       "step1Body": "Your Nostr key is your account. No emails, no long forms.",
       "step2Title": "Set up your store and pick how you get paid",
-      "step2Body": "Claim a slug (cursats.bitbybit.com.ar/your-slug) and pick your payout: pesos to your CBU/alias (via Wapu) if you'd rather skip Bitcoin altogether, or sats straight to your Lightning Address if you already live in sats. Then add your first offerings.",
+      "step2Body": "Your store already has its URL (cursats.bitbybit.com.ar/your-slug) — customize it in Settings — and pick your payout: pesos to your CBU/alias (via Wapu) if you'd rather skip Bitcoin altogether, or sats straight to your Lightning Address if you already live in sats. Then add your first offerings.",
       "step3Title": "Sell and get paid in what you chose",
       "step3Body": "When someone pays you, the rail you picked deposits in your account: pesos to your CBU via Wapu, or sats straight to your wallet. The platform never touches the money."
     },
@@ -167,14 +167,14 @@
       "optionalNostrLoginBody": "If the buyer connects their Nostr identity, they see their order history and get the code by DM on any device.",
       "deliveryInAppTitle": "In-app and DM delivery",
       "deliveryInAppBody": "Permanent receipt at a URL. If there's a Nostr identity, it also arrives via encrypted DM. No email integration.",
-      "autorenewalOptInTitle": "Opt-in auto-renewal",
-      "autorenewalOptInBody": "For subscriptions, the teacher can switch on the NWC flow from Settings. Off by default, on when needed.",
+      "oneShotTitle": "Pay once",
+      "oneShotBody": "Every purchase is a one-shot Lightning payment. No subscriptions, no auto-renewals, no stored cards: you pay, you get it, done.",
       "creatorAccountTitle": "Your teacher account",
       "creatorAccountBody": "Manage your courses, payout settings, and orders from your account. Sign in with your Nostr key.",
       "codesOrDownloadsTitle": "Codes or downloads",
       "codesOrDownloadsBody": "Each offering delivers a redemption code (from a pool you upload) or a direct download. You choose per offering.",
-      "multiTenantSelfHostTitle": "Marketplace or self-host",
-      "multiTenantSelfHostBody": "Sell from the marketplace at cursats.bitbybit.com.ar/your-slug, or fork the repo and run your own deployment."
+      "openMarketplaceTitle": "Open marketplace",
+      "openMarketplaceBody": "Anyone with a Nostr identity can publish and sell from cursats.bitbybit.com.ar/your-slug. No application, no approval, nothing to fork or deploy."
     }
   },
   "faq": {
