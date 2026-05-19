@@ -770,10 +770,10 @@
     "excuseLabel": "Note",
     "excuses": [
       "Ran out of sats for the bus.",
-      "The dog ate the homework.",
-      "Overslept — the alarm never went off.",
-      "There was a train strike.",
-      "Lightning froze right before class."
+      "Was stacking sats and lost track of time.",
+      "Got stuck zapping memes on Nostr.",
+      "Went to the Bitcoin ATM for sats and missed the bus.",
+      "Spent the bus-fare sats on a snack."
     ],
     "ctaExplore": "Explore courses"
   }
