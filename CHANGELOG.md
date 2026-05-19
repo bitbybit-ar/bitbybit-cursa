@@ -12,6 +12,28 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- **Live sats↔ARS exchange rate.** Every price the storefront
+  computes (PriceTag, offering detail, explore sort, checkout
+  estimate) now uses the real Argentine crypto-market rate from
+  Yadio instead of a hardcoded `4 sats = 1 ARS` mock that was
+  ~4.5× off. Cached 5 min, with a last-good-rate then static
+  fallback so an upstream blip never crashes a price render or
+  shows a wildly wrong number. Source overridable via
+  `EXCHANGE_RATE_API_URL`. Decision in ADR 0022.
+
+### Fixed
+
+- **Navbar / link navigation showed the landing page.** Clicking
+  any navbar link (or an offering card) updated the URL and navbar
+  but kept rendering the landing page, and offering-card prefetches
+  404'd in the console. The middleware matcher excluded prefetch
+  requests, so next-intl's locale rewrite never ran for them and
+  `/explore` resolved as `[locale]="explore"` → the landing page.
+  Prefetch now flows through the rewrite; the auth gate and session
+  refresh still skip prefetch.
+
+### Added
+
 - **Preferences panel on `/settings`.** Default language dropdown
   (es / en) persisted to a new `users.locale` column. Theme stays
   in the navbar (per-device via `next-themes`); the panel renders

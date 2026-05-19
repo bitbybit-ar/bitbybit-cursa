@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual, randomBytes } from "node:crypto";
+import { getSatsPerArs } from "@/lib/exchange-rate";
 
 /**
  * Wapu integration seam (marketplace edition, ADR 0012).
@@ -130,18 +131,22 @@ export interface WapuClient {
 // --- Mock ---------------------------------------------------------
 
 /**
- * Deterministic mock used by dev and tests. The "exchange rate" is
- * fixed at MOCK_SATS_PER_ARS for every tentative, the BOLT11 payload
- * is a non-routable placeholder (clients will recognise it as not
- * real and refuse to pay it — intentional), and getTentative always
- * reports `pending` so the only way to mark an order paid is to
- * deliver a webhook via the test helpers.
+ * Deterministic mock used by dev and tests. The sats amount is
+ * derived from the shared `getSatsPerArs()` seam (ADR 0022) — the
+ * same rate the storefront's PriceTag uses — so in dev/demo the
+ * buyer's "≈ X sats" matches what the mock actually charges at
+ * funding. The rate is snapshotted at `createDirectPayment` and
+ * reused at funding so it can't drift between the two calls. The
+ * BOLT11 payload is a non-routable placeholder (clients will
+ * recognise it as not real and refuse to pay it — intentional), and
+ * getTentative always reports `pending` so the only way to mark an
+ * order paid is to deliver a webhook via the test helpers.
  */
-export const MOCK_SATS_PER_ARS = 4; // 1 ARS = 4 sats. Updated only for tests.
 const MOCK_TENTATIVE_TTL_SECONDS = 600;
 
 interface StoredTentative {
   amount_ars: number;
+  amount_sats: number;
   alias: string;
   receiver_name: string;
   external_id: string;
@@ -159,9 +164,11 @@ export class MockWapuClient implements WapuClient {
   ): Promise<DirectPaymentTentative> {
     const uuid = `mock_dp_${randomBytes(8).toString("hex")}`;
     const paymentHash = randomBytes(32).toString("hex");
-    const amountSats = req.amount_ars * MOCK_SATS_PER_ARS;
+    const rate = await getSatsPerArs();
+    const amountSats = Math.round(req.amount_ars * rate);
     this.tentatives.set(uuid, {
       amount_ars: req.amount_ars,
+      amount_sats: amountSats,
       alias: req.alias,
       receiver_name: req.receiver_name,
       external_id: req.external_id,
@@ -181,7 +188,9 @@ export class MockWapuClient implements WapuClient {
     return {
       bolt11: stored.bolt11,
       payment_hash: stored.payment_hash,
-      amount_sats: stored.amount_ars * MOCK_SATS_PER_ARS,
+      // Reuse the snapshot from createDirectPayment so a rate move
+      // between the two calls can't re-price an in-flight tentative.
+      amount_sats: stored.amount_sats,
       amount_ars: stored.amount_ars,
       expires_at: Math.floor(Date.now() / 1000) + MOCK_TENTATIVE_TTL_SECONDS,
     };

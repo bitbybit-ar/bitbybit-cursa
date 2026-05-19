@@ -1,7 +1,7 @@
 # Architecture overview
 
 > **Status:** Active
-> **Last updated:** 2026-05-12
+> **Last updated:** 2026-05-19
 
 ---
 
@@ -9,6 +9,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-19 | External services | Added Yadio as the live sats↔ARS exchange-rate source. | The storefront was quoting against a 4-sats/ARS mock (~4.5× off); ADR 0022 wired the real rate. |
 | 2026-05-12 | — | Rebranded references from "Cursá" to "Cursats" and updated the deployment URL to `cursats.bitbybit.com.ar`. Aligned the example storefront URLs with ADR 0017 (flat `/<userSlug>` instead of `/m/<userSlug>`). | Brand rename per ADR 0018 — portmanteau of *cursá* (the voseo verb) and *sats*. |
 | 2026-05-12 | What this app is, Routing, Identity model, Creator surfaces (renamed from Merchant admin panel), Stack, Configuration model, Auto-renewal flow, Security, What is intentionally not here, Table of Contents | Replaced single-tenant framing with multi-tenant marketplace; replaced "Wapu only" with the dual-rail model (Wapu ARS + Lightning Address direct sats); removed the `/panel/*` namespace and the `ADMIN_PUBKEYS`-gated admin posture; renamed the panel section to "Creator surfaces" and pointed it at the top-level English routes; updated the Stack image-storage line from Vercel Blob to Blossom; renamed `lib/merchant.ts` → `lib/site.ts` and `merchants` → `users` in the configuration table. | The doc was three pivots behind reality (ADR 0014 opened the marketplace, ADR 0015 added the second rail, ADR 0016 collapsed `merchants` into `users`). Contributors reading this would have built against an architecture that no longer exists. |
 | 2026-05-07 | Stack | Replaced the dead `docs.wapu.app/api-docs/en` reference in the Wapu line with: (a) the actual API base URLs for production and staging, and (b) a pointer to the wapu-cli repo as the public source of the API contract until Wapu publishes formal docs. | The original URL 404s; the wapu-cli repo (github.com/wapu-app/wapu-cli) is currently the only public source of the API contract, and Wapu runs a staging environment at staging.wapu.app for fake-money testing. Future contributors should not waste time on the broken URL. |
@@ -107,6 +108,13 @@ from `/api/orders/[orderId]`.
   /wallet/deposit_lightning` (Lightning invoice), `GET
   /transactions/{id}` (status), and `POST /transactions/create`
   (ARS withdrawal as a `fiat_transfer`).
+- **Yadio** — live sats↔ARS exchange rate for the storefront
+  (`https://api.yadio.io/convert/1/BTC/ARS`, the Argentine
+  parallel/crypto rate Wapu settles against). Free, keyless,
+  overridable via `EXCHANGE_RATE_API_URL`. Read through the single
+  `lib/exchange-rate.ts:getSatsPerArs()` seam with a 5-minute cache
+  → last-good → static fallback chain. Decision in ADR
+  [0022](decisions/0022-live-exchange-rate-via-yadio.md).
 - **Nostr** — server-side signing for outgoing DMs (`nostr-tools`
   + `@noble/secp256k1`); NIP-07 / nsec / NIP-46 client-side for
   buyer identity at checkout, buyer/seller login (ADRs
