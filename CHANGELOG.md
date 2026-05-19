@@ -22,15 +22,22 @@ versioning follows [SemVer](https://semver.org/spec/v2.0.0.html).
   Lightning, Wapu, and Nostr brand logos instead of generic
   icons. The "Si comprás un curso" / "Si enseñás algo" step
   sections were restyled and now animate in on scroll
-  (framer-motion, reduced-motion respected).
+  (framer-motion, reduced-motion respected). Copy rewritten to
+  match the live flow: the creator steps are sign-in → set
+  payout in Settings → publish via the create-course form (no
+  store-builder/slug-claim step, which never existed), and every
+  surface that promised Nostr DM delivery now points to in-app
+  order history (the DM path was removed). Wapu glossary blurb
+  reworded.
 - **Features page — corrected copy.** Dropped the "Auto-renovación
   opt-in" card (auto-renewal is deferred from the MVP — ADR 0020)
   and the "Marketplace o self-host" card (the per-merchant
   fork/self-host model was retired — ADRs 0004/0014). Replaced
-  with "Pagás una vez" (one-shot, no subscriptions) and
+  with "Pago instantáneo" (Lightning, auto-confirmed) and
   "Marketplace abierto" (any Nostr sign-in gets a storefront, no
-  gate). Minor grammar fixes to the no-custody copy on both
-  pages.
+  gate). Dropped the DM-delivery claim from the delivery and
+  Nostr-login cards. Minor grammar fixes to the no-custody copy
+  on both pages.
 
 ### Fixed
 

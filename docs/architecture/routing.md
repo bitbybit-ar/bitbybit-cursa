@@ -156,7 +156,7 @@ do not invent a different one.
 | Route | Purpose | Notes |
 |---|---|---|
 | `/[locale]/how-it-works` | How it works | Buyer flow, creator flow, glossary (Lightning / Wapu / Nostr — brand logos), no-custody pitch, dual CTA. Renamed from `/como-funciona` (ADR 0023, clean pre-launch rename — no redirect). |
-| `/[locale]/features` | Features | 9-card grid: two-rails-payout, no custody, anonymous purchase, optional Nostr login, in-app + DM delivery, one-shot (no subscriptions), creator account, codes-or-downloads, open marketplace. Renamed from `/caracteristicas` (ADR 0023, clean pre-launch rename — no redirect). |
+| `/[locale]/features` | Features | 9-card grid: two-rails-payout, no custody, anonymous purchase, optional Nostr login, in-app delivery, instant Lightning payment, creator account, codes-or-downloads, open marketplace. Renamed from `/caracteristicas` (ADR 0023, clean pre-launch rename — no redirect). |
 | `/[locale]/faq` | FAQ | Q&A entries covering Lightning, wallets, Wapu, Argentina-only (Wapu rail), anonymity, delivery, lost receipts, creator payouts, Nostr sign-in, and fees. |
 
 ## API routes

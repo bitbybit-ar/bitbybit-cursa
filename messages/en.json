@@ -117,23 +117,23 @@
       "step2Title": "Pay with Lightning",
       "step2Body": "Scan the QR with your Lightning wallet or copy the invoice. We detect the payment automatically and take you to the receipt.",
       "step3Title": "Get what you bought",
-      "step3Body": "A redemption code or a direct download, depending on the offering. The receipt is a permanent URL — save it. If you connected your Nostr, it also arrives by DM."
+      "step3Body": "A redemption code or a direct download, depending on the offering. The receipt is a permanent URL — save it. If you connect your Nostr, you can also see your purchases from the platform."
     },
     "creators": {
       "title": "If you teach something",
       "step1Title": "Sign in with Nostr",
       "step1Body": "Your Nostr key is your account. No emails, no long forms.",
-      "step2Title": "Set up your store and pick how you get paid",
-      "step2Body": "Your store already has its URL (cursats.bitbybit.com.ar/your-slug) — customize it in Settings — and pick your payout: pesos to your CBU/alias (via Wapu) if you'd rather skip Bitcoin altogether, or sats straight to your Lightning Address if you already live in sats. Then add your first offerings.",
-      "step3Title": "Sell and get paid in what you chose",
-      "step3Body": "When someone pays you, the rail you picked deposits in your account: pesos to your CBU via Wapu, or sats straight to your wallet. The platform never touches the money."
+      "step2Title": "Set up how you get paid",
+      "step2Body": "In Settings you add your Lightning Address (if you already live in sats) or your CBU/alias to get paid in pesos via Wapu. It's the only thing you need before publishing.",
+      "step3Title": "Publish your course",
+      "step3Body": "Tap \"Publish your course\", fill in the form, and submit. When someone buys it and pays with Lightning, the money goes straight to where you set it up — the platform never touches it."
     },
     "glossary": {
       "title": "Who's who",
       "lightningTitle": "Lightning",
       "lightningBody": "The payment layer on top of Bitcoin. Instant, cheap, perfect for the small day-to-day amounts. It's always what the buyer pays with, no matter how the teacher gets paid.",
       "wapuTitle": "Wapu",
-      "wapuBody": "The rail that converts sats to pesos and deposits them in the teacher's CBU or alias. The on-ramp for teachers who want to keep their bank routine — pesos for rent, no need to learn Bitcoin.",
+      "wapuBody": "The rail that converts sats to pesos and deposits them in the teacher's CBU or alias. Built for teachers who'd rather get paid in pesos and keep their money in their usual bank, without having to use a Bitcoin wallet.",
       "lightningAddressTitle": "Lightning Address",
       "lightningAddressBody": "An email-style address (you@walletofsatoshi.com) where the teacher receives sats straight to their wallet. For teachers who already live in sats, with no converter in the middle.",
       "nostrTitle": "Nostr",
@@ -164,17 +164,17 @@
       "anonymousByDefaultTitle": "Anonymous by default",
       "anonymousByDefaultBody": "The buyer arrives, pays, and leaves with a code or download. No forms, no emails, no required accounts.",
       "optionalNostrLoginTitle": "Optional Nostr login",
-      "optionalNostrLoginBody": "If the buyer connects their Nostr identity, they see their order history and get the code by DM on any device.",
-      "deliveryInAppTitle": "In-app and DM delivery",
-      "deliveryInAppBody": "Permanent receipt at a URL. If there's a Nostr identity, it also arrives via encrypted DM. No email integration.",
-      "oneShotTitle": "Pay once",
-      "oneShotBody": "Every purchase is a one-shot Lightning payment. No subscriptions, no auto-renewals, no stored cards: you pay, you get it, done.",
+      "optionalNostrLoginBody": "If the buyer connects their Nostr identity, they see their order history from any device.",
+      "deliveryInAppTitle": "In-app delivery",
+      "deliveryInAppBody": "Permanent receipt at a URL. With a Nostr identity, you can also see your purchases from the platform. No email integration.",
+      "oneShotTitle": "Instant payment",
+      "oneShotBody": "The buyer pays with Lightning and it's confirmed automatically in seconds. We take them straight to the receipt, no extra steps.",
       "creatorAccountTitle": "Your teacher account",
       "creatorAccountBody": "Manage your courses, payout settings, and orders from your account. Sign in with your Nostr key.",
       "codesOrDownloadsTitle": "Codes or downloads",
       "codesOrDownloadsBody": "Each offering delivers a redemption code (from a pool you upload) or a direct download. You choose per offering.",
       "openMarketplaceTitle": "Open marketplace",
-      "openMarketplaceBody": "Anyone with a Nostr identity can publish and sell from cursats.bitbybit.com.ar/your-slug. No application, no approval, nothing to fork or deploy."
+      "openMarketplaceBody": "Anyone with a Nostr identity publishes and sells from their own URL (cursats.bitbybit.com.ar/your-slug). No application, no approval: sign in and you can sell."
     }
   },
   "faq": {
