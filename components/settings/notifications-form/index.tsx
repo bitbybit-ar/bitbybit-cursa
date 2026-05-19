@@ -17,6 +17,19 @@ import styles from "./notifications-form.module.scss";
 const NOTIFICATION_KINDS = ["order.paid", "sale.received"] as const;
 type NotificationKind = (typeof NOTIFICATION_KINDS)[number];
 
+/**
+ * next-intl forbids "." inside message keys (it's the nesting
+ * separator). The notification-kind values are an external contract
+ * — the `users.notification_prefs` jsonb keys, the
+ * `notificationKindSchema` enum, and what the Wapu webhook emits —
+ * so they keep their dots. Only the i18n lookup maps to a dot-free
+ * token; the persisted prefs payload still uses the kind itself.
+ */
+const KIND_I18N_TOKEN: Record<NotificationKind, string> = {
+  "order.paid": "orderPaid",
+  "sale.received": "saleReceived",
+};
+
 interface NotificationsFormProps {
   initialPrefs: Record<string, boolean>;
 }
@@ -77,12 +90,14 @@ export function NotificationsForm({ initialPrefs }: NotificationsFormProps) {
         </header>
 
         <ul className={styles.list}>
-          {NOTIFICATION_KINDS.map((kind) => (
+          {NOTIFICATION_KINDS.map((kind) => {
+            const token = KIND_I18N_TOKEN[kind];
+            return (
             <li key={kind} className={styles.row}>
               <div className={styles.rowMain}>
-                <strong>{t(`kind.${kind}.title`)}</strong>
+                <strong>{t(`kind.${token}.title`)}</strong>
                 <span className={styles.rowHint}>
-                  {t(`kind.${kind}.hint`)}
+                  {t(`kind.${token}.hint`)}
                 </span>
               </div>
               <label className={styles.toggle}>
@@ -90,12 +105,13 @@ export function NotificationsForm({ initialPrefs }: NotificationsFormProps) {
                   type="checkbox"
                   checked={prefs[kind]}
                   onChange={() => toggle(kind)}
-                  aria-label={t(`kind.${kind}.title`)}
+                  aria-label={t(`kind.${token}.title`)}
                 />
                 <span className={styles.toggleVisual} aria-hidden="true" />
               </label>
             </li>
-          ))}
+            );
+          })}
         </ul>
       </section>
 

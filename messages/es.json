@@ -502,11 +502,11 @@
       "title": "Notificaciones",
       "hint": "Elegí qué eventos te avisamos desde la campanita. Apagar uno deja de generarlo; no se borra el historial anterior.",
       "kind": {
-        "order.paid": {
+        "orderPaid": {
           "title": "Avisame cuando se confirme un pago mío",
           "hint": "Cuando comprás un curso, te avisamos al confirmarse el pago en Lightning."
         },
-        "sale.received": {
+        "saleReceived": {
           "title": "Avisame cuando me compren un curso",
           "hint": "Cuando alguien compra uno de tus cursos, te avisamos para que veas el pago en \"Pedidos\"."
         }
