@@ -1,8 +1,7 @@
 # Routing
 
 > **Status:** Active
-> **Last updated:** 2026-05-12
-> (revised same day for ADR 0017 — flat seller URLs)
+> **Last updated:** 2026-05-19
 
 ---
 
@@ -10,6 +9,7 @@
 
 | Date | Section | Change | Reason |
 |---|---|---|---|
+| 2026-05-19 | Conventions, Static content | Renamed the last two Spanish-slug public pages: `/como-funciona` → `/how-it-works`, `/caracteristicas` → `/features`. Clean pre-launch rename (no back-compat redirect — nothing links to the old slugs yet); reserved-slug list updated to the new names (plus `/faq`, previously missing). Updated the Features-page card list (dropped opt-in autorenewal and marketplace-or-self-host, which describe deferred/cut features per ADRs 0020 and 0014/0004; now one-shot + open marketplace) and the How-it-works glossary note (3 brand logos: Lightning / Wapu / Nostr). | ADR 0023: every public route is English/language-neutral; the "Spanish slug retained for share-link continuity" carve-out from ADR 0014 is moot pre-launch. The Features copy was advertising a deferred feature (autorenewal) and a retired model (per-merchant fork/self-host). |
 | 2026-05-12 | Buyer flow, Conventions | Flattened seller URLs: `/[locale]/m/[userSlug]` → `/[locale]/[userSlug]` and `/[locale]/m/[userSlug]/c/[offeringSlug]` → `/[locale]/[userSlug]/c/[offeringSlug]`. Redesigned the offering detail page (hero + rail/delivery badges + instructor block) and wired the landing's mock courses (`lib/mock/highlighted-courses.ts`) as a fallback so the three demo URLs render without a populated DB. | ADR 0017. With merchants collapsed into users (ADR 0016) the `/m/` namespace no longer maps to a distinct concept; the offering page also needed real shape before the marketplace launches. |
 | 2026-05-12 | — | Wholesale rewrite to match the actual `app/` tree. Replaced every Spanish creator slug (`/mis-cursos`, `/mis-ventas`, `/mis-estudiantes`, `/configuracion`, `/iniciar-sesion`, `/mis-compras`, `/gracias`, `/reclamar`) with its English equivalent under the `(logged-in)` route group. Replaced the obsolete `/api/admin/*` namespace with the actual `/api/my-courses` + `/api/settings` shape. Documented the three-generation redirect chain in `proxy.ts` (pre-0014 panel → 0014-era Spanish → final English). Removed routes that were aspirational but not implemented (`/api/admin/upload`, `/api/admin/orders`, `/api/admin/stats`, `/api/nip05/resolve`, `/[locale]/terminos`, `/[locale]/privacidad`). | The doc was documenting routes that no longer exist (`/mis-cursos`, etc. — now redirected) and routes that never existed in the form described (`/api/admin/*` was renamed). Contributors trying to call documented endpoints would have hit 404s. |
 | 2026-05-09 | Conventions, Account, Panel, API, Not routed | Removed the `/panel/*` namespace; creator surfaces moved to top-level routes (`/mis-cursos`, `/configuracion`, `/mis-ventas`, `/mis-estudiantes`). Documented the legacy 308 redirects in `proxy.ts`. Recorded `/api/notifications`. | ADR 0014: every signed-in user is implicitly a creator; the merchant row is data, not a gate. |
@@ -50,12 +50,19 @@
   `(logged-in)` route group. Public buyer routes also follow the
   English convention (`/explore`, `/sign-in`,
   `/receipt/[orderId]`, `/claim/[orderId]`). The static content
-  pages predate the rename and keep their Spanish slugs
-  (`/como-funciona`, `/caracteristicas`); `/faq` was always
-  English. Decision pinned in ADR
-  [0014](decisions/0014-marketplace-open-to-all-logged-in-users.md);
-  reserved-slug list in `lib/admin/ar-bank-id.ts` blocks any of
-  these from being claimed as a user slug.
+  pages are English too: `/how-it-works`, `/features`, `/faq`.
+  The first two carried Spanish slugs (`/como-funciona`,
+  `/caracteristicas`) until ADR
+  [0023](decisions/0023-english-public-content-slugs.md)
+  completed the rename. The platform is pre-launch (no external
+  links to those slugs yet), so this was a clean rename with no
+  back-compat redirect — unlike the buyer-route renames, which
+  predate that decision and keep their 308s. Decision pinned in
+  ADRs
+  [0014](decisions/0014-marketplace-open-to-all-logged-in-users.md)
+  and [0023](decisions/0023-english-public-content-slugs.md);
+  reserved-slug list in `lib/admin/ar-bank-id.ts` blocks these
+  route names from being claimed as a user slug.
 - The storefront URL is `/[userSlug]` (ADR 0017). It used to nest
   under `/m/[userSlug]` for share-link continuity with the
   pre-merger merchant model (ADR 0016), but the marketplace had not
@@ -148,8 +155,8 @@ do not invent a different one.
 
 | Route | Purpose | Notes |
 |---|---|---|
-| `/[locale]/como-funciona` | How it works | Buyer flow, creator flow, glossary (Lightning / Wapu / Lightning Address / Nostr), no-custody pitch, dual CTA. Spanish slug retained for share-link continuity. |
-| `/[locale]/caracteristicas` | Features | 9-card grid: two-rails-payout, no custody, anonymous purchase, optional Nostr login, in-app + DM delivery, opt-in autorenewal, creator account, codes-or-downloads, marketplace-or-self-host. Spanish slug retained for share-link continuity. |
+| `/[locale]/how-it-works` | How it works | Buyer flow, creator flow, glossary (Lightning / Wapu / Nostr — brand logos), no-custody pitch, dual CTA. Renamed from `/como-funciona` (ADR 0023, clean pre-launch rename — no redirect). |
+| `/[locale]/features` | Features | 9-card grid: two-rails-payout, no custody, anonymous purchase, optional Nostr login, in-app delivery, instant Lightning payment, creator account, codes-or-downloads, open marketplace. Renamed from `/caracteristicas` (ADR 0023, clean pre-launch rename — no redirect). |
 | `/[locale]/faq` | FAQ | Q&A entries covering Lightning, wallets, Wapu, Argentina-only (Wapu rail), anonymity, delivery, lost receipts, creator payouts, Nostr sign-in, and fees. |
 
 ## API routes

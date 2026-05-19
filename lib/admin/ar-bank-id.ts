@@ -65,6 +65,9 @@ export const RESERVED_SLUGS = new Set([
   "receipt",
   "claim",
   "checkout",
+  "how-it-works",
+  "features",
+  "faq",
   // Legacy paths still served via 308 redirects
   "panel",
   "onboarding",

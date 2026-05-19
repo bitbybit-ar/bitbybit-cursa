@@ -7,8 +7,8 @@ import { getBaseUrl } from "@/lib/env";
 // live in Postgres and would require a DB call from the sitemap.
 const STATIC_PATHS = [
   { path: "/", priority: 1 },
-  { path: "/como-funciona", priority: 0.7 },
-  { path: "/caracteristicas", priority: 0.7 },
+  { path: "/how-it-works", priority: 0.7 },
+  { path: "/features", priority: 0.7 },
   { path: "/faq", priority: 0.6 },
 ] as const;
 
